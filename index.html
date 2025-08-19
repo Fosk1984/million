@@ -52,6 +52,14 @@
     background: linear-gradient(180deg, #0f1738, #0c132f); font-weight:700; position:relative; overflow:hidden;
   }
   .ans .label{opacity:.9; color:#9eb4ff}
+  /* Selected state BEFORE locking in */
+  .ans[data-selected="true"]{
+    outline:2px solid #6ac2ff;
+    box-shadow: 0 0 0 3px rgba(106,194,255,.25);
+    background: linear-gradient(180deg, #14204a, #0f183d);
+    border-color:#3350a8;
+  }
+  /* Result states AFTER locking in */
   .ans.correct{outline:2px solid var(--good); box-shadow: 0 0 0 3px rgba(51,209,122,.3)}
   .ans.wrong{outline:2px solid var(--bad); box-shadow: 0 0 0 3px rgba(255,107,107,.25)}
   .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
@@ -155,7 +163,7 @@
       <li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
       <li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
     </ul>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter passcode <span class="kbd">ULTRASOUND</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
+    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
     <div style="display:flex; gap:8px; justify-content:flex-end">
       <button onclick="hide(rulesOverlay)">Close</button>
     </div>
@@ -231,7 +239,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options
+   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight
    ============================= */
 
 // Money ladder (bottom to top)
@@ -632,7 +640,6 @@ function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Mat
 function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
 // ====== Option shuffle & mapping ======
-// Shuffle options for a question and remap the correct index
 function prepareQuestion(q){
   if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
   const order = [0,1,2,3];
@@ -641,7 +648,6 @@ function prepareQuestion(q){
   const shuffledAnswer  = order.indexOf(q.answer);
   return { ...q, options: shuffledOptions, _order: order, _answer: shuffledAnswer };
 }
-// Get the correct index for the current (possibly shuffled) question
 function getCorrectIdx(){
   return (state.current && Number.isInteger(state.current._answer))
     ? state.current._answer
@@ -720,9 +726,15 @@ function loadQuestion(){
   explainEl.classList.add('hidden'); explainEl.textContent = '';
   answersEl.innerHTML = '';
   if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
+
+  // Accessibility: radio group for answers
+  answersEl.setAttribute('role','radiogroup');
+
   state.current.options.forEach((opt, i)=>{
     const btn = document.createElement('button');
     btn.className = 'ans';
+    btn.setAttribute('role','radio');
+    btn.setAttribute('aria-checked','false');
     btn.innerHTML = `<span class="label">${String.fromCharCode(65+i)}.</span> <span>${opt}</span>`;
     btn.addEventListener('click', ()=>select(i, btn));
     answersEl.appendChild(btn);
@@ -733,8 +745,12 @@ function loadQuestion(){
 }
 function select(i, btn){
   if(state.locked) return;
-  [...answersEl.children].forEach(b => b.dataset.selected = 'false');
+  [...answersEl.children].forEach(b => {
+    b.dataset.selected = 'false';
+    b.setAttribute('aria-checked','false');
+  });
   btn.dataset.selected = 'true';
+  btn.setAttribute('aria-checked','true');
   state.picked = i;
 }
 function cancelLock(){ hide(confirmOverlay) }
@@ -800,7 +816,18 @@ function lifeline5050(){
   const wrongs = [0,1,2,3].filter(i=>i!==correctIdx);
   shuffle(wrongs);
   const remove = wrongs.slice(0,2);
-  [...answersEl.children].forEach((b, idx)=>{ if(remove.includes(idx)){ b.disabled = true; b.style.opacity = .4; } });
+  [...answersEl.children].forEach((b, idx)=>{
+    if(remove.includes(idx)){
+      b.disabled = true;
+      b.style.opacity = .4;
+      // If the removed option was selected, clear selection
+      if(b.dataset.selected === 'true'){
+        b.dataset.selected = 'false';
+        b.setAttribute('aria-checked','false');
+        state.picked = null;
+      }
+    }
+  });
 }
 function lifelineCrowd(){
   if(state.usedCrowd || !state.current) return;
@@ -861,9 +888,9 @@ function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.sli
 // ====== Teacher & clean view ======
 function toggleTeacher(){
   if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
-  const pass = prompt('Enter teacher passcode');
-  if(pass === 'ULTRASOUND'){ state.teacher=true; teacherUI.style.display='flex'; }
-  else if(pass){ alert('Incorrect passcode'); }
+  const pass = prompt('Enter teacher code');
+  if(pass === '1234'){ state.teacher=true; teacherUI.style.display='flex'; }
+  else if(pass){ alert('Incorrect code'); }
 }
 function reveal(){ if(!state.current) return; const ans = getCorrectIdx(); [...answersEl.children].forEach((b,i)=>{ if(i===ans) b.classList.add('correct'); }); }
 function skip(){ if(state.qIndex < MONEY.length-1) nextQuestion(); }
