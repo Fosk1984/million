@@ -19,17 +19,15 @@
     line-height:1.4;
   }
   .wrap{max-width:1200px; margin:0 auto; padding:16px;}
-  header{
-    display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px;
-  }
+  header{display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px}
   .brand{display:flex; align-items:center; gap:12px}
   .coin{
     width:42px; height:42px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #ffeaa3, #f2b705 60%, #9a6a00);
     box-shadow: inset 0 0 6px rgba(0,0,0,.5), 0 4px 18px rgba(255,211,106,.25);
   }
   .title{font-weight:800; letter-spacing:.3px}
-  .lifelines{display:flex; gap:8px; flex-wrap:wrap}
-  button, .btn{
+  .lifelines{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  button,.btn{
     background: linear-gradient(180deg, #1e2760, #152053);
     border:1px solid #243073; color:var(--ink);
     padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700;
@@ -44,17 +42,14 @@
     background: linear-gradient(180deg, #12172a, #0f1426);
     border:1px solid var(--edge); border-radius:16px; padding:14px; box-shadow: var(--glow);
   }
-  .question{
-    font-size: clamp(1rem, 2.6vw, 1.2rem); font-weight:700; margin:4px 0 12px 0;
-  }
+  .question{font-size: clamp(1rem, 2.6vw, 1.2rem); font-weight:700; margin:4px 0 12px}
   .q-meta{color:var(--muted); font-size:.9rem; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-  .q-image{max-width:100%; border-radius:12px; border:1px solid var(--edge); margin:8px 0 4px 0; display:none}
+  .q-image{max-width:100%; border-radius:12px; border:1px solid var(--edge); margin:8px 0 4px; display:none}
   .answers{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px}
   @media (max-width: 640px){ .answers{grid-template-columns:1fr}}
   .ans{
     display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #2a3567; border-radius:12px;
-    background: linear-gradient(180deg, #0f1738, #0c132f);
-    font-weight:700; position:relative; overflow:hidden;
+    background: linear-gradient(180deg, #0f1738, #0c132f); font-weight:700; position:relative; overflow:hidden;
   }
   .ans .label{opacity:.9; color:#9eb4ff}
   .ans.correct{outline:2px solid var(--good); box-shadow: 0 0 0 3px rgba(51,209,122,.3)}
@@ -62,6 +57,7 @@
   .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
   .muted{color:var(--muted)}
   .ladder{position:sticky; top:12px}
+  .ladder h3{margin:0 0 8px 0; font-size:1rem; color:var(--muted)}
   .ladder ol{list-style:none; padding:0; margin:0; display:flex; flex-direction:column-reverse; gap:6px}
   .ladder li{
     display:flex; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:10px;
@@ -74,12 +70,11 @@
     min-width:60px; text-align:center; font-weight:800; border-radius:10px; padding:8px 10px;
     border:1px solid #2a3567; background:linear-gradient(180deg,#0e1535,#0b112b)
   }
-  .explain{margin-top:10px; padding:10px; border-radius:12px; border:1px solid #2a3567; background: #0c1430}
+  .explain{margin-top:10px; padding:10px; border-radius:12px; border:1px solid #2a3567; background:#0c1430}
   .footer{margin-top:14px; color:var(--muted); font-size:.85rem}
   .hidden{display:none !important}
   .chip{padding:3px 8px; border-radius:999px; border:1px solid #2a3567; background:#0f1738; font-weight:700; font-size:.78rem}
   .ok{color:#c1ffd6} .bad{color:#ffc1c1}
-  /* overlays */
   .overlay{
     position:fixed; inset:0; background:rgba(7,9,20,.72); backdrop-filter: blur(4px);
     display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
@@ -87,15 +82,19 @@
   .overlay .sheet{max-width:720px; width:100%; background:linear-gradient(180deg,#12172a,#0f1426);
     border:1px solid var(--edge); border-radius:16px; padding:16px; box-shadow: var(--glow);
   }
-  .sheet h2{margin:0 0 8px 0}
+  .sheet h2{margin:0 0 8px}
   .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight:700; border:1px solid #2a3567; padding:2px 6px; border-radius:6px; background:#0b122f; color:#cfe0ff}
-  /* teacher panel */
   .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
   .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
-  .teacher h4{margin:0 0 6px 0}
+  .teacher h4{margin:0 0 6px}
   textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
   .sr-only{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
+
+  /* Leaderboard table */
+  table{width:100%; border-collapse: collapse}
+  th, td{padding:8px; border-bottom:1px solid #2a3567; text-align:left; font-variant-numeric: tabular-nums}
+  th{color:#cfe0ff}
 </style>
 </head>
 <body>
@@ -114,6 +113,7 @@
       <button id="llExpert" class="pill" title="Get a nudge from the 'expert' (once)">Ask an Expert</button>
       <span class="timer" id="timer" aria-live="polite">45s</span>
       <button id="btnRules" class="pill" title="How to play">?</button>
+      <button id="btnScores" class="pill" title="Leaderboard">🏆</button>
     </div>
   </header>
 
@@ -140,12 +140,14 @@
         <div class="muted">Prize Ladder</div>
         <div><span class="chip">Safe at £1,000</span> <span class="chip">£32,000</span></div>
       </div>
+      <h3>Top Wins (this device)</h3>
+      <div id="miniScores" class="muted" style="font-size:.9rem; margin-bottom:8px">No scores yet.</div>
       <ol id="ladder"></ol>
     </aside>
   </div>
 </div>
 
-<!-- Overlays -->
+<!-- Rules -->
 <div class="overlay" id="rules">
   <div class="sheet">
     <h2>How to play</h2>
@@ -153,15 +155,16 @@
     <ul>
       <li><strong>50:50</strong>: removes two incorrect options.</li>
       <li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
-      <li><strong>Ask an Expert</strong>: shows a hint with ~75% reliability (drops on the hardest items).</li>
+      <li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
     </ul>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter passcode <span class="kbd">ULTRASOUND</span> (can be changed in code). Clean view with <span class="kbd">C</span>.</p>
+    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter passcode <span class="kbd">ULTRASOUND</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
     <div style="display:flex; gap:8px; justify-content:flex-end">
       <button onclick="hideRules()">Close</button>
     </div>
   </div>
 </div>
 
+<!-- Confirm -->
 <div class="overlay" id="confirm">
   <div class="sheet">
     <h2>Final answer?</h2>
@@ -173,6 +176,7 @@
   </div>
 </div>
 
+<!-- Crowd -->
 <div class="overlay" id="crowdPoll">
   <div class="sheet">
     <h2>Audience Poll</h2>
@@ -180,6 +184,19 @@
     <div id="pollBars"></div>
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
       <button onclick="closePoll()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard -->
+<div class="overlay" id="scores">
+  <div class="sheet">
+    <h2>Leaderboard (this device)</h2>
+    <div id="scoresTable" style="margin:10px 0"></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end">
+      <button onclick="exportScores()">Export Scores</button>
+      <button onclick="resetScores()">Reset Scores</button>
+      <button onclick="closeScores()">Close</button>
     </div>
   </div>
 </div>
@@ -197,13 +214,14 @@
       <button onclick="toggleClean()">Clean View</button>
     </div>
     <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
-      <button onclick="exportCSV()">Export Results</button>
+      <button onclick="exportCSV()">Export This Run</button>
       <button onclick="loadSample()">Load Sample Bank</button>
+      <button onclick="useExpanded()">Use Expanded Bank</button>
     </div>
   </div>
   <div class="pane">
     <h4>Import Questions (JSON)</h4>
-    <p class="muted" style="margin:0 0 6px 0">Paste an array of question objects then click <em>Replace Bank</em>.</p>
+    <p class="muted" style="margin:0 0 6px">Paste an array of question objects then click <em>Replace Bank</em>.</p>
     <textarea id="qImport" placeholder='[ { "q":"...", "options":["A","B","C","D"], "answer":0, "topic":"Rotator cuff", "hint":"...", "explain":"...", "image":"" } ]'></textarea>
     <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
       <button onclick="replaceBank()">Replace Bank</button>
@@ -213,14 +231,11 @@
 
 <script>
 /* =============================
-   Millionaire — Shoulder Pathology
+   Millionaire — Shoulder Pathology (GBP + Leaderboard + Images + Expanded Bank)
    ============================= */
 
 // Money ladder (bottom to top)
-const MONEY = [
-  100, 200, 300, 500, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 125000, 250000, 500000, 1000000
-];
-
+const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
 const SAFE_INDEXES = [4, 9]; // Q5 (£1k), Q10 (£32k)
 const DEFAULT_TIME = 45;
 
@@ -237,169 +252,333 @@ let state = {
   timeLeft: DEFAULT_TIME,
   intervalId: null,
   results: [], // {qIndex, correct, time, prize}
-  teacher: false
+  teacher: false,
+  player: ''
 };
 
-// --- Default shoulder pathology question bank (15 items) ---
+// --- Sample shoulder pathology bank (15 items) ---
 let QUESTION_BANK = [
-  {
-    q: "Which rotator cuff tendon is most commonly affected by tendinopathy?",
-    options: ["Supraspinatus", "Subscapularis", "Teres minor", "Infraspinatus"],
-    answer: 0,
-    topic: "Rotator cuff",
-    hint: "Think of the tendon that impinges beneath the acromion.",
-    explain: "Supraspinatus passes beneath the coracoacromial arch and is most exposed to impingement and degenerative change."
+  { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
+    options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
+    topic:"Rotator cuff", hint:"Impinges beneath the acromion.",
+    explain:"Supraspinatus passes beneath the coracoacromial arch and is most exposed to impingement and degeneration."
   },
-  {
-    q: "The classic painful arc in subacromial impingement is during active abduction between:",
-    options: ["60–120°", "10–30°", "30–60°", "120–160°"],
-    answer: 0,
-    topic: "Impingement",
-    hint: "It spans the middle of the movement range.",
-    explain: "Pain typically increases as the greater tuberosity approaches the acromion, most often 60–120°."
+  { q:"The classic painful arc in subacromial impingement is during active abduction between:",
+    options:["60–120°","10–30°","30–60°","120–160°"], answer:0,
+    topic:"Impingement", hint:"Middle of the movement range.",
+    explain:"Pain typically increases as the greater tuberosity approaches the acromion between 60–120°."
   },
-  {
-    q: "Which imaging modality best demonstrates dynamic subacromial impingement signs?",
-    options: ["Ultrasound", "Plain radiography", "CT", "MRI without abduction–external rotation"],
-    answer: 0,
-    topic: "Imaging choice",
-    hint: "You can watch tendons move in real time.",
-    explain: "Ultrasound allows dynamic assessment of SASD bursa and cuff under the acromion during abduction."
+  { q:"Which imaging modality best demonstrates dynamic subacromial impingement signs?",
+    options:["Ultrasound","Plain radiography","CT","MRI without ABER"], answer:0,
+    topic:"Imaging choice", hint:"Watch tendons move in real time.",
+    explain:"Ultrasound allows dynamic assessment of the bursa and cuff during abduction."
   },
-  {
-    q: "On ultrasound, a full-thickness supraspinatus tear most typically appears as:",
-    options: [
+  { q:"On ultrasound, a full-thickness supraspinatus tear most typically appears as:",
+    options:[
       "A focal anechoic/hypoechoic gap traversing the tendon with possible retraction and bursal fluid",
       "Diffuse tendon thickening with uniform hyperechogenicity",
       "Punctate echogenic foci with clean posterior shadowing",
       "Intact fibrillar tendon with normal bursal sliding"
-    ],
-    answer: 0,
-    topic: "Ultrasound signs",
-    hint: "Look for a gap that spans the tendon’s entire thickness.",
-    explain: "Full-thickness tears disrupt fibre continuity from bursal to articular surface; fluid and retraction may be present."
+    ], answer:0, topic:"Ultrasound signs", hint:"A gap spanning bursal to articular surface.",
+    explain:"Full-thickness tears disrupt fibre continuity from bursal to articular surface; fluid and retraction may be present."
   },
-  {
-    q: "Which clinical feature most reliably distinguishes adhesive capsulitis from a rotator cuff tear?",
-    options: [
-      "Global restriction of passive glenohumeral motion (esp. external rotation)",
-      "Pain on resisted external rotation only",
-      "Localized tenderness over the bicipital groove",
-      "Positive Hawkins–Kennedy test"
-    ],
-    answer: 0,
-    topic: "Adhesive capsulitis",
-    hint: "Think passive movement, not just pain.",
-    explain: "Adhesive capsulitis limits passive ROM in multiple planes, unlike isolated cuff tears which often spare passive motion."
+  { q:"Which clinical feature most reliably distinguishes adhesive capsulitis from a rotator cuff tear?",
+    options:[
+      "Global restriction of passive glenohumeral motion (esp. external rotation)","Pain on resisted external rotation only",
+      "Localized tenderness over the bicipital groove","Positive Hawkins–Kennedy test"
+    ], answer:0, topic:"Adhesive capsulitis", hint:"Passive movement, not just pain.",
+    explain:"Adhesive capsulitis limits passive ROM in multiple planes, unlike isolated cuff tears."
   },
-  {
-    q: "Calcific tendinopathy of the shoulder most commonly involves:",
-    options: [
-      "Supraspinatus within 1–2 cm of insertion",
-      "Teres minor at the myotendinous junction",
-      "Biceps short head tendon",
-      "Deltoid origin on the clavicle"
-    ],
-    answer: 0,
-    topic: "Calcific tendinopathy",
-    hint: "It usually sits near the greater tuberosity.",
-    explain: "Hydroxyapatite deposition frequently occurs in supraspinatus near its footprint."
+  { q:"Calcific tendinopathy of the shoulder most commonly involves:",
+    options:["Supraspinatus within 1–2 cm of insertion","Teres minor at the MTJ","Biceps short head tendon","Deltoid origin on the clavicle"],
+    answer:0, topic:"Calcific tendinopathy", hint:"Near the greater tuberosity.",
+    explain:"Hydroxyapatite deposition frequently occurs in supraspinatus near its footprint."
   },
-  {
-    q: "Which special test primarily evaluates subscapularis integrity?",
-    options: ["Lift-off test", "Jobe (empty can) test", "O’Brien’s test", "Speed’s test"],
-    answer: 0,
-    topic: "Clinical tests",
-    hint: "Hand behind back against resistance.",
-    explain: "The lift-off and belly-press tests assess subscapularis."
+  { q:"Which special test primarily evaluates subscapularis integrity?",
+    options:["Lift-off test","Jobe (empty can) test","O’Brien’s test","Speed’s test"], answer:0,
+    topic:"Clinical tests", hint:"Hand behind back against resistance.",
+    explain:"Lift-off and belly-press assess subscapularis."
   },
-  {
-    q: "A SLAP lesion refers to a tear of the labrum located:",
-    options: [
-      "Superior labrum from anterior to posterior",
-      "Anteroinferior labrum (Bankart)",
-      "Posteroinferior labrum",
-      "Entire circumferential labrum"
-    ],
-    answer: 0,
-    topic: "Labral pathology",
-    hint: "It’s on top and spans front to back.",
-    explain: "SLAP = Superior Labrum Anterior to Posterior."
+  { q:"A SLAP lesion refers to a tear of the labrum located:",
+    options:["Superior labrum from anterior to posterior","Anteroinferior labrum (Bankart)","Posteroinferior labrum","Entire circumferential labrum"],
+    answer:0, topic:"Labral pathology", hint:"On top, spanning front to back.",
+    explain:"SLAP = Superior Labrum Anterior to Posterior."
   },
-  {
-    q: "Instability of the long head of biceps tendon most strongly associates with tears of the:",
-    options: ["Subscapularis", "Supraspinatus", "Infraspinatus", "Teres minor"],
-    answer: 0,
-    topic: "Biceps pulley",
-    hint: "Think bicipital pulley components.",
-    explain: "Subscapularis and the pulley complex (CHL/SGHL) stabilize the LHBT; subscap tears permit medial subluxation."
+  { q:"Instability of the long head of biceps tendon most strongly associates with tears of the:",
+    options:["Subscapularis","Supraspinatus","Infraspinatus","Teres minor"], answer:0,
+    topic:"Biceps pulley", hint:"Pulley involves CHL/SGHL and subscap.",
+    explain:"Subscapularis and the pulley complex stabilize LHBT; subscap tears permit medial subluxation."
   },
-  {
-    q: "Posterior shoulder dislocation is classically associated with which scenario?",
-    options: ["Seizures or electrocution", "Throwing injuries in late cocking", "FOOSH with arm abducted and externally rotated", "Repetitive microtrauma from swimming"],
-    answer: 0,
-    topic: "Instability",
-    hint: "Powerful internal rotation–adduction forces.",
-    explain: "Seizures/electrocution produce internal rotation/adduction leading to posterior dislocation."
+  { q:"Posterior shoulder dislocation is classically associated with which scenario?",
+    options:["Seizures or electrocution","Throwing injuries in late cocking","FOOSH with arm abducted and externally rotated","Repetitive microtrauma from swimming"],
+    answer:0, topic:"Instability", hint:"Powerful internal rotation–adduction forces.",
+    explain:"Seizures/electrocution produce internal rotation/adduction causing posterior dislocation."
   },
-  {
-    q: "Ultrasound feature most suggestive of adhesive capsulitis in the rotator interval:",
-    options: [
+  { q:"Ultrasound feature most suggestive of adhesive capsulitis in the rotator interval:",
+    options:[
       "Coracohumeral ligament thickening >3 mm with hypoechoic tissue and Doppler signal",
-      "Marked SASD bursal distension alone",
-      "Uniformly thinned inferior glenohumeral ligament",
-      "Posterior labral cyst"
-    ],
-    answer: 0,
-    topic: "Ultrasound signs",
-    hint: "Focus on the coracohumeral ligament.",
-    explain: "Thickened CHL and vascular hypoechoic rotator interval are characteristic sonographic findings."
+      "Marked SASD bursal distension alone","Uniformly thinned inferior glenohumeral ligament","Posterior labral cyst"
+    ], answer:0, topic:"Ultrasound signs", hint:"Focus on the coracohumeral ligament.",
+    explain:"Thickened CHL + vascular hypoechoic rotator interval are characteristic."
   },
-  {
-    q: "Which test is most associated with superior labral pathology?",
-    options: ["O’Brien’s (active compression) test", "Lift-off test", "Yergason’s test", "Neer’s test"],
-    answer: 0,
-    topic: "Clinical tests",
-    hint: "Thumb-down, then thumb-up resisted flexion/adduction.",
-    explain: "O’Brien’s test can provoke pain from superior labral lesions."
+  { q:"Which test is most associated with superior labral pathology?",
+    options:["O’Brien’s (active compression) test","Lift-off test","Yergason’s test","Neer’s test"],
+    answer:0, topic:"Clinical tests", hint:"Thumb-down then thumb-up against resistance.",
+    explain:"O’Brien’s can provoke pain from superior labrum."
   },
-  {
-    q: "Internal impingement in overhead athletes involves contact between:",
-    options: [
+  { q:"Internal impingement in overhead athletes involves contact between:",
+    options:[
       "Undersurface supraspinatus/infraspinatus and posterosuperior glenoid/labrum",
-      "Biceps tendon and coracoid",
-      "Deltoid and AC joint",
-      "LHBT and lesser tuberosity"
-    ],
-    answer: 0,
-    topic: "Sports shoulder",
-    hint: "Think ABER position contact.",
-    explain: "In ABER, undersurface cuff contacts posterosuperior labrum/glenoid."
+      "Biceps tendon and coracoid","Deltoid and AC joint","LHBT and lesser tuberosity"
+    ], answer:0, topic:"Sports shoulder", hint:"Think ABER position.",
+    explain:"In ABER, undersurface cuff contacts posterosuperior labrum/glenoid."
   },
-  {
-    q: "What forms the roof of the subacromial space?",
-    options: [
-      "Coracoacromial arch (acromion, CA ligament, AC joint)",
-      "Supraspinatus tendon",
-      "Humeral head articular cartilage",
-      "Glenoid labrum"
-    ],
-    answer: 0,
-    topic: "Anatomy",
-    hint: "It includes a ligament spanning coracoid to acromion.",
-    explain: "The coracoacromial arch is the superior boundary of the subacromial space."
+  { q:"What forms the roof of the subacromial space?",
+    options:["Coracoacromial arch (acromion, CA ligament, AC joint)","Supraspinatus tendon","Humeral head articular cartilage","Glenoid labrum"],
+    answer:0, topic:"Anatomy", hint:"Includes a ligament spanning coracoid to acromion.",
+    explain:"The coracoacromial arch is the superior boundary of the subacromial space."
   },
-  {
-    q: "Night pain when lying on the affected side is most classically associated with:",
-    options: ["Rotator cuff tear/tendinopathy", "Cervical radiculopathy", "Thoracic outlet syndrome", "Scapular winging"],
-    answer: 0,
-    topic: "Symptoms",
-    hint: "Think bursal irritation and cuff pathology.",
-    explain: "Cuff disease commonly causes night pain, especially on the affected side."
+  { q:"Night pain when lying on the affected side is most classically associated with:",
+    options:["Rotator cuff tear/tendinopathy","Cervical radiculopathy","Thoracic outlet syndrome","Scapular winging"],
+    answer:0, topic:"Symptoms", hint:"Bursal irritation and cuff disease.",
+    explain:"Cuff disease commonly causes night pain on the affected side."
   }
 ];
 
-// DOM refs
+// --- Expanded bank (≈45 items, including image-based prompts) ---
+const EXPANDED_BANK = [
+  ...QUESTION_BANK,
+  // Imaging physics/quality
+  { q:"Which transducer is best for most shoulder tendon ultrasound?",
+    options:["High-frequency linear (10–18 MHz)","Curvilinear 2–5 MHz","Phased array 1–3 MHz","Endocavitary 5–9 MHz"],
+    answer:0, topic:"Technique", hint:"Superficial target → high frequency.",
+    explain:"High-frequency linear probes provide superior near-field resolution for superficial tendons."
+  },
+  { q:"Anisotropy in tendon ultrasound primarily causes:",
+    options:["Apparent hypoechogenicity when insonation is oblique","Reverberation artifacts","Ring-down artifacts","Acoustic enhancement"],
+    answer:0, topic:"Artifacts", hint:"It mimics a tear if you’re off-angle.",
+    explain:"Collagen bundles reflect specularly; slight angle changes make tendons look dark."
+  },
+  { q:"Best dynamic manoeuvre to demonstrate LHBT subluxation?",
+    options:["External–internal rotation in transverse at bicipital groove","ABER in coronal plane","Cross-body adduction","Scapular retraction"],
+    answer:0, topic:"Biceps", hint:"Watch it in the groove.",
+    explain:"Transverse imaging at the groove during rotation shows instability/subluxation."
+  },
+  { q:"Which acromial morphology is most associated with impingement?",
+    options:["Type II (curved) and Type III (hooked)","Type I (flat)","Type IV (convex upward)","Morphology doesn’t correlate at all"],
+    answer:0, topic:"AC/Acromion", hint:"Curved/hooked reduces clearance.",
+    explain:"Curved and hooked acromia reduce subacromial space and correlate with impingement."
+  },
+  // Clinical tests
+  { q:"Jobe (empty can) primarily assesses:",
+    options:["Supraspinatus","Infraspinatus","Subscapularis","Teres minor"],
+    answer:0, topic:"Clinical tests", hint:"Abduction in scapular plane with internal rotation.",
+    explain:"Weakness/pain suggests supraspinatus pathology."
+  },
+  { q:"Hornblower’s sign suggests:",
+    options:["Teres minor deficiency","Subscapularis tear","Biceps tendinitis","AC joint OA"],
+    answer:0, topic:"Clinical tests", hint:"Inability to externally rotate against resistance in ABduction.",
+    explain:"Indicates teres minor/posterior cuff dysfunction."
+  },
+  { q:"Speeds test pain localises to:",
+    options:["Bicipital groove (LHBT)","AC joint","Posterior glenoid","Deltoid insertion"],
+    answer:0, topic:"Clinical tests", hint:"Resisted forward flexion, supination.",
+    explain:"Pain in the groove suggests biceps tendinopathy."
+  },
+  // Pathology specifics
+  { q:"Most common site for partial-thickness cuff tears?",
+    options:["Articular-sided supraspinatus footprint","Bursal-sided subscapularis","Myotendinous junction of infraspinatus","Teres minor tendon mid-substance"],
+    answer:0, topic:"Rotator cuff", hint:"Undersurface at footprint.",
+    explain:"Articular-sided partial tears at supraspinatus footprint are common (PASTA lesions)."
+  },
+  { q:"A Bankart lesion involves detachment of:",
+    options:["Anteroinferior labrum from glenoid rim","Posteroinferior labrum","Superior labrum","Entire labrum"],
+    answer:0, topic:"Instability", hint:"Classic anterior dislocation injury.",
+    explain:"Bankart = anteroinferior labral detachment ± bony fragment."
+  },
+  { q:"Hill–Sachs lesion is a defect of the:",
+    options:["Posterolateral humeral head","Anteroinferior glenoid","Greater tuberosity","Acromion under-surface"],
+    answer:0, topic:"Instability", hint:"Engages the glenoid.",
+    explain:"Compression impaction of posterolateral humeral head from anterior dislocation."
+  },
+  { q:"Which finding best supports symptomatic AC joint osteoarthritis?",
+    options:["Focal tenderness and pain with cross-body adduction","Diffuse night pain only","Tinel’s at cubital tunnel","Positive Spurling’s"],
+    answer:0, topic:"AC joint", hint:"Provocative cross-body adduction.",
+    explain:"Cross-body adduction narrows AC joint and reproduces pain."
+  },
+  // Ultrasound signs (images suggested)
+  { q:"Identify the pathology on this supraspinatus image.",
+    options:["Full-thickness tear","Normal tendon","Calcific focus only","Muscle atrophy only"], answer:0,
+    topic:"Ultrasound signs", hint:"Anechoic gap across full thickness.",
+    explain:"Gap traversing tendon thickness with fluid suggests FTT.",
+    image:"assets/uss-supraspinatus-fulltear.png"
+  },
+  { q:"What does this image of the bicipital groove show?",
+    options:["Medial subluxation of LHBT","Normal LHBT in groove","Complete LHBT rupture with empty groove","Calcific tendinitis"],
+    answer:0, topic:"Biceps", hint:"Tendon rides medially off the lesser tuberosity.",
+    explain:"Subscap pathology allows LHBT to sublux medially.",
+    image:"assets/uss-biceps-sublux.png"
+  },
+  { q:"This power Doppler at the rotator interval suggests:",
+    options:["Adhesive capsulitis","AC joint OA","Posterior labral tear","Suprascapular neuropathy"],
+    answer:0, topic:"Ultrasound signs", hint:"Thick CHL + vascular tissue.",
+    explain:"Vascular hypoechoic tissue and CHL thickening support frozen shoulder.",
+    image:"assets/uss-rotator-interval-vascular.png"
+  },
+  // Rehab/management orientation (knowledge-level, not advice)
+  { q:"Initial management for non-ruptured calcific tendinopathy often includes:",
+    options:["Analgesia/activity modification ± physio","Immediate surgical debridement","Six weeks immobilisation in abduction brace","High-dose systemic steroids routinely"],
+    answer:0, topic:"Management (knowledge)", hint:"Conservative first-line.",
+    explain:"Most cases respond to analgesia, graded loading, and physiotherapy; procedures reserved for refractory cases."
+  },
+  { q:"Best single view on x-ray to visualise calcific deposits in supraspinatus footprint:",
+    options:["AP external rotation","Axillary view","Scapular Y","Clavicle skyline"],
+    answer:0, topic:"Imaging", hint:"Opens the greater tuberosity region.",
+    explain:"AP ER projects the footprint well for calcific foci."
+  },
+  { q:"Which nerve is most associated with supraspinatus/infraspinatus atrophy from entrapment?",
+    options:["Suprascapular nerve","Axillary nerve","Musculocutaneous nerve","Long thoracic nerve"],
+    answer:0, topic:"Nerves", hint:"Traverses suprascapular notch.",
+    explain:"Suprascapular neuropathy leads to cuff muscle atrophy."
+  },
+  { q:"Which movement most stresses the superior labrum?",
+    options:["Abduction+external rotation","Pure adduction","Internal rotation at side","Scapular protraction"],
+    answer:0, topic:"Labrum", hint:"Think throwing cocking phase.",
+    explain:"ABER increases peel-back on the superior labrum."
+  },
+  // Extra image prompts (add later as assets)
+  { q:"This image shows hyperechoic focus with posterior shadowing at the supraspinatus footprint:",
+    options:["Calcific tendinopathy","Bursal thickening only","Normal tendon","Myotendinous strain"],
+    answer:0, topic:"Ultrasound signs", hint:"Echogenic focus + clean shadow.",
+    explain:"Classic for hydroxyapatite deposit.",
+    image:"assets/uss-calcific-ss.png"
+  },
+  { q:"Which structure forms the floor of the bicipital groove?",
+    options:["Humerus (intertubercular sulcus) with transverse humeral ligament roof","Subscapularis tendon","Coracohumeral ligament","Glenoid labrum"],
+    answer:0, topic:"Anatomy", hint:"Bony sulcus; ligament is the roof.",
+    explain:"The groove is bony; the transverse humeral ligament forms the roof."
+  },
+  { q:"Infraspinatus tears most often present with weakness in:",
+    options:["External rotation","Internal rotation","Abduction only","Forearm supination"],
+    answer:0, topic:"Rotator cuff", hint:"Primary ER muscle with teres minor.",
+    explain:"Infraspinatus is a key external rotator."
+  },
+  { q:"Biceps pulley components include:",
+    options:["CHL and SGHL + fibres of subscap/supraspinatus","MCL and UCL","IT band and gluteus medius","PLL and ALL"],
+    answer:0, topic:"Biceps", hint:"Capsuloligamentous sling.",
+    explain:"Pulley = CHL, SGHL, and tendon fibres of subscap/supraspinatus."
+  },
+  { q:"Which is most consistent with AC joint injury (type I–III) clinically?",
+    options:["Positive cross-body adduction and localised AC tenderness","Global loss of passive ROM","Posterior apprehension only","Neurogenic pain radiating to hand"],
+    answer:0, topic:"AC joint", hint:"Provocation over AC.",
+    explain:"Cross-body adduction commonly reproduces AC pain."
+  },
+  // Difficulty rampers
+  { q:"PASTA lesion denotes:",
+    options:["Partial Articular-Sided Tear of the supraspinatus at the footprint","Posterior labrum avulsion with SLAP","Posterosuperior impingement of LHBT","Pan-labral circumferential tear"],
+    answer:0, topic:"Rotator cuff", hint:"Acronym for partial undersurface.",
+    explain:"Articular-sided partial tear at footprint."
+  },
+  { q:"Which sign on ultrasound suggests bursal-sided partial thickness tear?",
+    options:["Focal bursal surface defect with overlying SASD fluid","Uniform hyperechogenicity","Reverberation only","Empty bicipital groove"],
+    answer:0, topic:"Ultrasound signs", hint:"Look at the bursal surface.",
+    explain:"Bursal-sided defect + bursal fluid supports partial tear."
+  },
+  { q:"Which position improves sonographic visualisation of subscapularis tendon?",
+    options:["External rotation with arm in neutral","Internal rotation across abdomen","Abduction 90° with internal rotation","Elbow extension and pronation"],
+    answer:0, topic:"Technique", hint:"Tension the fibres anteriorly.",
+    explain:"External rotation brings subscap fibres into view."
+  },
+  { q:"Which labral variant is a normal anatomical variant, not a tear?",
+    options:["Sublabral foramen/Buford complex","Detached labrum with paralabral cyst","Flap tear","Bucket-handle tear"],
+    answer:0, topic:"Labrum", hint:"Anterosuperior detachment without periosteal stripping.",
+    explain:"Sublabral foramen/Buford is a recognised variant."
+  },
+  { q:"Which best describes the SASD bursa?",
+    options:["Between deltoid and rotator cuff, communicates with subacromial space","Between labrum and glenoid","Within bicipital groove","Inside AC joint"],
+    answer:0, topic:"Anatomy", hint:"Deltoid surface.",
+    explain:"Subacromial–subdeltoid bursa overlies cuff, under deltoid."
+  },
+  { q:"A positive Hawkins–Kennedy test indicates:",
+    options:["Subacromial impingement","Isolated subscapularis tear","AC joint instability","Cervical radiculopathy"],
+    answer:0, topic:"Clinical tests", hint:"Forward flexion + IR.",
+    explain:"Provocative for impingement."
+  },
+  { q:"Which is most suggestive of massive cuff tear clinically?",
+    options:["External rotation lag sign","Negative lift-off","Isolated AC tenderness","Positive Spurling’s"],
+    answer:0, topic:"Rotator cuff", hint:"Lag indicates inability to hold ER.",
+    explain:"Lag sign indicates significant ER weakness/tear."
+  },
+  { q:"Which is a red flag symptom needing urgent assessment?",
+    options:["Acute traumatic weakness after fall with pseudoparalysis","Mild ache after gym","Occasional crepitus","Delayed onset muscle soreness"],
+    answer:0, topic:"Red flags", hint:"Traumatic functional loss.",
+    explain:"Acute pseudoparalysis after trauma suggests significant tear/dislocation."
+  },
+  { q:"Ultrasound sign of delamination in supraspinatus:",
+    options:["Horizontal split within tendon substance","Purely hyperechoic line at cortex","Only anisotropy","Shadowing calcification"],
+    answer:0, topic:"Ultrasound signs", hint:"Layered split.",
+    explain:"Delamination = intrasubstance horizontal cleavage."
+  },
+  { q:"Quadrilateral space syndrome compresses:",
+    options:["Axillary nerve and posterior circumflex humeral artery","Radial nerve and profunda brachii","Ulnar nerve and superior ulnar collateral","Suprascapular nerve and artery"],
+    answer:0, topic:"Nerves", hint:"Space posterior to humerus.",
+    explain:"Axillary nerve/ PCHA traverse the quadrilateral space."
+  },
+  { q:"Which muscle primarily produces scapular protraction affecting subacromial mechanics?",
+    options:["Serratus anterior","Latissimus dorsi","Teres major","Brachialis"],
+    answer:0, topic:"Scapulothoracic", hint:"Long thoracic nerve.",
+    explain:"Serratus anterior controls scapular upward rotation/protraction."
+  },
+  { q:"Which scenario fits posterior internal impingement on MRI/US?",
+    options:["Undersurface tears of posterosuperior cuff in throwers","Bursal fluid only","Isolated subscap tear in elderly","Glenohumeral OA osteophytes predominance"],
+    answer:0, topic:"Sports shoulder", hint:"Overhead athletes.",
+    explain:"ABER contact leads to undersurface tears posteriorly."
+  },
+  { q:"Preferred plane to measure LHBT diameter on US:",
+    options:["Transverse at groove with true short-axis","Long-axis only","Any oblique plane","Power Doppler M-mode"],
+    answer:0, topic:"Technique", hint:"Standardise short-axis.",
+    explain:"Short-axis transverse gives reproducible diameter."
+  },
+  { q:"Which finding increases suspicion for biceps anchor (SLAP) pathology on US?",
+    options:["Biceps pulley disruption with instability","Pure AC OA","Isolated deltoid tendinopathy","GH effusion only"],
+    answer:0, topic:"Biceps/Labrum", hint:"Pulley complex matters.",
+    explain:"Pulley disruption often coexists with superior labral lesions."
+  },
+  { q:"Which best reduces tendon anisotropy during scanning?",
+    options:["Heel–toe to keep beam perpendicular","Increase overall gain only","Lower frequency drastically","Switch to curvilinear probe always"],
+    answer:0, topic:"Technique", hint:"Beam angle matters.",
+    explain:"Small heel–toe adjustments restore perpendicular insonation."
+  },
+  { q:"A painful arc with positive Neer and Hawkins–Kennedy most strongly suggests:",
+    options:["Subacromial pain syndrome","Cervical radiculopathy","Thoracic outlet syndrome","Frozen shoulder exclusively"],
+    answer:0, topic:"Clinical pattern", hint:"Cluster of impingement signs.",
+    explain:"Pattern recognition supports SAS."
+  },
+  { q:"Atrophy of infraspinatus fossa on inspection suggests:",
+    options:["Chronic suprascapular neuropathy or massive cuff tear","Isolated AC sprain","Biceps tendinitis only","Normal variant"],
+    answer:0, topic:"Observation", hint:"Posterior fossa hollow.",
+    explain:"Denervation or chronic tear leads to visible atrophy."
+  },
+  { q:"Bursal thickness that may be considered abnormal (context-dependent):",
+    options:[">2 mm with symptoms and fluid","Exactly 0.5 mm","Any visible bursa",">10 mm always"],
+    answer:0, topic:"Ultrasound metrics", hint:"Small bursa can be normal.",
+    explain:">2 mm with clinical correlation suggests bursitis."
+  },
+  // Extra images placeholders
+  { q:"Which pathology is most compatible with this delamination appearance?",
+    options:["Intrasubstance split of supraspinatus","Normal fibrillar tendon","Cortical irregularity only","Pure calcific deposit"],
+    answer:0, topic:"Ultrasound signs", hint:"Layered split within fibres.",
+    explain:"Horizontal hypoechoic cleft indicates delamination.",
+    image:"assets/uss-delamination-ss.png"
+  },
+  { q:"Which manoeuvre helps expose posterior labrum sonographically?",
+    options:["Crass position and posterior window","Cross-body adduction with IR","Supination only","Valgus stress"],
+    answer:0, topic:"Technique", hint:"Posterior window.",
+    explain:"Posterior approach with arm positioning improves labral window."
+  }
+];
+
+// ====== DOM refs ======
 const questionEl = document.getElementById('question');
 const answersEl  = document.getElementById('answers');
 const qTopicEl   = document.getElementById('qTopic');
@@ -420,16 +599,20 @@ const btnCrowd = document.getElementById('llCrowd');
 const btnExpert= document.getElementById('llExpert');
 
 const confirmOverlay = document.getElementById('confirm');
-const confirmText    = document.getElementById('confirmText');
 const rulesOverlay   = document.getElementById('rules');
+const crowdOverlay   = document.getElementById('crowdPoll');
+const scoresOverlay  = document.getElementById('scores');
 const teacherUI      = document.getElementById('teacherUI');
+const miniScores     = document.getElementById('miniScores');
 
-document.getElementById('btnRules').addEventListener('click', showRules);
+document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
+document.getElementById('btnScores').addEventListener('click', openScores);
 
+// ====== Event wiring ======
 btnStart.addEventListener('click', startGame);
 btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
-  confirmText.textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
+  document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
   show(confirmOverlay);
 });
 btnNext.addEventListener('click', nextQuestion);
@@ -446,18 +629,22 @@ document.addEventListener('keydown', (e)=>{
   if(e.key.toLowerCase() === 'c') toggleClean();
 });
 
+// ====== Utils ======
 function $(sel){ return document.querySelector(sel) }
 function show(el){ el.style.display='flex' }
 function hide(el){ el.style.display='none' }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
+function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
+function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
 
-// Build ladder
+// ====== Ladder ======
 function renderLadder(){
   ladderEl.innerHTML = '';
   MONEY.forEach((m, idx)=>{
     const li = document.createElement('li');
-    const n = 15-idx; // display numbers descending
-    li.dataset.index = idx;
+    const n = 15-idx;
     const safe = SAFE_INDEXES.includes(idx) ? ' safe' : '';
+    li.dataset.index = idx;
     li.innerHTML = `<span>#${n}</span><span>£${m.toLocaleString()}</span>`;
     if(safe) li.classList.add('safe');
     ladderEl.appendChild(li);
@@ -465,12 +652,10 @@ function renderLadder(){
   highlightLadder(0);
 }
 function highlightLadder(qIndex){
-  [...ladderEl.children].forEach((li,i)=>{
-    li.classList.toggle('active', i === qIndex);
-  });
+  [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
 }
 
-// Timer
+// ====== Timer ======
 function startTimer(){
   clearInterval(state.intervalId);
   if(!state.timerOn){ timerEl.textContent = '∞'; return; }
@@ -479,10 +664,7 @@ function startTimer(){
   state.intervalId = setInterval(()=>{
     state.timeLeft--;
     timerEl.textContent = state.timeLeft + 's';
-    if(state.timeLeft <= 0){
-      clearInterval(state.intervalId);
-      timesUp();
-    }
+    if(state.timeLeft <= 0){ clearInterval(state.intervalId); timesUp(); }
   }, 1000);
 }
 function toggleTimer(){
@@ -491,20 +673,20 @@ function toggleTimer(){
   startTimer();
 }
 
-// Game flow
+// ====== Game flow ======
 function startGame(){
+  const name = prompt('Enter player name (optional)') || '';
+  state.player = name.trim();
   state.qIndex = 0;
   state.used5050 = state.usedCrowd = state.usedExpert = false;
   state.results = [];
-  state.bank = pick15(QUESTION_BANK);
+  state.bank = pick15(window.ACTIVE_BANK || QUESTION_BANK);
   btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
   btnStart.classList.add('hidden'); btnQuit.classList.remove('hidden');
   loadQuestion();
 }
 function resetGame(){
-  hide(confirmOverlay);
-  hide(document.getElementById('crowdPoll'));
-  hide(rulesOverlay);
+  hide(confirmOverlay); hide(crowdOverlay); hide(rulesOverlay);
   document.body.classList.remove('clean');
   btnStart.classList.remove('hidden');
   btnFinal.classList.add('hidden');
@@ -515,8 +697,7 @@ function resetGame(){
   explainEl.classList.add('hidden');
   qImg.style.display='none';
   state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
-  renderLadder();
-  startTimer();
+  renderLadder(); startTimer();
 }
 function loadQuestion(){
   state.current = state.bank[state.qIndex];
@@ -526,12 +707,7 @@ function loadQuestion(){
   questionEl.textContent = state.current.q;
   explainEl.classList.add('hidden'); explainEl.textContent = '';
   answersEl.innerHTML = '';
-  // optional image
-  if(state.current.image){
-    qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display = 'block';
-  } else {
-    qImg.style.display = 'none';
-  }
+  if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
   state.current.options.forEach((opt, i)=>{
     const btn = document.createElement('button');
     btn.className = 'ans';
@@ -541,8 +717,7 @@ function loadQuestion(){
   });
   btnFinal.classList.remove('hidden');
   btnNext.classList.add('hidden');
-  startTimer();
-  highlightLadder(state.qIndex);
+  startTimer(); highlightLadder(state.qIndex);
 }
 function select(i, btn){
   if(state.locked) return;
@@ -559,18 +734,13 @@ function lockIn(){
   const correct = state.picked === state.current.answer;
   markAnswers(correct);
   const prize = correct ? MONEY[state.qIndex] : getSafePrize();
-  state.results.push({
-    qIndex: state.qIndex+1,
-    correct, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null,
-    prize
-  });
+  state.results.push({ qIndex: state.qIndex+1, correct, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
   explainEl.classList.remove('hidden');
   explainEl.innerHTML = (correct? `<div class="ok"><strong>Correct!</strong></div>` : `<div class="bad"><strong>Incorrect.</strong></div>`)
     + `<div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
   btnFinal.classList.add('hidden');
   btnNext.classList.remove('hidden');
 
-  // end conditions
   if(!correct){ endGame(prize); return; }
   if(state.qIndex === MONEY.length-1){ youWin(); return; }
 }
@@ -592,58 +762,45 @@ function walkAway(){
   endGame(prize, true);
 }
 function getSafePrize(){
-  // return last safe haven prize before current q
-  let safe = 0;
-  for(const idx of SAFE_INDEXES){ if(idx < state.qIndex) safe = MONEY[idx]; }
-  return safe;
+  let safe = 0; for(const idx of SAFE_INDEXES){ if(idx < state.qIndex) safe = MONEY[idx]; } return safe;
 }
 function youWin(){
   explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Fantastic knowledge of shoulder pathology.</div>`;
-  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden');
-  btnStart.classList.remove('hidden');
+  explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Outstanding knowledge.</div>`;
+  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
+  saveScore(1000000);
 }
 function endGame(prize, walked=false){
-  btnNext.classList.add('hidden');
-  btnQuit.classList.add('hidden');
-  btnStart.classList.remove('hidden');
+  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
   const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
     `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
+  explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
+  saveScore(prize);
 }
 
-// Lifelines
+// ====== Lifelines ======
 function lifeline5050(){
   if(state.used5050 || !state.current) return;
   state.used5050 = true; btn5050.disabled = true;
   const wrongs = [0,1,2,3].filter(i=>i!==state.current.answer);
   shuffle(wrongs);
   const remove = wrongs.slice(0,2);
-  [...answersEl.children].forEach((b, idx)=>{
-    if(remove.includes(idx)){ b.disabled = true; b.style.opacity = .4; }
-  });
+  [...answersEl.children].forEach((b, idx)=>{ if(remove.includes(idx)){ b.disabled = true; b.style.opacity = .4; } });
 }
 function lifelineCrowd(){
   if(state.usedCrowd || !state.current) return;
   state.usedCrowd = true; btnCrowd.disabled = true;
-  const hardness = state.qIndex/ (MONEY.length-1); // 0..1
-  const correctBias = Math.max(0.35, 0.8 - hardness*0.5); // less reliable later
-  const poll = [0,0,0,0];
-  let remaining = 100;
+  const hardness = state.qIndex/ (MONEY.length-1);
+  const correctBias = Math.max(0.35, 0.8 - hardness*0.5);
+  const poll = [0,0,0,0]; let remaining = 100;
   const correctIdx = state.current.answer;
-  poll[correctIdx] = Math.floor(correctBias*100);
-  remaining -= poll[correctIdx];
-  // distribute remaining randomly
+  poll[correctIdx] = Math.floor(correctBias*100); remaining -= poll[correctIdx];
   const others = [0,1,2,3].filter(i=>i!==correctIdx);
   for(let i=0;i<others.length;i++){
     const v = i < others.length-1 ? randInt(0, Math.max(1, remaining - (others.length-1-i))) : remaining;
-    poll[others[i]] = v;
-    remaining -= v;
+    poll[others[i]] = v; remaining -= v;
   }
-  // Render poll
-  const container = document.getElementById('pollBars');
-  container.innerHTML = '';
+  const container = document.getElementById('pollBars'); container.innerHTML = '';
   ['A','B','C','D'].forEach((lab, i)=>{
     const bar = document.createElement('div');
     bar.style.margin = '6px 0';
@@ -653,10 +810,9 @@ function lifelineCrowd(){
     </div>`;
     container.appendChild(bar);
   });
-  show(document.getElementById('crowdPoll'));
+  show(crowdOverlay);
 }
-function closePoll(){ hide(document.getElementById('crowdPoll')) }
-
+function closePoll(){ hide(crowdOverlay) }
 function lifelineExpert(){
   if(state.usedExpert || !state.current) return;
   state.usedExpert = true; btnExpert.disabled = true;
@@ -669,110 +825,113 @@ function lifelineExpert(){
   <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
 }
 
-// Overlays
-function showRules(){ show(rulesOverlay) }
+// ====== Overlays ======
 function hideRules(){ hide(rulesOverlay) }
 
-// Times up
+// ====== Times up ======
 function timesUp(){
   state.locked = true;
-  markAnswers(false); // show correct and wrong selection if any
+  markAnswers(false);
   explainEl.classList.remove('hidden');
   explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+state.current.answer)}</strong>.</div>`;
   btnFinal.classList.add('hidden');
   btnNext.classList.add('hidden');
   btnQuit.classList.add('hidden');
   btnStart.classList.remove('hidden');
+  saveScore(getSafePrize());
 }
 
-// Helpers
-function pick15(bank){
-  // If more than 15 provided, sample; otherwise use as is.
-  const copy = bank.slice();
-  // Sort by topic/difficulty? For now shuffle and take 15.
-  shuffle(copy);
-  return copy.slice(0, 15);
-}
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-function randInt(min, max){ return Math.floor(Math.random()*(max-min+1))+min }
-function randomOther(correctIdx){
-  const arr = [0,1,2,3].filter(i=>i!==correctIdx);
-  return arr[Math.floor(Math.random()*arr.length)];
-}
+// ====== Bank helpers ======
+function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
 
-// Teacher panel & clean view
+// ====== Teacher & clean view ======
 function toggleTeacher(){
-  if(state.teacher){
-    teacherUI.style.display = 'none';
-    state.teacher = false; return;
-  }
+  if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
   const pass = prompt('Enter teacher passcode');
-  if(pass === 'ULTRASOUND'){
-    state.teacher = true; teacherUI.style.display = 'flex';
-  } else if(pass){
-    alert('Incorrect passcode');
-  }
+  if(pass === 'ULTRASOUND'){ state.teacher=true; teacherUI.style.display='flex'; }
+  else if(pass){ alert('Incorrect passcode'); }
 }
-function reveal(){
-  if(!state.current) return;
-  [...answersEl.children].forEach((b,i)=>{
-    if(i===state.current.answer) b.classList.add('correct');
-  });
-}
-function skip(){
-  if(state.qIndex < MONEY.length-1){
-    nextQuestion();
-  }
-}
-function toggleClean(){
-  document.body.classList.toggle('clean');
-}
+function reveal(){ if(!state.current) return; [...answersEl.children].forEach((b,i)=>{ if(i===state.current.answer) b.classList.add('correct'); }); }
+function skip(){ if(state.qIndex < MONEY.length-1) nextQuestion(); }
+function toggleClean(){ document.body.classList.toggle('clean'); }
 function exportCSV(){
-  const rows = [['Question','ChosenCorrect','Time(s)','Prize']];
-  state.results.forEach(r=>{
-    rows.push([r.qIndex, r.correct, r.time ?? '', r.prize]);
-  });
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'shoulder-millionaire-results.csv'; a.click();
-  URL.revokeObjectURL(url);
+  const rows = [['Question','Correct','Time(s)','Prize']];
+  state.results.forEach(r=> rows.push([r.qIndex, r.correct, r.time ?? '', r.prize]));
+  downloadCSV(rows, 'shoulder-millionaire-this-run.csv');
 }
-function loadSample(){
-  document.getElementById('qImport').value = JSON.stringify(QUESTION_BANK, null, 2);
-}
+function loadSample(){ document.getElementById('qImport').value = JSON.stringify(QUESTION_BANK, null, 2); }
 function replaceBank(){
   try{
     const txt = document.getElementById('qImport').value.trim();
     const arr = JSON.parse(txt);
-    // basic validation
     if(!Array.isArray(arr) || arr.length === 0) throw 'Invalid JSON';
     if(!('q' in arr[0] && 'options' in arr[0] && 'answer' in arr[0])) throw 'Missing fields';
-    QUESTION_BANK = arr;
+    window.ACTIVE_BANK = arr;
     alert(`Loaded ${arr.length} questions. Restarting game.`);
     resetGame();
-  }catch(e){
-    alert('Could not load: ' + e);
-  }
+  }catch(e){ alert('Could not load: ' + e); }
 }
+function useExpanded(){ window.ACTIVE_BANK = EXPANDED_BANK; alert(`Using expanded bank (${EXPANDED_BANK.length} items). Restarting.`); resetGame(); }
 
-// Confirm overlay API
-function lockInPublic(){ lockIn() } // (for overlay button)
-window.lockIn = lockIn;
-window.cancelLock = cancelLock;
+// ====== Leaderboard (localStorage) ======
+const SCORE_KEY = 'shoulder_millionaire_scores_v1';
+function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
+function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
+function saveScore(prize){
+  // Only save once per game end; detect if already saved for this end state
+  if(!state.results.length) return;
+  const totalCorrect = state.results.filter(r=>r.correct).length;
+  const topReached = Math.max(...state.results.map(r=>r.qIndex));
+  const totalTime = state.results.reduce((s,r)=> s + (r.time || 0), 0);
+  const lifelines = ['5050','Crowd','Expert'].filter((ll,i)=> [state.used5050,state.usedCrowd,state.usedExpert][i]).join('|') || 'None';
+  const entry = {
+    name: state.player || '—',
+    prize, correct: totalCorrect, topQ: topReached,
+    time: state.timerOn? totalTime : null,
+    date: new Date().toISOString().slice(0,19).replace('T',' '),
+    lifelines
+  };
+  const scores = getScores();
+  scores.push(entry);
+  // sort by prize desc, then correct desc, then time asc
+  scores.sort((a,b)=> b.prize - a.prize || b.correct - a.correct || ((a.time||1e9) - (b.time||1e9)));
+  setScores(scores.slice(0,100)); // keep top 100
+}
+function renderMiniScores(){
+  const scores = getScores();
+  if(!scores.length){ miniScores.textContent = 'No scores yet.'; return; }
+  const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${s.name || '—'}`).join('<br>');
+  miniScores.innerHTML = top;
+}
+function openScores(){ renderScoresTable(); show(scoresOverlay); }
+function closeScores(){ hide(scoresOverlay) }
+function renderScoresTable(){
+  const scores = getScores();
+  if(!scores.length){ document.getElementById('scoresTable').innerHTML = '<p class="muted">No scores yet.</p>'; return; }
+  let html = '<table><thead><tr><th>#</th><th>Name</th><th>Prize</th><th>Correct</th><th>Top Q</th><th>Time(s)</th><th>Lifelines</th><th>Date</th></tr></thead><tbody>';
+  scores.forEach((s,i)=>{
+    html += `<tr><td>${i+1}</td><td>${escapeHtml(s.name||'')}</td><td>£${s.prize.toLocaleString()}</td><td>${s.correct}</td><td>${s.topQ}</td><td>${s.time ?? ''}</td><td>${s.lifelines}</td><td>${s.date}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('scoresTable').innerHTML = html;
+}
+function exportScores(){
+  const scores = getScores();
+  const rows = [['Rank','Name','Prize','Correct','TopQ','Time(s)','Lifelines','Date']];
+  scores.forEach((s,i)=> rows.push([i+1, s.name||'', s.prize, s.correct, s.topQ, s.time ?? '', s.lifelines, s.date]));
+  downloadCSV(rows, 'shoulder-millionaire-leaderboard.csv');
+}
+function resetScores(){ if(confirm('Reset all saved scores on this device?')){ setScores([]); renderScoresTable(); } }
+function downloadCSV(rows, filename){
+  const csv = rows.map(r=>r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+}
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
-function closeAllOverlays(){ [confirmOverlay, rulesOverlay, document.getElementById('crowdPoll')].forEach(hide) }
+// ====== Build UI on load ======
+renderLadder(); startTimer(); renderMiniScores();
 
-// Build UI on load
-renderLadder();
-startTimer();
 </script>
 </body>
 </html>
