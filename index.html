@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Who Wants to Be a Millionaire — Shoulder Pathology</title>
-<meta name="description" content="A 'Who Wants to Be a Millionaire' style quiz focused on shoulder pathology." />
+<meta name="description" content="A Millionaire-style quiz focused on shoulder pathology." />
 <style>
   :root{
     --bg:#0b0f1a; --card:#12172a; --ink:#eaf0ff; --muted:#a8b2cc;
@@ -46,7 +46,7 @@
   .q-meta{color:var(--muted); font-size:.9rem; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
   .q-image{max-width:100%; border-radius:12px; border:1px solid var(--edge); margin:8px 0 4px; display:none}
   .answers{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px}
-  @media (max-width: 640px){ .answers{grid-template-columns:1fr}}
+  @media (max-width:640px){ .answers{grid-template-columns:1fr} }
   .ans{
     display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #2a3567; border-radius:12px;
     background: linear-gradient(180deg, #0f1738, #0c132f); font-weight:700; position:relative; overflow:hidden;
@@ -90,8 +90,6 @@
   textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
   .sr-only{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
-
-  /* Leaderboard table */
   table{width:100%; border-collapse: collapse}
   th, td{padding:8px; border-bottom:1px solid #2a3567; text-align:left; font-variant-numeric: tabular-nums}
   th{color:#cfe0ff}
@@ -159,7 +157,7 @@
     </ul>
     <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter passcode <span class="kbd">ULTRASOUND</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
     <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="hideRules()">Close</button>
+      <button onclick="hide(rulesOverlay)">Close</button>
     </div>
   </div>
 </div>
@@ -217,6 +215,7 @@
       <button onclick="exportCSV()">Export This Run</button>
       <button onclick="loadSample()">Load Sample Bank</button>
       <button onclick="useExpanded()">Use Expanded Bank</button>
+      <button onclick="toggleShuffle()">Toggle Shuffle</button>
     </div>
   </div>
   <div class="pane">
@@ -231,7 +230,8 @@
 
 <script>
 /* =============================
-   Millionaire — Shoulder Pathology (GBP + Leaderboard + Images + Expanded Bank)
+   Millionaire — Shoulder Pathology
+   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options
    ============================= */
 
 // Money ladder (bottom to top)
@@ -253,10 +253,11 @@ let state = {
   intervalId: null,
   results: [], // {qIndex, correct, time, prize}
   teacher: false,
-  player: ''
+  player: '',
+  shuffleOn: true
 };
 
-// --- Sample shoulder pathology bank (15 items) ---
+// --- Base bank (15) ---
 let QUESTION_BANK = [
   { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
     options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
@@ -345,10 +346,9 @@ let QUESTION_BANK = [
   }
 ];
 
-// --- Expanded bank (≈45 items, including image-based prompts) ---
+// --- Expanded bank (adds ≈30 more, including image-based placeholders) ---
 const EXPANDED_BANK = [
   ...QUESTION_BANK,
-  // Imaging physics/quality
   { q:"Which transducer is best for most shoulder tendon ultrasound?",
     options:["High-frequency linear (10–18 MHz)","Curvilinear 2–5 MHz","Phased array 1–3 MHz","Endocavitary 5–9 MHz"],
     answer:0, topic:"Technique", hint:"Superficial target → high frequency.",
@@ -369,7 +369,6 @@ const EXPANDED_BANK = [
     answer:0, topic:"AC/Acromion", hint:"Curved/hooked reduces clearance.",
     explain:"Curved and hooked acromia reduce subacromial space and correlate with impingement."
   },
-  // Clinical tests
   { q:"Jobe (empty can) primarily assesses:",
     options:["Supraspinatus","Infraspinatus","Subscapularis","Teres minor"],
     answer:0, topic:"Clinical tests", hint:"Abduction in scapular plane with internal rotation.",
@@ -377,7 +376,7 @@ const EXPANDED_BANK = [
   },
   { q:"Hornblower’s sign suggests:",
     options:["Teres minor deficiency","Subscapularis tear","Biceps tendinitis","AC joint OA"],
-    answer:0, topic:"Clinical tests", hint:"Inability to externally rotate against resistance in ABduction.",
+    answer:0, topic:"Clinical tests", hint:"Inability to externally rotate against resistance in abduction.",
     explain:"Indicates teres minor/posterior cuff dysfunction."
   },
   { q:"Speeds test pain localises to:",
@@ -385,11 +384,10 @@ const EXPANDED_BANK = [
     answer:0, topic:"Clinical tests", hint:"Resisted forward flexion, supination.",
     explain:"Pain in the groove suggests biceps tendinopathy."
   },
-  // Pathology specifics
   { q:"Most common site for partial-thickness cuff tears?",
     options:["Articular-sided supraspinatus footprint","Bursal-sided subscapularis","Myotendinous junction of infraspinatus","Teres minor tendon mid-substance"],
     answer:0, topic:"Rotator cuff", hint:"Undersurface at footprint.",
-    explain:"Articular-sided partial tears at supraspinatus footprint are common (PASTA lesions)."
+    explain:"Articular-sided partial tears at supraspinatus footprint are common (PASTA)."
   },
   { q:"A Bankart lesion involves detachment of:",
     options:["Anteroinferior labrum from glenoid rim","Posteroinferior labrum","Superior labrum","Entire labrum"],
@@ -406,7 +404,6 @@ const EXPANDED_BANK = [
     answer:0, topic:"AC joint", hint:"Provocative cross-body adduction.",
     explain:"Cross-body adduction narrows AC joint and reproduces pain."
   },
-  // Ultrasound signs (images suggested)
   { q:"Identify the pathology on this supraspinatus image.",
     options:["Full-thickness tear","Normal tendon","Calcific focus only","Muscle atrophy only"], answer:0,
     topic:"Ultrasound signs", hint:"Anechoic gap across full thickness.",
@@ -425,7 +422,6 @@ const EXPANDED_BANK = [
     explain:"Vascular hypoechoic tissue and CHL thickening support frozen shoulder.",
     image:"assets/uss-rotator-interval-vascular.png"
   },
-  // Rehab/management orientation (knowledge-level, not advice)
   { q:"Initial management for non-ruptured calcific tendinopathy often includes:",
     options:["Analgesia/activity modification ± physio","Immediate surgical debridement","Six weeks immobilisation in abduction brace","High-dose systemic steroids routinely"],
     answer:0, topic:"Management (knowledge)", hint:"Conservative first-line.",
@@ -443,14 +439,13 @@ const EXPANDED_BANK = [
   },
   { q:"Which movement most stresses the superior labrum?",
     options:["Abduction+external rotation","Pure adduction","Internal rotation at side","Scapular protraction"],
-    answer:0, topic:"Labrum", hint:"Think throwing cocking phase.",
+    answer:0, topic:"Labrum", hint:"Throwing cocking phase.",
     explain:"ABER increases peel-back on the superior labrum."
   },
-  // Extra image prompts (add later as assets)
   { q:"This image shows hyperechoic focus with posterior shadowing at the supraspinatus footprint:",
     options:["Calcific tendinopathy","Bursal thickening only","Normal tendon","Myotendinous strain"],
     answer:0, topic:"Ultrasound signs", hint:"Echogenic focus + clean shadow.",
-    explain:"Classic for hydroxyapatite deposit.",
+    explain:"Classic hydroxyapatite deposit.",
     image:"assets/uss-calcific-ss.png"
   },
   { q:"Which structure forms the floor of the bicipital groove?",
@@ -460,7 +455,7 @@ const EXPANDED_BANK = [
   },
   { q:"Infraspinatus tears most often present with weakness in:",
     options:["External rotation","Internal rotation","Abduction only","Forearm supination"],
-    answer:0, topic:"Rotator cuff", hint:"Primary ER muscle with teres minor.",
+    answer:0, topic:"Rotator cuff", hint:"Primary ER muscle.",
     explain:"Infraspinatus is a key external rotator."
   },
   { q:"Biceps pulley components include:",
@@ -473,7 +468,6 @@ const EXPANDED_BANK = [
     answer:0, topic:"AC joint", hint:"Provocation over AC.",
     explain:"Cross-body adduction commonly reproduces AC pain."
   },
-  // Difficulty rampers
   { q:"PASTA lesion denotes:",
     options:["Partial Articular-Sided Tear of the supraspinatus at the footprint","Posterior labrum avulsion with SLAP","Posterosuperior impingement of LHBT","Pan-labral circumferential tear"],
     answer:0, topic:"Rotator cuff", hint:"Acronym for partial undersurface.",
@@ -491,7 +485,7 @@ const EXPANDED_BANK = [
   },
   { q:"Which labral variant is a normal anatomical variant, not a tear?",
     options:["Sublabral foramen/Buford complex","Detached labrum with paralabral cyst","Flap tear","Bucket-handle tear"],
-    answer:0, topic:"Labrum", hint:"Anterosuperior detachment without periosteal stripping.",
+    answer:0, topic:"Labrum", hint:"Anterosuperior variant.",
     explain:"Sublabral foramen/Buford is a recognised variant."
   },
   { q:"Which best describes the SASD bursa?",
@@ -564,7 +558,6 @@ const EXPANDED_BANK = [
     answer:0, topic:"Ultrasound metrics", hint:"Small bursa can be normal.",
     explain:">2 mm with clinical correlation suggests bursitis."
   },
-  // Extra images placeholders
   { q:"Which pathology is most compatible with this delamination appearance?",
     options:["Intrasubstance split of supraspinatus","Normal fibrillar tendon","Cortical irregularity only","Pure calcific deposit"],
     answer:0, topic:"Ultrasound signs", hint:"Layered split within fibres.",
@@ -604,11 +597,12 @@ const crowdOverlay   = document.getElementById('crowdPoll');
 const scoresOverlay  = document.getElementById('scores');
 const teacherUI      = document.getElementById('teacherUI');
 const miniScores     = document.getElementById('miniScores');
+const scoresTable    = document.getElementById('scoresTable');
 
 document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
 document.getElementById('btnScores').addEventListener('click', openScores);
 
-// ====== Event wiring ======
+// ====== Events ======
 btnStart.addEventListener('click', startGame);
 btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
@@ -630,12 +624,29 @@ document.addEventListener('keydown', (e)=>{
 });
 
 // ====== Utils ======
-function $(sel){ return document.querySelector(sel) }
 function show(el){ el.style.display='flex' }
 function hide(el){ el.style.display='none' }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+
+// ====== Option shuffle & mapping ======
+// Shuffle options for a question and remap the correct index
+function prepareQuestion(q){
+  if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
+  const order = [0,1,2,3];
+  shuffle(order);
+  const shuffledOptions = order.map(i => q.options[i]);
+  const shuffledAnswer  = order.indexOf(q.answer);
+  return { ...q, options: shuffledOptions, _order: order, _answer: shuffledAnswer };
+}
+// Get the correct index for the current (possibly shuffled) question
+function getCorrectIdx(){
+  return (state.current && Number.isInteger(state.current._answer))
+    ? state.current._answer
+    : state.current.answer;
+}
 
 // ====== Ladder ======
 function renderLadder(){
@@ -680,7 +691,8 @@ function startGame(){
   state.qIndex = 0;
   state.used5050 = state.usedCrowd = state.usedExpert = false;
   state.results = [];
-  state.bank = pick15(window.ACTIVE_BANK || QUESTION_BANK);
+  const base = window.ACTIVE_BANK || QUESTION_BANK;
+  state.bank = pick15(base);
   btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
   btnStart.classList.add('hidden'); btnQuit.classList.remove('hidden');
   loadQuestion();
@@ -700,7 +712,7 @@ function resetGame(){
   renderLadder(); startTimer();
 }
 function loadQuestion(){
-  state.current = state.bank[state.qIndex];
+  state.current = prepareQuestion(state.bank[state.qIndex]);
   state.picked = null; state.locked=false;
   qTopicEl.textContent = state.current.topic || 'Shoulder';
   qLevelEl.textContent = `Q${state.qIndex+1}`;
@@ -731,7 +743,8 @@ function lockIn(){
   if(state.picked == null || state.locked) return;
   state.locked = true;
   clearInterval(state.intervalId);
-  const correct = state.picked === state.current.answer;
+  const correctIdx = getCorrectIdx();
+  const correct = state.picked === correctIdx;
   markAnswers(correct);
   const prize = correct ? MONEY[state.qIndex] : getSafePrize();
   state.results.push({ qIndex: state.qIndex+1, correct, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
@@ -746,8 +759,9 @@ function lockIn(){
 }
 function markAnswers(correct){
   const children = [...answersEl.children];
+  const ans = getCorrectIdx();
   children.forEach((b, idx)=>{
-    if(idx === state.current.answer) b.classList.add('correct');
+    if(idx === ans) b.classList.add('correct');
     if(state.picked === idx && !correct) b.classList.add('wrong');
     b.disabled = true;
   });
@@ -782,7 +796,8 @@ function endGame(prize, walked=false){
 function lifeline5050(){
   if(state.used5050 || !state.current) return;
   state.used5050 = true; btn5050.disabled = true;
-  const wrongs = [0,1,2,3].filter(i=>i!==state.current.answer);
+  const correctIdx = getCorrectIdx();
+  const wrongs = [0,1,2,3].filter(i=>i!==correctIdx);
   shuffle(wrongs);
   const remove = wrongs.slice(0,2);
   [...answersEl.children].forEach((b, idx)=>{ if(remove.includes(idx)){ b.disabled = true; b.style.opacity = .4; } });
@@ -791,9 +806,9 @@ function lifelineCrowd(){
   if(state.usedCrowd || !state.current) return;
   state.usedCrowd = true; btnCrowd.disabled = true;
   const hardness = state.qIndex/ (MONEY.length-1);
+  const correctIdx = getCorrectIdx();
   const correctBias = Math.max(0.35, 0.8 - hardness*0.5);
   const poll = [0,0,0,0]; let remaining = 100;
-  const correctIdx = state.current.answer;
   poll[correctIdx] = Math.floor(correctBias*100); remaining -= poll[correctIdx];
   const others = [0,1,2,3].filter(i=>i!==correctIdx);
   for(let i=0;i<others.length;i++){
@@ -819,21 +834,20 @@ function lifelineExpert(){
   const hardness = state.qIndex/ (MONEY.length-1);
   const accuracy = Math.max(0.45, 0.75 - hardness*0.35);
   const sayCorrect = Math.random() < accuracy;
-  const suggested = sayCorrect ? state.current.answer : randomOther(state.current.answer);
+  const correctIdx = getCorrectIdx();
+  const suggested = sayCorrect ? correctIdx : randomOther(correctIdx);
   explainEl.classList.remove('hidden');
   explainEl.innerHTML = `<div class="ok"><strong>Expert hint:</strong></div>
   <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
 }
 
-// ====== Overlays ======
-function hideRules(){ hide(rulesOverlay) }
-
 // ====== Times up ======
 function timesUp(){
   state.locked = true;
   markAnswers(false);
+  const ans = getCorrectIdx();
   explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+state.current.answer)}</strong>.</div>`;
+  explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+ans)}</strong>.</div>`;
   btnFinal.classList.add('hidden');
   btnNext.classList.add('hidden');
   btnQuit.classList.add('hidden');
@@ -851,9 +865,10 @@ function toggleTeacher(){
   if(pass === 'ULTRASOUND'){ state.teacher=true; teacherUI.style.display='flex'; }
   else if(pass){ alert('Incorrect passcode'); }
 }
-function reveal(){ if(!state.current) return; [...answersEl.children].forEach((b,i)=>{ if(i===state.current.answer) b.classList.add('correct'); }); }
+function reveal(){ if(!state.current) return; const ans = getCorrectIdx(); [...answersEl.children].forEach((b,i)=>{ if(i===ans) b.classList.add('correct'); }); }
 function skip(){ if(state.qIndex < MONEY.length-1) nextQuestion(); }
 function toggleClean(){ document.body.classList.toggle('clean'); }
+function toggleShuffle(){ state.shuffleOn = !state.shuffleOn; alert('Shuffle is now ' + (state.shuffleOn ? 'ON' : 'OFF')); }
 function exportCSV(){
   const rows = [['Question','Correct','Time(s)','Prize']];
   state.results.forEach(r=> rows.push([r.qIndex, r.correct, r.time ?? '', r.prize]));
@@ -878,7 +893,6 @@ const SCORE_KEY = 'shoulder_millionaire_scores_v1';
 function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
 function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
 function saveScore(prize){
-  // Only save once per game end; detect if already saved for this end state
   if(!state.results.length) return;
   const totalCorrect = state.results.filter(r=>r.correct).length;
   const topReached = Math.max(...state.results.map(r=>r.qIndex));
@@ -893,27 +907,26 @@ function saveScore(prize){
   };
   const scores = getScores();
   scores.push(entry);
-  // sort by prize desc, then correct desc, then time asc
   scores.sort((a,b)=> b.prize - a.prize || b.correct - a.correct || ((a.time||1e9) - (b.time||1e9)));
-  setScores(scores.slice(0,100)); // keep top 100
+  setScores(scores.slice(0,100));
 }
 function renderMiniScores(){
   const scores = getScores();
   if(!scores.length){ miniScores.textContent = 'No scores yet.'; return; }
-  const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${s.name || '—'}`).join('<br>');
+  const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${escapeHtml(s.name || '—')}`).join('<br>');
   miniScores.innerHTML = top;
 }
 function openScores(){ renderScoresTable(); show(scoresOverlay); }
 function closeScores(){ hide(scoresOverlay) }
 function renderScoresTable(){
   const scores = getScores();
-  if(!scores.length){ document.getElementById('scoresTable').innerHTML = '<p class="muted">No scores yet.</p>'; return; }
+  if(!scores.length){ scoresTable.innerHTML = '<p class="muted">No scores yet.</p>'; return; }
   let html = '<table><thead><tr><th>#</th><th>Name</th><th>Prize</th><th>Correct</th><th>Top Q</th><th>Time(s)</th><th>Lifelines</th><th>Date</th></tr></thead><tbody>';
   scores.forEach((s,i)=>{
     html += `<tr><td>${i+1}</td><td>${escapeHtml(s.name||'')}</td><td>£${s.prize.toLocaleString()}</td><td>${s.correct}</td><td>${s.topQ}</td><td>${s.time ?? ''}</td><td>${s.lifelines}</td><td>${s.date}</td></tr>`;
   });
   html += '</tbody></table>';
-  document.getElementById('scoresTable').innerHTML = html;
+  scoresTable.innerHTML = html;
 }
 function exportScores(){
   const scores = getScores();
@@ -927,7 +940,6 @@ function downloadCSV(rows, filename){
   const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
 }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
 
 // ====== Build UI on load ======
 renderLadder(); startTimer(); renderMiniScores();
