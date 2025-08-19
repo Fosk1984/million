@@ -95,7 +95,7 @@
   .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
   .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
   .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
+  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#var(--ink); padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
   .sr-only{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
   table{width:100%; border-collapse: collapse}
@@ -120,6 +120,7 @@
       <span class="timer" id="timer" aria-live="polite">45s</span>
       <button id="btnRules" class="pill" title="How to play">?</button>
       <button id="btnScores" class="pill" title="Leaderboard">🏆</button>
+      <button id="btnSound" class="pill" title="Toggle sound">🔊</button>
     </div>
   </header>
 
@@ -163,7 +164,7 @@
       <li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
       <li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
     </ul>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
+    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span>. Clean view with <span class="kbd">C</span>.</p>
     <div style="display:flex; gap:8px; justify-content:flex-end">
       <button onclick="hide(rulesOverlay)">Close</button>
     </div>
@@ -236,10 +237,19 @@
   </div>
 </div>
 
+<!-- ====== AUDIO (put your files in /sounds or adjust src paths) ====== -->
+<audio id="snd-question" src="sounds/question.mp3" preload="auto" loop></audio>
+<audio id="snd-final"    src="sounds/final.mp3"    preload="auto"></audio>
+<audio id="snd-correct"  src="sounds/correct.mp3"  preload="auto"></audio>
+<audio id="snd-wrong"    src="sounds/wrong.mp3"    preload="auto"></audio>
+<audio id="snd-5050"     src="sounds/lifeline5050.mp3" preload="auto"></audio>
+<audio id="snd-crowd"    src="sounds/lifelineCrowd.mp3" preload="auto"></audio>
+<audio id="snd-expert"   src="sounds/lifelineExpert.mp3" preload="auto"></audio>
+
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight
+   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight + Sounds
    ============================= */
 
 // Money ladder (bottom to top)
@@ -262,7 +272,8 @@ let state = {
   results: [], // {qIndex, correct, time, prize}
   teacher: false,
   player: '',
-  shuffleOn: true
+  shuffleOn: true,
+  soundOn: true
 };
 
 // --- Base bank (15) ---
@@ -606,9 +617,20 @@ const scoresOverlay  = document.getElementById('scores');
 const teacherUI      = document.getElementById('teacherUI');
 const miniScores     = document.getElementById('miniScores');
 const scoresTable    = document.getElementById('scoresTable');
+const btnSound       = document.getElementById('btnSound');
+
+// Audio refs
+const sndQ      = document.getElementById('snd-question');
+const sndFinal  = document.getElementById('snd-final');
+const sndCorrect= document.getElementById('snd-correct');
+const sndWrong  = document.getElementById('snd-wrong');
+const snd5050   = document.getElementById('snd-5050');
+const sndCrowd  = document.getElementById('snd-crowd');
+const sndExpert = document.getElementById('snd-expert');
 
 document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
 document.getElementById('btnScores').addEventListener('click', openScores);
+btnSound.addEventListener('click', toggleSound);
 
 // ====== Events ======
 btnStart.addEventListener('click', startGame);
@@ -616,6 +638,7 @@ btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
   document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
   show(confirmOverlay);
+  playSound('final', true); // sting when opening final confirmation
 });
 btnNext.addEventListener('click', nextQuestion);
 btnQuit.addEventListener('click', walkAway);
@@ -637,7 +660,40 @@ function hide(el){ el.style.display='none' }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39'}[m])) }
+
+// ====== Audio helpers ======
+function setAllMuted(m){
+  [sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
+}
+function playEl(audio){
+  if(!audio) return;
+  try{ audio.currentTime = 0; audio.play(); }catch(e){ /* autoplay lock until first interaction */ }
+}
+function pauseEl(audio){
+  if(!audio) return;
+  try{ audio.pause(); }catch(e){}
+}
+function playSound(kind, pauseBed=false){
+  if(pauseBed) pauseEl(sndQ);
+  if(kind==='final')   return playEl(sndFinal);
+  if(kind==='correct') return playEl(sndCorrect);
+  if(kind==='wrong')   return playEl(sndWrong);
+  if(kind==='5050')    return playEl(snd5050);
+  if(kind==='crowd')   return playEl(sndCrowd);
+  if(kind==='expert')  return playEl(sndExpert);
+}
+function startQuestionBed(){
+  if(!state.soundOn) return;
+  playEl(sndQ);
+}
+function pauseQuestionBed(){ pauseEl(sndQ); }
+function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
+function toggleSound(){
+  state.soundOn = !state.soundOn;
+  setAllMuted(!state.soundOn);
+  btnSound.textContent = state.soundOn ? '🔊' : '🔇';
+}
 
 // ====== Option shuffle & mapping ======
 function prepareQuestion(q){
@@ -715,7 +771,7 @@ function resetGame(){
   explainEl.classList.add('hidden');
   qImg.style.display='none';
   state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
-  renderLadder(); startTimer();
+  renderLadder(); startTimer(); stopQuestionBed();
 }
 function loadQuestion(){
   state.current = prepareQuestion(state.bank[state.qIndex]);
@@ -742,6 +798,9 @@ function loadQuestion(){
   btnFinal.classList.remove('hidden');
   btnNext.classList.add('hidden');
   startTimer(); highlightLadder(state.qIndex);
+
+  // Start/continue the question bed after user action (startGame/nextQuestion)
+  startQuestionBed();
 }
 function select(i, btn){
   if(state.locked) return;
@@ -759,6 +818,10 @@ function lockIn(){
   if(state.picked == null || state.locked) return;
   state.locked = true;
   clearInterval(state.intervalId);
+
+  // Pause the bed and play the lock sting
+  pauseQuestionBed(); playSound('final');
+
   const correctIdx = getCorrectIdx();
   const correct = state.picked === correctIdx;
   markAnswers(correct);
@@ -770,7 +833,10 @@ function lockIn(){
   btnFinal.classList.add('hidden');
   btnNext.classList.remove('hidden');
 
-  if(!correct){ endGame(prize); return; }
+  // Correct/Incorrect sting
+  if(correct){ playSound('correct'); }
+  else { playSound('wrong'); endGame(prize); return; }
+
   if(state.qIndex === MONEY.length-1){ youWin(); return; }
 }
 function markAnswers(correct){
@@ -799,6 +865,7 @@ function youWin(){
   explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Outstanding knowledge.</div>`;
   btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
   saveScore(1000000);
+  playSound('correct'); stopQuestionBed();
 }
 function endGame(prize, walked=false){
   btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
@@ -806,6 +873,7 @@ function endGame(prize, walked=false){
     `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
   explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
   saveScore(prize);
+  stopQuestionBed();
 }
 
 // ====== Lifelines ======
@@ -820,7 +888,6 @@ function lifeline5050(){
     if(remove.includes(idx)){
       b.disabled = true;
       b.style.opacity = .4;
-      // If the removed option was selected, clear selection
       if(b.dataset.selected === 'true'){
         b.dataset.selected = 'false';
         b.setAttribute('aria-checked','false');
@@ -828,6 +895,7 @@ function lifeline5050(){
       }
     }
   });
+  playSound('5050');
 }
 function lifelineCrowd(){
   if(state.usedCrowd || !state.current) return;
@@ -853,6 +921,7 @@ function lifelineCrowd(){
     container.appendChild(bar);
   });
   show(crowdOverlay);
+  playSound('crowd');
 }
 function closePoll(){ hide(crowdOverlay) }
 function lifelineExpert(){
@@ -866,6 +935,7 @@ function lifelineExpert(){
   explainEl.classList.remove('hidden');
   explainEl.innerHTML = `<div class="ok"><strong>Expert hint:</strong></div>
   <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
+  playSound('expert');
 }
 
 // ====== Times up ======
@@ -880,6 +950,7 @@ function timesUp(){
   btnQuit.classList.add('hidden');
   btnStart.classList.remove('hidden');
   saveScore(getSafePrize());
+  playSound('wrong'); stopQuestionBed();
 }
 
 // ====== Bank helpers ======
@@ -970,6 +1041,7 @@ function downloadCSV(rows, filename){
 
 // ====== Build UI on load ======
 renderLadder(); startTimer(); renderMiniScores();
+setAllMuted(!state.soundOn); // default sound ON
 
 </script>
 </body>
