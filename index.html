@@ -475,7 +475,8 @@ function renderLadder(){
   ladderEl.innerHTML = '';
   MONEY.forEach((m, idx)=>{
     const li = document.createElement('li');
-    const n = 15-idx;
+-   const n = 15 - idx;            // ❌ gives #1 at the top (wrong)
++   const n = idx + 1;             // ✅ #15 at the top, #1 at the bottom (correct with column-reverse)
     if([4,9].includes(idx)) li.classList.add('safe');
     li.dataset.index = idx;
     li.innerHTML = `<span>#${n}</span><span>£${m.toLocaleString()}</span>`;
@@ -483,6 +484,7 @@ function renderLadder(){
   });
   highlightLadder(0);
 }
+
 function highlightLadder(qIndex){
   [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
 }
