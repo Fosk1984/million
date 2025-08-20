@@ -55,7 +55,6 @@
     .rung.safe{
       border-color: rgba(255,211,106,.6);
       background: linear-gradient(90deg, rgba(255,211,106,.12), transparent);
-      position: relative;
     }
     .rung.safe .amount::after{
       content:"  🛡";
@@ -66,7 +65,7 @@
     .qbox{ display:flex; flex-direction:column; gap:14px; }
     .question{
       background: linear-gradient(180deg, #0e1530, #0d1226); border:1px solid var(--edge); border-radius:16px; padding:16px; font-size:clamp(16px, 2.4vw, 20px);
-      line-height:1.4; font-weight:700; position:relative; min-height:84px; display:flex; align-items:center; justify-content:center; text-align:center;
+      line-height:1.4; font-weight:700; min-height:84px; display:flex; align-items:center; justify-content:center; text-align:center;
     }
     .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
 
@@ -120,6 +119,7 @@
           <div id="opts" class="options"></div>
           <div class="actions">
             <button id="lockBtn" disabled>Lock Final Answer</button>
+            <button id="walkBtn" disabled>Walk Away (£0)</button>
             <div class="lifelines">
               <div class="chip" id="ll5050">50:50</div>
               <div class="chip" id="llAudience">Ask the Audience</div>
@@ -232,7 +232,8 @@
       selected: null,
       used: { fifty:false, audience:false, phone:false },
       soundEnabled: false,
-      locking: false
+      locking: false,
+      ended: false
     };
 
     /* ===================== Helpers ===================== */
@@ -241,6 +242,7 @@
     const rand = n => Math.floor(Math.random()*n);
     const shuffle = arr => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
     function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
+    const currentWinnings = () => state.winningsIndex>=0 ? ladderAmts[state.winningsIndex] : 0;
 
     function buildLadder(){
       const lad = $('#ladder'); lad.innerHTML='';
@@ -257,9 +259,15 @@
     function highlightLadder(){
       $$('#ladder .rung').forEach(r=>{
         const idx = +r.dataset.idx;
-        r.classList.toggle('current', idx===state.winningsIndex+1);
+        r.classList.toggle('current', !state.ended && idx===state.winningsIndex+1);
         r.classList.toggle('won',     idx<=state.winningsIndex);
       });
+      updateWalkBtn();
+    }
+    function updateWalkBtn(){
+      const b = $('#walkBtn');
+      b.textContent = `Walk Away (£${currentWinnings().toLocaleString()})`;
+      b.disabled = state.qIndex < 0 || state.ended;
     }
     function setStatus(msg=''){ $('#status').innerHTML = msg; }
 
@@ -340,25 +348,29 @@
     /* ===================== Game Flow ===================== */
     function startGame(){
       disableOptions(); state.selected=null; state.used={fifty:false,audience:false,phone:false};
-      state.winningsIndex = -1; state.qIndex = -1; buildLadder();
+      state.winningsIndex = -1; state.qIndex = -1; state.ended=false;
+      buildLadder();
       renderLifelines();
+      updateWalkBtn();
       state.order = shuffle(questionsBank).slice(0,15);
       nextQuestion();
       if(state.soundEnabled){ sounds.question(); }
     }
 
     function renderLifelines(){
-      const setUsed=(id,used)=>{ const el=$(id); el.classList.toggle('used', used); };
+      const setUsed=(id,used)=>{ const el=$(id); el.classList.toggle('used', used || state.ended); };
       setUsed('#ll5050', state.used.fifty);
       setUsed('#llAudience', state.used.audience);
       setUsed('#llPhone', state.used.phone);
     }
 
     function nextQuestion(){
+      if(state.ended) return;
       state.qIndex++;
       if(state.qIndex >= state.order.length){
         setStatus(`<b>Congratulations!</b> You won <b>£${ladderAmts[state.winningsIndex]?.toLocaleString()||'1,000,000'}</b>. Click <b>Start Game</b> to play again.`);
         stopAllAudio();
+        $('#walkBtn').disabled = true;
         return;
       }
       const qObj = state.order[state.qIndex];
@@ -370,23 +382,24 @@
         btn.addEventListener('click', ()=>selectOption(i, btn));
         opts.append(btn);
       });
-      $('#lockBtn').disabled = true; setStatus('Pick an option.');
+      $('#lockBtn').disabled = true; $('#walkBtn').disabled=false;
+      setStatus('Pick an option, or <b>Walk Away</b>.');
       highlightLadder();
       $$('#opts .option').forEach(o=>o.classList.remove('eliminated','correct','wrong','selected'));
       if(state.soundEnabled){ stopTag('correctAudio'); stopTag('wrongAudio'); stopTag('lifelineAudio'); sounds.question(); }
     }
 
     function selectOption(i, el){
-      if(state.locking) return;
+      if(state.locking || state.ended) return;
       $$('#opts .option').forEach(x=>x.classList.remove('selected'));
       el.classList.add('selected');
-      state.selected = i; $('#lockBtn').disabled=false; setStatus('Ready? Click <b>Lock Final Answer</b>.');
+      state.selected = i; $('#lockBtn').disabled=false; setStatus('Ready? Click <b>Lock Final Answer</b> or <b>Walk Away</b>.');
     }
 
     function disableOptions(dis=true){ $$('#opts .option').forEach(o=> o.style.pointerEvents = dis?'none':'auto'); }
 
     function lockAnswer(){
-      if(state.selected==null) return;
+      if(state.selected==null || state.ended) return;
       state.locking = true; disableOptions(true);
       stopTag('questionAudio'); // ensure bg is paused before sfx
       const qObj = state.order[state.qIndex];
@@ -417,20 +430,37 @@
           const amount = (safe==null) ? 0 : ladderAmts[safe];
           setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
           state.locking=false;
+          state.ended=true; $('#walkBtn').disabled = true; renderLifelines(); stopAllAudio();
+          // remove current highlight
+          $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
         }
       }, 800);
     }
 
+    /* ===================== Walk Away ===================== */
+    function walkAway(){
+      if(state.qIndex<0 || state.ended) return;
+      state.ended = true;
+      const amount = currentWinnings();
+      setStatus(`You chose to <b>walk away</b> with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to play again.`);
+      stopAllAudio();
+      $('#lockBtn').disabled = true; $('#walkBtn').disabled = true;
+      disableOptions(true);
+      renderLifelines();
+      // clear 'current' highlight since game is over
+      $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
+    }
+
     /* ===================== Lifelines ===================== */
     function use5050(){
-      if(state.used.fifty || state.qIndex<0) return; state.used.fifty=true; renderLifelines(); sounds.lifeline();
+      if(state.used.fifty || state.qIndex<0 || state.ended) return; state.used.fifty=true; renderLifelines(); sounds.lifeline();
       const qObj = state.order[state.qIndex]; const correct = qObj.c;
       const wrongs = [0,1,2,3].filter(i=>i!==correct); const toRemove = shuffle(wrongs).slice(0,2);
       toRemove.forEach(i=>{ const el = $(`#opts .option[data-idx="${i}"]`); if(el) el.classList.add('eliminated'); });
     }
 
     function useAudience(){
-      if(state.used.audience || state.qIndex<0) return; state.used.audience=true; renderLifelines(); sounds.lifeline();
+      if(state.used.audience || state.qIndex<0 || state.ended) return; state.used.audience=true; renderLifelines(); sounds.lifeline();
       const qObj = state.order[state.qIndex]; const correct = qObj.c;
       let base = [rand(40)+10, rand(40)+10, rand(40)+10, rand(40)+10];
       const sum = base.reduce((a,b)=>a+b,0); base = base.map(v=> Math.round(v*100/sum));
@@ -447,7 +477,7 @@
     }
 
     function usePhone(){
-      if(state.used.phone || state.qIndex<0) return; state.used.phone=true; renderLifelines(); sounds.lifeline();
+      if(state.used.phone || state.qIndex<0 || state.ended) return; state.used.phone=true; renderLifelines(); sounds.lifeline();
       const correctLetter = 'ABCD'[state.order[state.qIndex].c];
       const confident = Math.random()<0.75;
       const guess = confident? correctLetter : 'ABCD'.replace(correctLetter,'')[rand(3)];
@@ -456,13 +486,14 @@
       showModal('modalPhone');
     }
 
-    function showModal(id){ $('#'+id).classList.add('show'); }
+    function showModal(id){ if(!state.ended) $('#'+id).classList.add('show'); }
     function hideModal(id){ $('#'+id).classList.remove('show'); }
 
     /* ===================== Wire Up ===================== */
     buildLadder();
     $('#startBtn').addEventListener('click', ()=>{ enableSound(); startGame(); });
     $('#lockBtn').addEventListener('click', lockAnswer);
+    $('#walkBtn').addEventListener('click', walkAway);
     $('#ll5050').addEventListener('click', use5050);
     $('#llAudience').addEventListener('click', useAudience);
     $('#llPhone').addEventListener('click', usePhone);
@@ -477,6 +508,7 @@
       if(['1','2','3','4'].includes(e.key)){
         const idx = +e.key - 1; const el = $(`#opts .option[data-idx="${idx}"]`); if(el) selectOption(idx, el);
       }else if(e.key.toLowerCase()==='l'){ if(!$('#lockBtn').disabled) lockAnswer(); }
+      else if(e.key.toLowerCase()==='w'){ if(!$('#walkBtn').disabled) walkAway(); }
     });
 
     // Accessibility: clicking anywhere on option also selects
