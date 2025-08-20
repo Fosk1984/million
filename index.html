@@ -1,871 +1,706 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Who Wants to Be a Millionaire — Shoulder Pathology</title>
-<meta name="description" content="A Millionaire-style quiz focused on shoulder pathology." />
-<link rel="icon" href="data:,"><!-- silence favicon 404 -->
-<style>
-:root{
---bg:#0b0f1a; --card:#12172a; --ink:#eaf0ff; --muted:#a8b2cc;
---acc:#6ac2ff; --acc2:#ffd36a; --good:#33d17a; --bad:#ff6b6b; --edge:#2a3567;
---glow:0 8px 30px rgba(106,194,255,.25);
-}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-margin:0; background: radial-gradient(1200px 700px at 70% -20%, #142043 0%, #0b0f1a 60%) fixed, var(--bg);
-color:var(--ink); font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-line-height:1.4;
-}
-.wrap{max-width:1200px; margin:0 auto; padding:16px;}
-header{display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px}
-.brand{display:flex; align-items:center; gap:12px}
-.coin{
-width:42px; height:42px; border-radius:50%; background: radial-gradient(circle at 30% 30%, #ffeaa3, #f2b705 60%, #9a6a00);
-box-shadow: inset 0 0 6px rgba(0,0,0,.5), 0 4px 18px rgba(255,211,106,.25);
-}
-.title{font-weight:800; letter-spacing:.3px}
-.lifelines{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-button,.btn{
-background: linear-gradient(180deg, #1e2760, #152053);
-border:1px solid #243073; color:var(--ink);
-padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:700;
-box-shadow: var(--glow); transition: transform .1s ease, box-shadow .2s ease, opacity .2s ease;
-}
-button:hover{transform: translateY(-1px)}
-button:disabled{opacity:.45; cursor:not-allowed}
-.pill{font-size:.9rem}
-.layout{display:grid; grid-template-columns: 1fr 280px; gap:16px; align-items:start}
-@media (max-width: 960px){ .layout{grid-template-columns:1fr} .ladder{order:-1} }
-.card{
-background: linear-gradient(180deg, #12172a, #0f1426);
-border:1px solid var(--edge); border-radius:16px; padding:14px; box-shadow: var(--glow);
-}
-.question{font-size: clamp(1rem, 2.6vw, 1.2rem); font-weight:700; margin:4px 0 12px}
-.q-meta{color:var(--muted); font-size:.9rem; display:flex; gap:10px; align-items:center; flex-wrap:wrap}
-.q-image{max-width:100%; border-radius:12px; border:1px solid var(--edge); margin:8px 0 4px; display:none}
-.answers{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px}
-@media (max-width:640px){ .answers{grid-template-columns:1fr} }
-.ans{
-display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #2a3567; border-radius:12px;
-background: linear-gradient(180deg, #0f1738, #0c132f); font-weight:700; position:relative; overflow:hidden;
-}
-.ans .label{opacity:.9; color:#9eb4ff}
-.ans[data-selected="true"]{
-outline:2px solid #6ac2ff;
-box-shadow: 0 0 0 3px rgba(106,194,255,.25);
-background: linear-gradient(180deg, #14204a, #0f183d);
-border-color:#3350a8;
-}
-.ans.correct{outline:2px solid var(--good); box-shadow: 0 0 0 3px rgba(51,209,122,.3)}
-.ans.wrong{outline:2px solid var(--bad); box-shadow: 0 0 0 3px rgba(255,107,107,.25)}
-.actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-.muted{color:var(--muted)}
-.ladder{position:sticky; top:12px}
-  .ladder ol{display:flex; flex-direction:column-reverse; padding:0; margin:0; list-style:none}
-  .ladder ol{
-    display:flex; flex-direction:column-reverse; /* ✅ Q1 bottom → Q15 top */
-    padding:0; margin:0; list-style:none;
-  }
-.ladder li{display:flex; justify-content:space-between; padding:4px 6px; border-radius:8px; margin-bottom:2px; border:1px solid transparent}
-.ladder .active{border-color:var(--acc2); outline:2px solid rgba(255,211,106,.35); background: linear-gradient(180deg, #1c2450, #10183f)}
-.ladder .safe{color:#ffe39a}
-.timer{
-min-width:60px; text-align:center; font-weight:800; border-radius:10px; padding:8px 10px;
-border:1px solid #2a3567; background:linear-gradient(180deg,#0e1535,#0b112b)
-}
-.explain{margin-top:10px; padding:10px; border-radius:12px; border:1px solid #2a3567; background:#0c1430}
-.footer{margin-top:14px; color:var(--muted); font-size:.85rem}
-.hidden{display:none !important}
-.chip{padding:3px 8px; border-radius:999px; border:1px solid #2a3567; background:#0f1738; font-weight:700; font-size:.78rem}
-.ok{color:#c1ffd6} .bad{color:#ffc1c1}
-  .overlay{
-    position:fixed; inset:0; background:rgba(7,9,20,.72); backdrop-filter: blur(4px);
-    display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
-  }
-  .overlay .sheet{max-width:720px; width:100%; background:linear-gradient(180deg,#12172a,#0f1426);
-    border:1px solid var(--edge); border-radius:16px; padding:16px; box-shadow: var(--glow);
-  }
-  .sheet h2{margin:0 0 8px}
-  .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight:700; border:1px solid #2a3567; padding:2px 6px; border-radius:6px; background:#0b122f; color:#cfe0ff}
-  .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
-  .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
-  .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#ink; padding:8px}
-  .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Who Wants to Be a Millionaire — Ultrasound Pathology</title>
+  <meta name="description" content="A Millionaire-style quiz focused on ultrasound pathology." />
+  <link rel="icon" href="data:,"><!-- silence favicon 404 on GitHub Pages -->
+  <style>
+    :root{
+      --bg:#0b0f1a; --card:#12172a; --ink:#eaf0ff; --muted:#a8b2cc;
+      --acc:#6ac2ff; --acc2:#ffd36a; --good:#33d17a; --bad:#ff6b6b; --edge:#2a3567;
+      --glow:0 8px 30px rgba(106,194,255,.25);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--ink); background: radial-gradient(1600px 900px at 20% -10%, #182449 0%, #0f1533 40%, #0b0f1a 100%);
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .app{ width:min(1100px, 100%); }
+    header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;
+    }
+    header h1{ font-size: clamp(18px, 2.2vw, 24px); margin:0; font-weight:800; letter-spacing:.3px; }
+    .controls{ display:flex; gap:8px; flex-wrap:wrap; }
+    button, .btn{
+      background: linear-gradient(180deg, #1a2345, #101733); color:var(--ink); border:1px solid var(--edge);
+      padding:10px 14px; border-radius:999px; cursor:pointer; box-shadow:var(--glow); font-weight:700; letter-spacing:.3px;
+      transition:.2s transform, .2s filter, .2s background;
+    }
+    button:hover{ transform:translateY(-1px); filter:brightness(1.06); }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+
+    .game{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:16px;
+    }
+    @media (max-width: 900px){ .game{ grid-template-columns: 1fr; } }
+
+    .stage{
+      background: linear-gradient(180deg, #12172a, #0f1426); border:1px solid var(--edge); border-radius:18px; padding:16px;
+      box-shadow:var(--glow);
+    }
+    .ladder{
+      background: linear-gradient(180deg, #101733, #0d1327); border:1px solid var(--edge); border-radius:18px; padding:16px; box-shadow:var(--glow);
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .ladder h3{ margin:0 0 8px; font-size:16px; color:var(--muted); }
+    .rung{ display:flex; align-items:center; justify-content:space-between; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.06); }
+    .rung .num{ width:26px; aspect-ratio:1/1; display:grid; place-items:center; border-radius:999px; background:#0c1330; border:1px solid #1f2a58; font-weight:800; font-size:12px; }
+    .rung .amount{ font-weight:800; letter-spacing:.4px; }
+    .rung.current{ background: linear-gradient(90deg, rgba(106,194,255,.15), transparent); border-color:#3a4ba0; }
+    .rung.won{ background: linear-gradient(90deg, rgba(51,209,122,.16), transparent); border-color:#2f8a61; }
+
+    .qbox{ display:flex; flex-direction:column; gap:14px; }
+    .question{
+      background: linear-gradient(180deg, #0e1530, #0d1226); border:1px solid var(--edge); border-radius:16px; padding:16px; font-size:clamp(16px, 2.4vw, 20px);
+      line-height:1.4; font-weight:700; position:relative; min-height:84px; display:flex; align-items:center; justify-content:center; text-align:center;
+    }
+    .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+
+    .options{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width: 640px){ .options{ grid-template-columns: 1fr; } }
+    .option{
+      border:1px solid var(--edge); background: linear-gradient(180deg, #0f1733, #0d1329); border-radius:14px; padding:12px; text-align:left;
+      display:flex; gap:12px; align-items:center; cursor:pointer; position:relative; overflow:hidden;
+    }
+    .option .badge{ width:28px; aspect-ratio:1/1; display:grid; place-items:center; border-radius:6px; font-weight:900; background:#0c1330; border:1px solid #1f2a58; }
+    .option.correct{ outline:2px solid var(--good); box-shadow:0 0 0 4px rgba(51,209,122,.12) inset; }
+    .option.wrong{ outline:2px solid var(--bad); box-shadow:0 0 0 4px rgba(255,107,107,.12) inset; }
+    .option.eliminated{ opacity:.5; filter:grayscale(1); pointer-events:none; }
+    .option.selected{ border-color:#4560c9; background: linear-gradient(180deg, #121c42, #0f1838); }
+
+    .lifelines{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+    .chip{ padding:8px 12px; border-radius:999px; border:1px dashed #2a3567; background:#0d1430; font-weight:800; cursor:pointer; }
+    .chip.used{ opacity:.5; pointer-events:none; text-decoration:line-through; }
+
+    .status{ text-align:center; color:var(--muted); font-size:14px; min-height:20px; }
+
+    .modal{ position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:50; padding:20px; }
+    .modal.show{ display:grid; }
+    .card{
+      max-width:680px; width:100%; background: linear-gradient(180deg, #111935, #0e1430); border:1px solid var(--edge); border-radius:16px; padding:18px; box-shadow:var(--glow);
+    }
+    .card h3{ margin:0 0 10px; }
+    .barrow{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; }
+    .bar{ height:120px; background:linear-gradient(180deg, #1c2752, #0f1736); border:1px solid #2a3567; border-radius:10px; display:flex; align-items:flex-end; justify-content:center; position:relative; }
+    .bar span{ position:absolute; bottom:100%; transform:translateY(-4px); font-weight:800; }
+    .bar label{ position:absolute; bottom:6px; font-weight:800; color:var(--muted); }
+
+    .toast{ position:fixed; left:50%; transform:translateX(-50%); bottom:16px; background:#0d1430; border:1px solid var(--edge); color:var(--ink); padding:10px 14px; border-radius:999px; box-shadow:var(--glow); font-weight:700; display:none; }
+    .toast.show{ display:block; }
+  </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-<div class="brand">
-<div class="coin" aria-hidden="true"></div>
-<div>
-<div class="title">Who Wants to Be a Millionaire — <span style="color:#9dd2ff">Shoulder Pathology</span></div>
-<div class="muted" style="font-size:.9rem">Educational practice mode • <span id="modeLabel">Timer: On</span></div>
-</div>
-</div>
-<div class="lifelines">
-      <button id="ll5050" class="pill">50:50</button>
-      <button id="llCrowd" class="pill">Ask the Crowd</button>
-      <button id="llExpert" class="pill">Ask an Expert</button>
-      <span class="timer" id="timer">45s</span>
-      <button id="btnRules" class="pill">?</button>
-      <button id="btnScores" class="pill">🏆</button>
-      <button id="btnSound" class="pill">🔊</button>
-      <button id="ll5050" class="pill" title="Eliminate two wrong answers (once)">50:50</button>
-      <button id="llCrowd" class="pill" title="Show audience poll (once)">Ask the Crowd</button>
-      <button id="llExpert" class="pill" title="Get a nudge from the 'expert' (once)">Ask an Expert</button>
-      <span class="timer" id="timer" aria-live="polite">45s</span>
-      <button id="btnRules" class="pill" title="How to play">?</button>
-      <button id="btnScores" class="pill" title="Leaderboard">🏆</button>
-      <button id="btnSound" class="pill" title="Toggle sound">🔊</button>
-</div>
-</header>
-
-<div class="layout">
-    <main class="card">
-    <main class="card" id="mainCard" aria-live="polite">
-<img id="qImg" class="q-image" alt="">
-<div class="q-meta"><span id="qTopic" class="chip">Topic</span><span id="qLevel" class="chip">Q1</span></div>
-<div id="question" class="question">Press Start to begin.</div>
-<div class="answers" id="answers"></div>
-<div class="actions">
-<button id="btnStart">Start Game</button>
-<button id="btnFinal" class="hidden">Final Answer</button>
-<button id="btnNext" class="hidden">Next Question</button>
-<button id="btnQuit" class="hidden">Walk Away</button>
-</div>
-<div id="explain" class="explain hidden"></div>
-      <div class="footer">
-        Hotkeys: <span class="kbd">T</span> teacher panel • <span class="kbd">C</span> clean view • <span class="kbd">Space</span> confirm • <span class="kbd">N</span> next
+  <div class="app">
+    <header>
+      <h1>Who Wants to Be a Millionaire — <span style="color:var(--acc2)">Ultrasound Pathology</span></h1>
+      <div class="controls">
+        <button id="startBtn">Start Game</button>
+        <button id="soundBtn" aria-pressed="false">🔊 Enable Sound</button>
+        <button id="introBtn" title="Play intro theme">▶️ Intro</button>
       </div>
-</main>
+    </header>
 
-<aside class="card ladder">
-      <h3>Prize Ladder</h3>
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
-        <div class="muted">Prize Ladder</div>
-        <div><span class="chip">Safe at £1,000</span> <span class="chip">£32,000</span></div>
+    <div class="game">
+      <section class="stage">
+        <div class="qbox">
+          <div id="q" class="question">Press <b>Start Game</b> to begin. 15 questions stand between you and £1,000,000.</div>
+          <div id="opts" class="options"></div>
+          <div class="actions">
+            <button id="lockBtn" disabled>Lock Final Answer</button>
+            <div class="lifelines">
+              <div class="chip" id="ll5050">50:50</div>
+              <div class="chip" id="llAudience">Ask the Audience</div>
+              <div class="chip" id="llPhone">Phone a Friend</div>
+            </div>
+          </div>
+          <div class="status" id="status"></div>
+        </div>
+      </section>
+
+      <aside class="ladder">
+        <h3>Prize Ladder</h3>
+        <div id="ladder"></div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="modalAudience" class="modal" role="dialog" aria-modal="true" aria-labelledby="audTitle">
+    <div class="card">
+      <h3 id="audTitle">Audience Poll</h3>
+      <div class="barrow" id="audBars"></div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+        <button onclick="hideModal('modalAudience')">Close</button>
       </div>
-      <h3>Top Wins (this device)</h3>
-      <div id="miniScores" class="muted" style="font-size:.9rem; margin-bottom:8px">No scores yet.</div>
-<ol id="ladder"></ol>
-</aside>
-</div>
-</div>
-
-<!-- ====== AUDIO ====== -->
-<!-- Overlays (rules, confirm, poll, scores) -->
-<div class="overlay" id="rules">
-  <div class="sheet">
-    <h2>How to play</h2>
-    <p>Answer 15 ascending-difficulty questions on shoulder pathology. You have one use each of <strong>50:50</strong>, <strong>Ask the Crowd</strong>, and <strong>Ask an Expert</strong>. Safe havens are at £1,000 (Q5) and £32,000 (Q10). Timer is 45s/question (toggle in Teacher panel).</p>
-    <ul>
-      <li><strong>50:50</strong>: removes two incorrect options.</li>
-      <li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
-      <li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
-    </ul>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span>. Clean view with <span class="kbd">C</span>.</p>
-    <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="hide(rulesOverlay)">Close</button>
     </div>
   </div>
-</div>
 
-<div class="overlay" id="confirm">
-  <div class="sheet">
-    <h2>Final answer?</h2>
-    <p id="confirmText" class="muted">You chose A.</p>
-    <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="lockIn()">Yes, lock it in</button>
-      <button onclick="cancelLock()">Cancel</button>
+  <div id="modalPhone" class="modal" role="dialog" aria-modal="true" aria-labelledby="phoneTitle">
+    <div class="card">
+      <h3 id="phoneTitle">Phone a Friend</h3>
+      <p id="phoneText" style="line-height:1.5"></p>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+        <button onclick="hideModal('modalPhone')">Close</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="overlay" id="crowdPoll">
-  <div class="sheet">
-    <h2>Audience Poll</h2>
-    <p class="muted">Crowd thinks the answer is…</p>
-    <div id="pollBars"></div>
-    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
-      <button onclick="closePoll()">Close</button>
-    </div>
-  </div>
-</div>
+  <div id="toast" class="toast" role="status" aria-live="polite">Sound is muted by your browser. Click <b>Enable Sound</b> first.</div>
 
-<div class="overlay" id="scores">
-  <div class="sheet">
-    <h2>Leaderboard (this device)</h2>
-    <div id="scoresTable" style="margin:10px 0"></div>
-    <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="exportScores()">Export Scores</button>
-      <button onclick="resetScores()">Reset Scores</button>
-      <button onclick="closeScores()">Close</button>
-    </div>
-  </div>
-</div>
+  <!-- Audio elements (use your own files in /audio to replace these). Fallback synth plays if loading fails. -->
+  <audio id="introAudio" preload="auto" src="audio/intro.mp3"></audio>
+  <audio id="questionAudio" preload="auto" loop src="audio/question.mp3"></audio>
+  <audio id="correctAudio" preload="auto" src="audio/correct.mp3"></audio>
+  <audio id="wrongAudio" preload="auto" src="audio/wrong.mp3"></audio>
+  <audio id="lifelineAudio" preload="auto" src="audio/lifeline.mp3"></audio>
 
-<!-- Teacher tools -->
-<div class="teacher" id="teacherUI" aria-live="polite">
-  <div class="pane">
-    <h4>Teacher Controls</h4>
-    <div class="muted" id="teacherStatus">Unlocked</div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
-      <button onclick="toggleTimer()">Toggle Timer</button>
-      <button onclick="reveal()">Reveal Answer</button>
-      <button onclick="skip()">Skip Question</button>
-      <button onclick="resetGame()">Reset</button>
-      <button onclick="toggleClean()">Clean View</button>
-    </div>
-    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
-      <button onclick="exportCSV()">Export This Run</button>
-      <button onclick="loadSample()">Load Sample Bank</button>
-      <button onclick="useExpanded()">Use Expanded Bank</button>
-      <button onclick="toggleShuffle()">Toggle Shuffle</button>
-    </div>
-  </div>
-  <div class="pane">
-    <h4>Import Questions (JSON)</h4>
-    <p class="muted" style="margin:0 0 6px">Paste an array of question objects then click <em>Replace Bank</em>.</p>
-    <textarea id="qImport" placeholder='[ { "q":"...", "options":["A","B","C","D"], "answer":0, "topic":"Rotator cuff", "hint":"...", "explain":"...", "image":"" } ]'></textarea>
-    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
-      <button onclick="replaceBank()">Replace Bank</button>
-    </div>
-  </div>
-</div>
+  <script>
+    /* ===================== State & Data ===================== */
+    const ladderAmts = [
+      100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000
+    ];
+    const safeIndices = [4, 9]; // £1,000 and £32,000 safeties (0‑based)
 
-<!-- ====== AUDIO (ensure these files exist in /sounds) ====== -->
-<audio id="snd-intro"    src="sounds/intro.mp3" preload="auto" loop></audio>
-<audio id="snd-question" src="sounds/question-music.mp3" preload="auto" loop></audio>
-<audio id="snd-final"    src="sounds/final.mp3" preload="auto"></audio>
-<audio id="snd-correct"  src="sounds/correct.mp3" preload="auto"></audio>
-<audio id="snd-wrong"    src="sounds/wrong.mp3" preload="auto"></audio>
-<audio id="snd-5050"     src="sounds/lifeline5050.mp3" preload="auto"></audio>
-<audio id="snd-crowd"    src="sounds/lifelineCrowd.mp3" preload="auto"></audio>
-<audio id="snd-expert"   src="sounds/lifelineExpert.mp3" preload="auto"></audio>
-
-<script>
-/* =============================
-   Millionaire — Shoulder Pathology (full build)
-   - Correct ladder numbers (Q1 bottom → Q15 top)
-   - Robust audio unlock (no auto-mute)
-   - Intro on launch/reset, stops at Start
-   - Question bed per question
-   - Wrong.mp3 waits before endGame
-   - Walk away plays correct.mp3
-   ============================= */
-
-const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
-const SAFE_INDEXES = [4, 9];
-const DEFAULT_TIME = 45;
-
-let state = {
-  qIndex: 0,
-  used5050: false,
-  usedCrowd: false,
-  usedExpert: false,
-  bank: [],
-  current: null,
-  picked: null,
-  locked: false,
-  timerOn: true,
-  timeLeft: DEFAULT_TIME,
-  intervalId: null,
-  results: [],
-  teacher: false,
-  player: '',
-  shuffleOn: true,
-  soundOn: true
-};
-
-// ===== Sample & expanded banks (trim samples; add your full set) =====
-let QUESTION_BANK = [
-  { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
-    options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
-    topic:"Rotator cuff", hint:"Impinges beneath the acromion.",
-    explain:"Supraspinatus passes beneath the coracoacromial arch and is most exposed to impingement and degeneration."
-  },
-  { q:"The classic painful arc in subacromial impingement is during active abduction between:",
-    options:["60–120°","10–30°","30–60°","120–160°"], answer:0,
-    topic:"Impingement", hint:"Middle of the movement range.",
-    explain:"Pain typically increases as the greater tuberosity approaches the acromion between 60–120°."
-  },
-  { q:"Which imaging modality best demonstrates dynamic subacromial impingement signs?",
-    options:["Ultrasound","Plain radiography","CT","MRI without ABER"], answer:0,
-    topic:"Imaging choice", hint:"Watch tendons move in real time.",
-    explain:"Ultrasound allows dynamic assessment of the bursa and cuff during abduction."
-  },
-  { q:"On ultrasound, a full-thickness supraspinatus tear most typically appears as:",
-    options:[
-      "A focal anechoic/hypoechoic gap traversing the tendon with possible retraction and bursal fluid",
-      "Diffuse tendon thickening with uniform hyperechogenicity",
-      "Punctate echogenic foci with clean posterior shadowing",
-      "Intact fibrillar tendon with normal bursal sliding"
-    ], answer:0, topic:"Ultrasound signs", hint:"A gap spanning bursal to articular surface.",
-    explain:"Full-thickness tears disrupt fibre continuity from bursal to articular surface; fluid and retraction may be present."
-  },
-  { q:"Which clinical feature most reliably distinguishes adhesive capsulitis from a rotator cuff tear?",
-    options:[
-      "Global restriction of passive glenohumeral motion (esp. external rotation)","Pain on resisted external rotation only",
-      "Localized tenderness over the bicipital groove","Positive Hawkins–Kennedy test"
-    ], answer:0, topic:"Adhesive capsulitis", hint:"Passive movement, not just pain.",
-    explain:"Adhesive capsulitis limits passive ROM in multiple planes, unlike isolated cuff tears."
-  }
-];
-
-const EXPANDED_BANK = [
-  ...QUESTION_BANK
-  // (add more here)
-];
-
-// ===== DOM refs =====
-const questionEl = document.getElementById('question');
-const answersEl  = document.getElementById('answers');
-const qTopicEl   = document.getElementById('qTopic');
-const qLevelEl   = document.getElementById('qLevel');
-const qImg       = document.getElementById('qImg');
-const explainEl  = document.getElementById('explain');
-const ladderEl   = document.getElementById('ladder');
-const timerEl    = document.getElementById('timer');
-const modeLabel  = document.getElementById('modeLabel');
-
-const btnStart = document.getElementById('btnStart');
-const btnFinal = document.getElementById('btnFinal');
-const btnNext  = document.getElementById('btnNext');
-const btnQuit  = document.getElementById('btnQuit');
-
-const btn5050  = document.getElementById('ll5050');
-const btnCrowd = document.getElementById('llCrowd');
-const btnExpert= document.getElementById('llExpert');
-
-const confirmOverlay = document.getElementById('confirm');
-const rulesOverlay   = document.getElementById('rules');
-const crowdOverlay   = document.getElementById('crowdPoll');
-const scoresOverlay  = document.getElementById('scores');
-const teacherUI      = document.getElementById('teacherUI');
-const miniScores     = document.getElementById('miniScores');
-const scoresTable    = document.getElementById('scoresTable');
-const btnSound       = document.getElementById('btnSound');
-
-// Audio refs
-const sndIntro  = document.getElementById('snd-intro');
-const sndQ      = document.getElementById('snd-question');
-const sndFinal  = document.getElementById('snd-final');
-const sndCorrect= document.getElementById('snd-correct');
-const sndWrong  = document.getElementById('snd-wrong');
-const snd5050   = document.getElementById('snd-5050');
-const sndCrowd  = document.getElementById('snd-crowd');
-const sndExpert = document.getElementById('snd-expert');
-
-// UI events
-document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
-document.getElementById('btnScores').addEventListener('click', openScores);
-btnSound.addEventListener('click', toggleSound);
-
-btnStart.addEventListener('click', startGame);
-btnFinal.addEventListener('click', () => {
-  if(state.picked == null) return;
-  document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
-  show(confirmOverlay);
-  playSound('final', true);
-});
-btnNext.addEventListener('click', nextQuestion);
-btnQuit.addEventListener('click', walkAway);
-
-const ladderEl = document.getElementById("ladder");
-btn5050.addEventListener('click', lifeline5050);
-btnCrowd.addEventListener('click', lifelineCrowd);
-btnExpert.addEventListener('click', lifelineExpert);
-
-document.addEventListener('keydown', (e)=>{
-  if(e.key === ' ' && !btnFinal.classList.contains('hidden')) { e.preventDefault(); btnFinal.click(); }
-  if(e.key.toLowerCase() === 'n' && !btnNext.classList.contains('hidden')) btnNext.click();
-  if(e.key.toLowerCase() === 't') toggleTeacher();
-  if(e.key.toLowerCase() === 'c') toggleClean();
-});
-
-// ===== Audio unlock (no auto-mute) & intro on first gesture =====
-function unlockAllAudio() {
-  const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
-  els.forEach(a => {
-    if(!a) return;
-    a.addEventListener('error', ()=>{
-      console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
-    });
-    try {
-      const wasMuted = a.muted;
-      a.muted = true;
-      const p = a.play();
-      Promise.resolve(p)
-        .then(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; })
-        .catch(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; });
-    } catch(e){}
-  });
-}
-function initAudioOnce(){
-  if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
-}
-document.addEventListener('pointerdown', () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
-document.addEventListener('keydown',      () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
-
-// ===== Utils =====
-function show(el){ el.style.display='flex' }
-function hide(el){ el.style.display='none' }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
-function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
-function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-// ===== Audio helpers =====
-function setAllMuted(m){
-  [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
-}
-function playEl(audio){
-  if(!audio || !state.soundOn) return;
-  try{
-    if(audio.readyState < 2){
-      audio.addEventListener('canplay', ()=>{ try{ audio.currentTime = 0; audio.play(); }catch(e){} }, { once:true });
-      return;
-    }
-    audio.currentTime = 0; audio.play();
-  }catch(e){}
-}
-function pauseEl(audio){ if(!audio) return; try{ audio.pause(); }catch(e){} }
-function stopAllSfx(){
-  [sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a=>{
-    if(a){ try{ a.pause(); a.currentTime = 0; }catch(e){} }
-  });
-}
-function playSound(kind, pauseBed=false){
-  stopAllSfx();
-  if(pauseBed) pauseQuestionBed();
-  if(kind==='final')   return playEl(sndFinal);
-  if(kind==='correct') return playEl(sndCorrect);
-  if(kind==='wrong')   return playEl(sndWrong);
-  if(kind==='5050')    return playEl(snd5050);
-  if(kind==='crowd')   return playEl(sndCrowd);
-  if(kind==='expert')  return playEl(sndExpert);
-}
-function startQuestionBed(){
-  if(!state.soundOn) return;
-  stopIntro();
-  if(sndQ.readyState < 2){
-    sndQ.addEventListener('canplay', ()=>{ try{ sndQ.currentTime = 0; sndQ.play(); }catch(e){} }, { once:true });
-    return;
-  }
-  try { sndQ.currentTime = 0; sndQ.play(); } catch(e){}
-}
-function pauseQuestionBed(){ pauseEl(sndQ); }
-function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
-
-function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); }
-function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
-function toggleSound(){
-  state.soundOn = !state.soundOn;
-  setAllMuted(!state.soundOn);
-  btnSound.textContent = state.soundOn ? '🔊' : '🔇';
-}
-
-// ===== Shuffle & mapping =====
-function prepareQuestion(q){
-  if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
-  const order = [0,1,2,3]; shuffle(order);
-  const shuffledOptions = order.map(i => q.options[i]);
-  const shuffledAnswer  = order.indexOf(q.answer);
-  return { ...q, options: shuffledOptions, _order: order, _answer: shuffledAnswer };
-}
-function getCorrectIdx(){
-  return (state.current && Number.isInteger(state.current._answer))
-    ? state.current._answer
-    : state.current.answer;
-}
-
-// ===== Ladder =====
-function renderLadder(){
-  ladderEl.innerHTML = "";
-  ladderEl.innerHTML = '';
-MONEY.forEach((m, idx)=>{
-    const li = document.createElement("li");
-    const n = idx+1; // ✅ Q1–Q15
-    li.innerHTML = `<span>#${n}</span> <span>£${m.toLocaleString()}</span>`;
-    const li = document.createElement('li');
-    const qNum = idx + 1; // ✅ 1–15 labels
-    if([4,9].includes(idx)) li.classList.add('safe');
-    li.dataset.index = idx;
-    li.innerHTML = `<span>#${qNum}</span><span>£${m.toLocaleString()}</span>`;
-ladderEl.appendChild(li);
-});
-  highlightLadder(0);
-}
-renderLadder();
-
-// ==== AUDIO HANDLING ====
-const sounds = {
-  intro: document.getElementById("snd-intro"),
-  question: document.getElementById("snd-question"),
-  final: document.getElementById("snd-final"),
-  correct: document.getElementById("snd-correct"),
-  wrong: document.getElementById("snd-wrong"),
-  ll5050: document.getElementById("snd-5050"),
-  llCrowd: document.getElementById("snd-crowd"),
-  llExpert: document.getElementById("snd-expert")
-};
-function highlightLadder(qIndex){
-  [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
-}
-
-// ===== Timer =====
-function startTimer(){
-  clearInterval(state.intervalId);
-  if(!state.timerOn){ timerEl.textContent = '∞'; return; }
-  state.timeLeft = DEFAULT_TIME;
-  timerEl.textContent = state.timeLeft + 's';
-  state.intervalId = setInterval(()=>{
-    state.timeLeft--;
-    timerEl.textContent = state.timeLeft + 's';
-    if(state.timeLeft <= 0){ clearInterval(state.intervalId); timesUp(); }
-  }, 1000);
-}
-function toggleTimer(){
-  state.timerOn = !state.timerOn;
-  modeLabel.textContent = `Timer: ${state.timerOn? 'On' : 'Off'}`;
-  startTimer();
-}
-
-// ===== Game flow =====
-function startGame(){
-  stopIntro(); // stop intro on Start
-  const name = prompt('Enter player name (optional)') || '';
-  state.player = name.trim();
-  state.qIndex = 0;
-  state.used5050 = state.usedCrowd = state.usedExpert = false;
-  state.results = [];
-  const base = window.ACTIVE_BANK || QUESTION_BANK;
-  state.bank = pick15(base);
-  btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
-  btnStart.classList.add('hidden'); btnQuit.classList.remove('hidden');
-  loadQuestion();
-}
-function resetGame(){
-  hide(confirmOverlay); hide(crowdOverlay); hide(rulesOverlay);
-  document.body.classList.remove('clean');
-  btnStart.classList.remove('hidden');
-  btnFinal.classList.add('hidden');
-  btnNext.classList.add('hidden');
-  btnQuit.classList.add('hidden');
-  questionEl.textContent = 'Press Start to begin.';
-  answersEl.innerHTML = '';
-  explainEl.classList.add('hidden');
-  qImg.style.display='none';
-  state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
-  renderLadder(); startTimer();
-  stopAllSfx(); stopQuestionBed();
-  playIntro(); // intro on reset
-}
-function loadQuestion(){
-  state.current = prepareQuestion(state.bank[state.qIndex]);
-  state.picked = null; state.locked=false;
-  qTopicEl.textContent = state.current.topic || 'Shoulder';
-  qLevelEl.textContent = `Q${state.qIndex+1}`;
-  questionEl.textContent = state.current.q;
-  explainEl.classList.add('hidden'); explainEl.textContent = '';
-  answersEl.innerHTML = '';
-  if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
-
-  answersEl.setAttribute('role','radiogroup');
-
-function stopAll(){
-  Object.values(sounds).forEach(s=>{
-    s.pause();
-    s.currentTime=0;
-  state.current.options.forEach((opt, i)=>{
-    const btn = document.createElement('button');
-    btn.className = 'ans';
-    btn.setAttribute('role','radio');
-    btn.setAttribute('aria-checked','false');
-    btn.innerHTML = `<span class="label">${String.fromCharCode(65+i)}.</span> <span>${opt}</span>`;
-    btn.addEventListener('click', ()=>select(i, btn));
-    answersEl.appendChild(btn);
-});
-  btnFinal.classList.remove('hidden');
-  btnNext.classList.add('hidden');
-  startTimer(); highlightLadder(state.qIndex);
-
-  startQuestionBed(); // question music
-}
-function playSound(name){
-  stopAll();
-  if(sounds[name]) sounds[name].play().catch(()=>{});
-function select(i, btn){
-  if(state.locked) return;
-  [...answersEl.children].forEach(b => {
-    b.dataset.selected = 'false';
-    b.setAttribute('aria-checked','false');
-  });
-  btn.dataset.selected = 'true';
-  btn.setAttribute('aria-checked','true');
-  state.picked = i;
-}
-function cancelLock(){ hide(confirmOverlay) }
-
-// ==== DEMO GAME LOGIC ====
-document.getElementById("btnStart").addEventListener("click",()=>{
-  playSound("question"); // start with Q music
-});
-document.getElementById("btnNext").addEventListener("click",()=>{
-  playSound("question");
-});
-// Wrong answer demo
-function wrongAnswer(){
-  stopAll();
-  sounds.wrong.play().catch(()=>{});
-  setTimeout(()=>{ alert("Game Over"); }, 3000); // let sound finish
-function lockIn(){
-  hide(confirmOverlay);
-  if(state.picked == null || state.locked) return;
-  state.locked = true;
-  clearInterval(state.intervalId);
-
-  // Final answer sting and pause bed
-  pauseQuestionBed(); playSound('final');
-
-  const correctIdx = getCorrectIdx();
-  const correct = state.picked === correctIdx;
-
-  if (correct){
-    markAnswers(true);
-    const prize = MONEY[state.qIndex];
-    state.results.push({ qIndex: state.qIndex+1, correct: true, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-    explainEl.classList.remove('hidden');
-    explainEl.innerHTML = `<div class="ok"><strong>Correct!</strong></div><div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-    btnFinal.classList.add('hidden');
-    btnNext.classList.remove('hidden');
-    playSound('correct');
-    if(state.qIndex === MONEY.length-1){ youWin(); return; }
-  } else {
-    // ❌ WRONG — play sting fully before ending the game
-    playSound('wrong', true);
-    markAnswers(false);
-    const prize = getSafePrize();
-    state.results.push({ qIndex: state.qIndex+1, correct: false, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-    const correctIdx = getCorrectIdx();
-    explainEl.classList.remove('hidden');
-    explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
-      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
-      <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-    btnFinal.classList.add('hidden');
-
-    let finished = false;
-    const finish = () => { if (finished) return; finished = true; endGame(prize, false); };
-
-    if (sndWrong) {
-      const onEnded = () => { sndWrong.removeEventListener('ended', onEnded); finish(); };
-      sndWrong.addEventListener('ended', onEnded, { once: true });
-      const fallbackMs = (isFinite(sndWrong.duration) && sndWrong.duration > 0)
-        ? Math.min(4000, Math.max(800, sndWrong.duration * 1000))
-        : 1800;
-      setTimeout(finish, fallbackMs);
-    } else {
-      finish();
-    }
-    return;
-  }
-}
-
-function markAnswers(correct){
-  const children = [...answersEl.children];
-  const ans = getCorrectIdx();
-  children.forEach((b, idx)=>{
-    if(idx === ans) b.classList.add('correct');
-    if(state.picked === idx && !correct) b.classList.add('wrong');
-    b.disabled = true;
-  });
-}
-function nextQuestion(){
-  stopAllSfx(); stopQuestionBed();
-  state.qIndex++;
-  if(state.qIndex >= MONEY.length){ youWin(); return; }
-  loadQuestion();
-}
-function walkAway(){
-  const prize = state.qIndex>0 ? MONEY[state.qIndex-1] : 0;
-  endGame(prize, true);
-}
-function getSafePrize(){
-  let safe = 0; for(const idx of SAFE_INDEXES){ if(idx < state.qIndex) safe = MONEY[idx]; } return safe;
-}
-function youWin(){
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Outstanding knowledge.</div>`;
-  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
-  saveScore(1000000);
-  playSound('correct'); stopQuestionBed();
-}
-function endGame(prize, walked=false){
-  stopAllSfx();
-  if(walked){ playSound('correct'); }
-  stopQuestionBed();
-
-  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
-  const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
-    `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
-  explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
-  saveScore(prize);
-}
-
-// ===== Lifelines =====
-function lifeline5050(){
-  if(state.used5050 || !state.current) return;
-  state.used5050 = true; btn5050.disabled = true;
-  const correctIdx = getCorrectIdx();
-  const wrongs = [0,1,2,3].filter(i=>i!==correctIdx);
-  shuffle(wrongs);
-  const remove = wrongs.slice(0,2);
-  [...answersEl.children].forEach((b, idx)=>{
-    if(remove.includes(idx)){
-      b.disabled = true;
-      b.style.opacity = .4;
-      if(b.dataset.selected === 'true'){
-        b.dataset.selected = 'false';
-        b.setAttribute('aria-checked','false');
-        state.picked = null;
+    const questionsBank = [
+      // 1
+      {
+        q: "Which finding is most specific for acute cholecystitis on ultrasound?",
+        a: ["Positive sonographic Murphy sign", "Gallbladder sludge", "Gallbladder polyps", "Isolated biliary dilatation"],
+        c: 0
+      },
+      // 2
+      {
+        q: "What is the primary sonographic sign of acute deep vein thrombosis (DVT)?",
+        a: ["Lack of complete venous compressibility", "Increased echogenicity of the vein", "Spectral aliasing on Doppler", "High arterial flow next to the vein"],
+        c: 0
+      },
+      // 3
+      {
+        q: "At what diameter is an abdominal aorta considered aneurysmal on ultrasound?",
+        a: ["\u22653.0 cm", "\u22652.0 cm", "\u22654.5 cm", "\u22655.5 cm"],
+        c: 0
+      },
+      // 4
+      {
+        q: "In the FAST exam, Morison's pouch refers to which space?",
+        a: ["Hepatorenal recess", "Splenorenal recess", "Subphrenic space", "Rectovesical pouch"],
+        c: 0
+      },
+      // 5
+      {
+        q: "Which ultrasound criterion best supports acute appendicitis?",
+        a: ["Non-compressible blind-ended tubular structure >6 mm", "Presence of peristalsis in the structure", "Air-filled, peristaltic loop", "Wall thickness <2 mm"],
+        c: 0
+      },
+      // 6
+      {
+        q: "Testicular torsion is most strongly suggested by which Doppler finding?",
+        a: ["Absent or markedly reduced intratesticular flow compared with the other side", "Epididymal head cyst with posterior enhancement", "Hydrocele without other findings", "Global hyperemia of the testis"],
+        c: 0
+      },
+      // 7
+      {
+        q: "A full-thickness supraspinatus tear is best indicated by which finding?",
+        a: ["Fluid-filled gap at the footprint with non-visualization of tendon fibers", "Small calcific focus within the tendon only", "Normal fibrillar tendon pattern", "Thickened hyperechoic tendon without defect"],
+        c: 0
+      },
+      // 8
+      {
+        q: "Plantar fascia thickness suggesting plantar fasciitis at its calcaneal origin is typically:",
+        a: ["\u22654 mm", "\u22652 mm", "\u22656 mm", "\u22651 mm"],
+        c: 0
+      },
+      // 9
+      {
+        q: "A common threshold for median nerve cross-sectional area diagnosing carpal tunnel syndrome (at the pisiform) is:",
+        a: ["\u226510 mm\u00b2", "\u22655 mm\u00b2", "\u226520 mm\u00b2", "\u22652 mm\u00b2"],
+        c: 0
+      },
+      // 10
+      {
+        q: "A Baker's cyst is located between which structures?",
+        a: ["Semimembranosus tendon and medial head of gastrocnemius", "Biceps femoris and lateral head of gastrocnemius", "Within the popliteal artery wall", "Under the patellar tendon"],
+        c: 0
+      },
+      // 11
+      {
+        q: "Which finding is essentially diagnostic of ectopic pregnancy on ultrasound?",
+        a: ["Extrauterine gestational sac containing a yolk sac or embryo", "Endometrial pseudogestational sac", "Free pelvic fluid alone", "Corpus luteum within the ovary"],
+        c: 0
+      },
+      // 12
+      {
+        q: "Which is the most consistent ultrasound feature of ovarian torsion?",
+        a: ["Enlarged edematous ovary with peripheral follicles", "Small ovary with central follicles", "Thin ovarian pedicle with high flow", "Free pelvic gas"],
+        c: 0
+      },
+      // 13
+      {
+        q: "Hepatic steatosis is classically seen as:",
+        a: ["Diffuse increased echogenicity with posterior beam attenuation", "Anechoic liver throughout", "Portal vein thrombosis", "Multiple calcified granulomas"],
+        c: 0
+      },
+      // 14
+      {
+        q: "Which thyroid nodule shape is suspicious for malignancy on ultrasound?",
+        a: ["Taller-than-wide on transverse", "Wider-than-tall", "Purely cystic", "Spongiform"],
+        c: 0
+      },
+      // 15
+      {
+        q: "Which ultrasound finding is most specific for pneumothorax?",
+        a: ["Lung point", "Absence of A-lines", "Absent lung sliding", "Presence of diffuse B-lines"],
+        c: 0
+      },
+      // 16
+      {
+        q: "B-lines on lung ultrasound are:",
+        a: ["Vertical reverberation artifacts from pleura to far field that erase A-lines and move with lung sliding", "Horizontal artifacts at the pleural line", "Comet-tail artifacts from the gallbladder wall", "Pericardial bright lines"],
+        c: 0
+      },
+      // 17
+      {
+        q: "Which IVC finding suggests low right atrial pressure?",
+        a: ["IVC \u2264 2.1 cm with >50% collapse on sniff", "IVC \u2265 2.5 cm with no collapse", "No IVC visualized", "Hepatic vein reversal"],
+        c: 0
+      },
+      // 18
+      {
+        q: "Hydronephrosis on ultrasound is characterized by:",
+        a: ["Dilation of the renal pelvis and calyces", "Thickened renal cortex alone", "Echogenic medullary pyramids only", "Perinephric fat prominence"],
+        c: 0
+      },
+      // 19
+      {
+        q: "Typical ultrasound features of gallstones include:",
+        a: ["Echogenic foci with posterior acoustic shadowing that move with position", "Non-shadowing wall polyps that do not move", "Purely anechoic lesions", "Isoechoic lesions fixed to the wall that twinkle"],
+        c: 0
+      },
+      // 20
+      {
+        q: "Which set of criteria defines a simple renal cyst?",
+        a: ["Anechoic, thin-walled, round/oval, posterior enhancement, no septa or nodules", "Hyperechoic with clean shadowing", "Thick septations with nodules", "Irregular mural nodules with internal flow"],
+        c: 0
+      },
+      // 21
+      {
+        q: "A pseudoaneurysm typically shows which Doppler findings?",
+        a: ["Yin-yang color flow and to-and-fro waveform at the neck", "Monophasic venous flow", "No flow on color or spectral Doppler", "Continuous high-resistance arterial flow"],
+        c: 0
+      },
+      // 22
+      {
+        q: "The classic ultrasound sign of intussusception in children is:",
+        a: ["Target/doughnut sign", "Whirlpool sign", "Double decidual sign", "String sign"],
+        c: 0
+      },
+      // 23
+      {
+        q: "Hypertrophic pyloric stenosis is suggested when pyloric muscle thickness is:",
+        a: ["\u22653 mm", "\u22652 mm", "\u226510 mm", "<1 mm"],
+        c: 0
+      },
+      // 24
+      {
+        q: "Medial dislocation of the long head of the biceps tendon usually places it:",
+        a: ["Over the lesser tuberosity (medial to the bicipital groove)", "Over the greater tuberosity", "Into the spinoglenoid notch", "Through the acromioclavicular joint"],
+        c: 0
+      },
+      // 25
+      {
+        q: "Typical ultrasound features of lateral epicondylitis include:",
+        a: ["Hypoechoic thickened common extensor origin with intrasubstance tears and neovascularity", "Only calcified enthesophytes with normal tendon", "Normal fibrillar pattern without hyperemia", "Complete tendon avulsion in all cases"],
+        c: 0
+      },
+      // 26
+      {
+        q: "De Quervain tenosynovitis most commonly involves which tendons?",
+        a: ["Abductor pollicis longus (APL) and extensor pollicis brevis (EPB)", "Extensor carpi ulnaris and extensor digitorum", "Flexor pollicis longus and flexor digitorum superficialis", "Abductor pollicis longus and extensor pollicis longus (EPL)"],
+        c: 0
+      },
+      // 27
+      {
+        q: "Which structure forms the roof of the carpal tunnel?",
+        a: ["Transverse carpal ligament (flexor retinaculum)", "Palmar aponeurosis", "Carpal bones", "Pisohamate ligament"],
+        c: 0
+      },
+      // 28
+      {
+        q: "Which ultrasound appearance is typical of cellulitis?",
+        a: ["\"Cobblestoning\" of the subcutaneous tissue", "Anechoic walled-off collection with posterior enhancement", "Strong clean posterior shadowing", "Sonographic Murphy sign"],
+        c: 0
+      },
+      // 29
+      {
+        q: "An appendicolith on ultrasound appears as:",
+        a: ["An echogenic focus with posterior acoustic shadow within the appendix", "A hypoechoic linear structure with flow", "Luminal peristaltic movement", "Color flow within the lumen"],
+        c: 0
+      },
+      // 30
+      {
+        q: "A simple ovarian cyst is characterized by:",
+        a: ["Anechoic thin-walled structure with posterior enhancement and no solid components", "Thick irregular walls with papillary projections", "Predominantly solid mass with internal flow", "Complex mass with nodules and septations"],
+        c: 0
+      },
+      // 31
+      {
+        q: "Which bedside cardiac view is most useful to detect pericardial effusion in POCUS?",
+        a: ["Subcostal 4-chamber view", "Apical 2-chamber view", "Parasternal short-axis only", "Suprasternal notch view"],
+        c: 0
+      },
+      // 32
+      {
+        q: "How is maximum abdominal aortic diameter typically measured on transverse ultrasound?",
+        a: ["Outer wall to outer wall (anteroposterior)", "Inner wall to inner wall (AP)", "Longitudinal length measurement only", "From aorta center to posterior wall"],
+        c: 0
+      },
+      // 33
+      {
+        q: "A gallbladder polyp size at which cholecystectomy is often considered due to malignancy risk is:",
+        a: ["\u226510 mm", "\u22655 mm", "\u226515 mm", "\u22653 mm"],
+        c: 0
+      },
+      // 34
+      {
+        q: "Which ultrasound/sign combination is most typical of a kidney stone?",
+        a: ["Echogenic focus with strong shadowing and \"twinkle\" artifact on color Doppler", "Anechoic simple cyst with enhancement", "Hypoechoic mass with central flow", "Isoechoic lesion without artifacts"],
+        c: 0
+      },
+      // 35
+      {
+        q: "Which patient positioning best exposes the supraspinatus footprint for ultrasound?",
+        a: ["Modified Crass (hand on back pocket/buttock)", "Arm at side neutral rotation", "Abduction to 90\u00b0 with external rotation", "Hand behind head (for infraspinatus)"],
+        c: 0
+      },
+      // 36
+      {
+        q: "For most MSK ultrasound, the most appropriate transducer is:",
+        a: ["High-frequency linear array (e.g., 10\u201318 MHz)", "Low-frequency curvilinear (2\u20135 MHz)", "Phased array cardiac probe", "Endocavitary probe"],
+        c: 0
+      },
+      // 37
+      {
+        q: "Which Doppler pattern supports the diagnosis of an abscess rather than a solid mass?",
+        a: ["Peripheral hyperemia with avascular center", "Rich internal vascularity with no rim flow", "Arterial flow within septa", "Venous flow throughout"],
+        c: 0
+      },
+      // 38
+      {
+        q: "A common threshold for common bile duct enlargement (with gallbladder in situ) is:",
+        a: [">6 mm", ">3 mm", ">10 mm", ">15 mm"],
+        c: 0
+      },
+      // 39
+      {
+        q: "Epididymo-orchitis typically demonstrates which Doppler finding?",
+        a: ["Marked hyperemia of the epididymis/testis", "Marked hypoperfusion of the testis", "No flow anywhere in the scrotum", "Only venous flow reversal"],
+        c: 0
+      },
+      // 40
+      {
+        q: "An intra-ovarian cyst with a thick crenulated wall and peripheral \"ring of fire\" Doppler in the luteal phase most likely is:",
+        a: ["A corpus luteum", "An ectopic pregnancy", "A hemorrhagic endometrioma", "A para-ovarian cyst"],
+        c: 0
+      },
+      // 41
+      {
+        q: "Which thyroid nodule pattern is generally considered benign?",
+        a: ["Spongiform appearance", "Marked hypoechogenicity with microcalcifications", "Taller-than-wide shape", "Irregular lobulated margins"],
+        c: 0
+      },
+      // 42
+      {
+        q: "When assessing pediatric hip effusion, the effusion depth is commonly measured between:",
+        a: ["Anterior joint capsule and femoral neck", "Greater trochanter and iliotibial band", "Acetabular roof and femoral head", "Labrum and acetabular fossa"],
+        c: 0
+      },
+      // 43
+      {
+        q: "Lobar lung consolidation on ultrasound usually shows:",
+        a: ["Tissue-like \"hepatization\" with dynamic air bronchograms", "Only A-lines and no lung sliding", "Purely anechoic pleural effusion", "Comet-tail artifacts only"],
+        c: 0
+      },
+      // 44
+      {
+        q: "Which ancillary finding supports acute appendicitis on ultrasound?",
+        a: ["Echogenic periappendiceal fat and hyperemia", "Collapsed, avascular appendix", "Free intraperitoneal air", "Peristaltic appendix"],
+        c: 0
+      },
+      // 45
+      {
+        q: "Twinkle artifact on color Doppler is commonly seen posterior to:",
+        a: ["Rough calcifications (e.g., renal stones, calcific tendinopathy)", "Simple fluid collections", "Normal lymph nodes", "Cysts with thin walls"],
+        c: 0
+      },
+      // 46
+      {
+        q: "Which ultrasound feature is associated with increased risk for papillary thyroid carcinoma?",
+        a: ["Punctate echogenic foci (microcalcifications)", "Spongiform appearance", "Isoechoic solid nodule with smooth margins", "Purely cystic lesion"],
+        c: 0
+      },
+      // 47
+      {
+        q: "An ovarian endometrioma classically appears as:",
+        a: ["Homogeneous low-level internal echoes (\"ground-glass\")", "Purely anechoic simple cyst", "Complex cyst with multiple papillary projections", "Solid hyperechoic mass"],
+        c: 0
+      },
+      // 48
+      {
+        q: "Which ultrasound appearance is characteristic, though not diagnostic, of PCOS?",
+        a: ["Multiple small peripheral follicles (\"string of pearls\") with increased ovarian volume", "Single large dominant follicle", "Thick-walled hemorrhagic cyst only", "Absent follicles with small ovaries"],
+        c: 0
+      },
+      // 49
+      {
+        q: "Compared with gallstones, gallbladder polyps typically:",
+        a: ["Do not shadow and are non-mobile", "Produce clean posterior shadowing and are mobile", "Are purely anechoic", "Always exceed 1 cm"],
+        c: 0
+      },
+      // 50
+      {
+        q: "Standard compression ultrasound for DVT is performed:",
+        a: ["In transverse, compressing every ~2 cm along femoral and popliteal veins until walls coapt", "In long-axis only without compression", "Only with color Doppler without compression", "At the ankle veins only"],
+        c: 0
       }
+    ];
+
+    const state = {
+      order: [],
+      qIndex: -1,
+      winningsIndex: -1,
+      selected: null,
+      used: { fifty:false, audience:false, phone:false },
+      soundEnabled: false,
+      locking: false
+    };
+
+    /* ===================== Helpers ===================== */
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const rand = (n) => Math.floor(Math.random()*n);
+    const shuffle = arr => arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+
+    function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
+
+    function buildLadder(){
+      const lad = $('#ladder'); lad.innerHTML='';
+      ladderAmts.slice().reverse().forEach((amt, iRev)=>{
+        const idx = ladderAmts.length-1 - iRev; // real index
+        const div = document.createElement('div');
+        div.className='rung';
+        div.dataset.idx = idx;
+        const num = document.createElement('div'); num.className='num'; num.textContent = String(idx+1);
+        const amtEl = document.createElement('div'); amtEl.className='amount'; amtEl.textContent = `£${amt.toLocaleString()}`;
+        div.append(num, amtEl); lad.append(div);
+      });
+      highlightLadder();
     }
-  });
-  playSound('5050');
-}
-function lifelineCrowd(){
-  if(state.usedCrowd || !state.current) return;
-  state.usedCrowd = true; btnCrowd.disabled = true;
-  const hardness = state.qIndex/ (MONEY.length-1);
-  const correctIdx = getCorrectIdx();
-  const correctBias = Math.max(0.35, 0.8 - hardness*0.5);
-  const poll = [0,0,0,0]; let remaining = 100;
-  poll[correctIdx] = Math.floor(correctBias*100); remaining -= poll[correctIdx];
-  const others = [0,1,2,3].filter(i=>i!==correctIdx);
-  for(let i=0;i<others.length;i++){
-    const v = i < others.length-1 ? randInt(0, Math.max(1, remaining - (others.length-1-i))) : remaining;
-    poll[others[i]] = v; remaining -= v;
-  }
-  const container = document.getElementById('pollBars'); container.innerHTML = '';
-  ['A','B','C','D'].forEach((lab, i)=>{
-    const bar = document.createElement('div');
-    bar.style.margin = '6px 0';
-    bar.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${lab}</strong><span>${poll[i]}%</span></div>
-    <div style="height:12px; border-radius:999px; border:1px solid #2a3567; background:#0b122f">
-      <div style="height:100%; width:${poll[i]}%; border-radius:999px; background:linear-gradient(90deg,#1f79ff,#6ac2ff)"></div>
-    </div>`;
-    container.appendChild(bar);
-  });
-  show(crowdOverlay);
-  playSound('crowd');
-}
-function closePoll(){ hide(crowdOverlay) }
-function lifelineExpert(){
-  if(state.usedExpert || !state.current) return;
-  state.usedExpert = true; btnExpert.disabled = true;
-  const hardness = state.qIndex/ (MONEY.length-1);
-  const accuracy = Math.max(0.45, 0.75 - hardness*0.35);
-  const sayCorrect = Math.random() < accuracy;
-  const correctIdx = getCorrectIdx();
-  const suggested = sayCorrect ? correctIdx : randomOther(correctIdx);
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="ok"><strong>Expert hint:</strong></div>
-  <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
-  playSound('expert');
-}
+    function highlightLadder(){
+      $$('#ladder .rung').forEach(r=>{
+        const idx = +r.dataset.idx;
+        r.classList.toggle('current', idx===state.winningsIndex+1);
+        r.classList.toggle('won', idx<=state.winningsIndex);
+      });
+    }
 
-// ===== Times up =====
-function timesUp(){
-  state.locked = true;
-  markAnswers(false);
-  const ans = getCorrectIdx();
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+ans)}</strong>.</div>`;
-  btnFinal.classList.add('hidden');
-  btnNext.classList.add('hidden');
-  btnQuit.classList.add('hidden');
-  btnStart.classList.remove('hidden');
-  saveScore(getSafePrize());
-  stopAllSfx(); playSound('wrong'); stopQuestionBed();
-}
+    function setStatus(msg=''){ $('#status').innerHTML = msg; }
 
-// ===== Bank helpers =====
-function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
+    /* ===================== Audio ===================== */
+    let audioCtx = null;
 
-// ===== Teacher & clean view =====
-function toggleTeacher(){
-  if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
-  const pass = prompt('Enter teacher code');
-  if(pass === '1234'){ state.teacher=true; teacherUI.style.display='flex'; }
-  else if(pass){ alert('Incorrect code'); }
-}
-function reveal(){ if(!state.current) return; const ans = getCorrectIdx(); [...answersEl.children].forEach((b,i)=>{ if(i===ans) b.classList.add('correct'); }); }
-function skip(){ if(state.qIndex < MONEY.length-1) nextQuestion(); }
-function toggleClean(){ document.body.classList.toggle('clean'); }
-function toggleShuffle(){ state.shuffleOn = !state.shuffleOn; alert('Shuffle is now ' + (state.shuffleOn ? 'ON' : 'OFF')); }
+    function enableSound(){
+      if(state.soundEnabled) return;
+      try{
+        audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.frequency.value = 440; g.gain.value = 0.0001; // almost silent blip to unlock
+        o.connect(g).connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), 100);
+        state.soundEnabled = true; $('#soundBtn').textContent = '🔇 Disable Sound'; $('#soundBtn').setAttribute('aria-pressed','true');
+      }catch(e){ console.warn(e); }
+    }
+    function disableSound(){ state.soundEnabled=false; $('#soundBtn').textContent ='🔊 Enable Sound'; $('#soundBtn').setAttribute('aria-pressed','false'); stopAllAudio(); }
 
-// ===== Leaderboard (localStorage) =====
-const SCORE_KEY = 'shoulder_millionaire_scores_v1';
-function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
-function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
-function saveScore(prize){
-  if(!state.results.length) return;
-  const totalCorrect = state.results.filter(r=>r.correct).length;
-  const topReached = Math.max(...state.results.map(r=>r.qIndex));
-  const totalTime = state.results.reduce((s,r)=> s + (r.time || 0), 0);
-  const lifelines = ['5050','Crowd','Expert'].filter((ll,i)=> [state.used5050,state.usedCrowd,state.usedExpert][i]).join('|') || 'None';
-  const entry = {
-    name: state.player || '—',
-    prize, correct: totalCorrect, topQ: topReached,
-    time: state.timerOn? totalTime : null,
-    date: new Date().toISOString().slice(0,19).replace('T',' '),
-    lifelines
-  };
-  const scores = getScores();
-  scores.push(entry);
-  scores.sort((a,b)=> b.prize - a.prize || b.correct - a.correct || ((a.time||1e9) - (b.time||1e9)));
-  setScores(scores.slice(0,100));
-}
-function renderMiniScores(){
-  const scores = getScores();
-  if(!scores.length){ miniScores.textContent = 'No scores yet.'; return; }
-  const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${escapeHtml(s.name || '—')}`).join('<br>');
-  miniScores.innerHTML = top;
-}
-function openScores(){ renderScoresTable(); show(scoresOverlay); }
-function closeScores(){ hide(scoresOverlay) }
-function renderScoresTable(){
-  const scores = getScores();
-  if(!scores.length){ scoresTable.innerHTML = '<p class="muted">No scores yet.</p>'; return; }
-  let html = '<table><thead><tr><th>#</th><th>Name</th><th>Prize</th><th>Correct</th><th>Top Q</th><th>Time(s)</th><th>Lifelines</th><th>Date</th></tr></thead><tbody>';
-  scores.forEach((s,i)=>{
-    html += `<tr><td>${i+1}</td><td>${escapeHtml(s.name||'')}</td><td>£${s.prize.toLocaleString()}</td><td>${s.correct}</td><td>${s.topQ}</td><td>${s.time ?? ''}</td><td>${s.lifelines}</td><td>${s.date}</td></tr>`;
-  });
-  html += '</tbody></table>';
-  scoresTable.innerHTML = html;
-}
-function exportScores(){
-  const scores = getScores();
-  const rows = [['Rank','Name','Prize','Correct','TopQ','Time(s)','Lifelines','Date']];
-  scores.forEach((s,i)=> rows.push([i+1, s.name||'', s.prize, s.correct, s.topQ, s.time ?? '', s.lifelines, s.date]));
-  downloadCSV(rows, 'shoulder-millionaire-leaderboard.csv');
-}
-function resetScores(){ if(confirm('Reset all saved scores on this device?')){ setScores([]); renderScoresTable(); } }
-function downloadCSV(rows, filename){
-  const csv = rows.map(r=>r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
-}
+    function playTag(id){
+      if(!state.soundEnabled){ toast('Sound is muted by your browser. Click Enable Sound first.'); return Promise.reject('muted'); }
+      const el = document.getElementById(id);
+      if(!el) return Promise.resolve();
+      try{ el.currentTime = 0; const p = el.play(); return p||Promise.resolve(); }
+      catch(err){ console.warn('HTML5 audio failed, falling back to synth', err); return synthTone(); }
+    }
+    function stopTag(id){ const el=document.getElementById(id); if(el){ try{ el.pause(); }catch{} } }
+    function stopAllAudio(){ ['introAudio','questionAudio','correctAudio','wrongAudio','lifelineAudio'].forEach(stopTag); }
 
-// ===== Build UI on load =====
-renderLadder(); startTimer(); renderMiniScores();
-setAllMuted(!state.soundOn);
-// Start intro after first gesture; also when hitting Reset we play it.
-</script>
+    function synthTone(type='sine', freq=659, dur=0.4, vol=0.1){
+      if(!state.soundEnabled){ return Promise.resolve(); }
+      try{
+        audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+        const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=vol;
+        o.connect(g).connect(audioCtx.destination); o.start(); return new Promise(res=>{ setTimeout(()=>{ o.stop(); res(); }, dur*1000); });
+      }catch(e){ return Promise.resolve(); }
+    }
+
+    const sounds = {
+      intro: ()=> playTag('introAudio').catch(()=> synthTone('sawtooth', 329, 1.2, 0.07)),
+      question: ()=> playTag('questionAudio').catch(()=> synthTone('triangle', 392, 0.4, 0.04)),
+      correct: ()=> playTag('correctAudio').catch(()=> synthTone('sine', 880, 0.35, 0.08)),
+      wrong: ()=> playTag('wrongAudio').catch(()=> synthTone('square', 140, 0.5, 0.08)),
+      lifeline: ()=> playTag('lifelineAudio').catch(()=> synthTone('triangle', 523, 0.6, 0.06)),
+    };
+
+    /* ===================== Game Flow ===================== */
+    function startGame(){
+      disableOptions(); state.selected=null; state.used={fifty:false,audience:false,phone:false};
+      state.winningsIndex = -1; state.qIndex = -1; buildLadder();
+      $$('#opts').forEach(()=>{}); renderLifelines();
+      state.order = shuffle(questionsBank).slice(0,15);
+      nextQuestion();
+      if(state.soundEnabled){ sounds.intro(); setTimeout(()=>{ sounds.question(); }, 1200); }
+    }
+
+    function renderLifelines(){
+      const setUsed=(id,used)=>{ const el=$(id); el.classList.toggle('used', used); };
+      setUsed('#ll5050', state.used.fifty);
+      setUsed('#llAudience', state.used.audience);
+      setUsed('#llPhone', state.used.phone);
+    }
+
+    function nextQuestion(){
+      state.qIndex++;
+      if(state.qIndex >= state.order.length){
+        setStatus(`<b>Congratulations!</b> You won <b>£${ladderAmts[state.winningsIndex]?.toLocaleString()||'1,000,000'}</b>. Click <b>Start Game</b> to play again.`);
+        stopAllAudio();
+        return;
+      }
+      const qObj = state.order[state.qIndex];
+      $('#q').textContent = `Q${state.qIndex+1}. ${qObj.q}`;
+      const opts = $('#opts'); opts.innerHTML='';
+      qObj.a.forEach((text, i)=>{
+        const btn = document.createElement('div'); btn.className='option'; btn.dataset.idx=i;
+        btn.innerHTML = `<div class="badge">${'ABCD'[i]}</div><div>${text}</div>`;
+        btn.addEventListener('click', ()=>selectOption(i, btn));
+        opts.append(btn);
+      });
+      $('#lockBtn').disabled = true; setStatus('Pick an option.');
+      highlightLadder();
+      // reset 50:50 eliminations
+      $$('#opts .option').forEach(o=>o.classList.remove('eliminated','correct','wrong','selected'));
+      if(state.soundEnabled){ stopTag('introAudio'); stopTag('correctAudio'); stopTag('wrongAudio'); sounds.question(); }
+    }
+
+    function selectOption(i, el){
+      if(state.locking) return;
+      $$('#opts .option').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+      state.selected = i; $('#lockBtn').disabled=false; setStatus('Ready? Click <b>Lock Final Answer</b>.');
+    }
+
+    function disableOptions(dis=true){ $$('#opts .option').forEach(o=> o.style.pointerEvents = dis?'none':'auto'); }
+
+    function lockAnswer(){
+      if(state.selected==null) return;
+      state.locking = true; disableOptions(true); stopTag('questionAudio');
+      const qObj = state.order[state.qIndex];
+      const correct = qObj.c;
+      const selectedEl = $(`#opts .option[data-idx="${state.selected}"]`);
+      if(!selectedEl) return;
+      // suspense
+      setStatus('Final answer locked...');
+      // After a short suspense, reveal
+      setTimeout(()=>{
+        if(state.selected === correct){
+          selectedEl.classList.add('correct');
+          state.winningsIndex++;
+          highlightLadder();
+          setStatus(`<b>Correct!</b> You have won £${ladderAmts[state.winningsIndex].toLocaleString()}.`);
+          sounds.correct();
+          setTimeout(()=>{ state.locking=false; disableOptions(false); nextQuestion(); }, 1400);
+        }else{
+          selectedEl.classList.add('wrong');
+          const corrEl = $(`#opts .option[data-idx="${correct}"]`); if(corrEl) corrEl.classList.add('correct');
+          sounds.wrong();
+          const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex) ?? -1;
+          const amount = safe<0 ? 0 : ladderAmts[safe];
+          setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
+          state.locking=false;
+        }
+      }, 800);
+    }
+
+    /* ===================== Lifelines ===================== */
+    function use5050(){
+      if(state.used.fifty || state.qIndex<0) return; state.used.fifty=true; renderLifelines(); sounds.lifeline();
+      const qObj = state.order[state.qIndex]; const correct = qObj.c;
+      const wrongs = [0,1,2,3].filter(i=>i!==correct); const toRemove = shuffle(wrongs).slice(0,2);
+      toRemove.forEach(i=>{ const el = $(`#opts .option[data-idx="${i}"]`); if(el) el.classList.add('eliminated'); });
+    }
+
+    function useAudience(){
+      if(state.used.audience || state.qIndex<0) return; state.used.audience=true; renderLifelines(); sounds.lifeline();
+      const qObj = state.order[state.qIndex]; const correct = qObj.c;
+      // Generate plausible distribution
+      let base = [rand(40)+10, rand(40)+10, rand(40)+10, rand(40)+10];
+      const sum = base.reduce((a,b)=>a+b,0); base = base.map(v=> Math.round(v*100/sum));
+      // Ensure correct is highest
+      const maxIdx = base.indexOf(Math.max(...base));
+      if(maxIdx !== correct){ const tmp = base[correct]; base[correct] = Math.max(...base)+rand(10); base[maxIdx] = tmp - rand(5); }
+      // Re-normalize to 100
+      let total = base.reduce((a,b)=>a+b,0); const diff = 100-total; base[correct]+=diff;
+      const bars = $('#audBars'); bars.innerHTML='';
+      base.forEach((p,i)=>{
+        const div=document.createElement('div'); div.className='bar'; div.innerHTML=`<span>${p}%</span><label>${'ABCD'[i]}</label>`; div.style.height='140px';
+        const inner=document.createElement('div'); inner.style.height=p+'%'; inner.style.width='100%'; inner.style.background='linear-gradient(180deg, #2d72d6, #1c3c9e)'; inner.style.borderRadius='10px'; inner.style.alignSelf='flex-end';
+        div.appendChild(inner); bars.append(div);
+      });
+      showModal('modalAudience');
+    }
+
+    function usePhone(){
+      if(state.used.phone || state.qIndex<0) return; state.used.phone=true; renderLifelines(); sounds.lifeline();
+      const correctLetter = 'ABCD'[state.order[state.qIndex].c];
+      const confident = Math.random()<0.75; // friend is right 75% of the time
+      const guess = confident? correctLetter : 'ABCD'.replace(correctLetter,'')[rand(3)];
+      const confidence = confident? (70+rand(26)) : (40+rand(20));
+      $('#phoneText').innerHTML = `"Hi! I don't have long, but I'd go with <b>${guess}</b> and I'm about <b>${confidence}%</b> confident."`;
+      showModal('modalPhone');
+    }
+
+    function showModal(id){ $('#'+id).classList.add('show'); }
+    function hideModal(id){ $('#'+id).classList.remove('show'); }
+
+    /* ===================== Wire Up ===================== */
+    buildLadder();
+    $('#startBtn').addEventListener('click', ()=>{ enableSound(); startGame(); });
+    $('#lockBtn').addEventListener('click', lockAnswer);
+    $('#ll5050').addEventListener('click', use5050);
+    $('#llAudience').addEventListener('click', useAudience);
+    $('#llPhone').addEventListener('click', usePhone);
+
+    $('#soundBtn').addEventListener('click', ()=>{
+      if(!state.soundEnabled){ enableSound(); }
+      else{ disableSound(); }
+    });
+    $('#introBtn').addEventListener('click', ()=>{ enableSound(); sounds.intro(); });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{
+      if(['1','2','3','4'].includes(e.key)){
+        const idx = +e.key - 1; const el = $(`#opts .option[data-idx="${idx}"]`); if(el) selectOption(idx, el);
+      }else if(e.key.toLowerCase()==='l'){ if(!$('#lockBtn').disabled) lockAnswer(); }
+    });
+
+    // Accessibility: clicking anywhere on option also selects
+    $('#opts').addEventListener('click', (e)=>{
+      const opt = e.target.closest('.option'); if(opt){ selectOption(+opt.dataset.idx, opt); }
+    });
+
+    // Helpful tip on first load
+    setTimeout(()=>{
+      setStatus('Tip: Click <b>Enable Sound</b> (or Start) so your browser allows the intro and question music to play.');
+    }, 800);
+  </script>
 </body>
 </html>
