@@ -242,7 +242,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   Wrong.mp3 on incorrect answers + robust audio unlock (no auto-mute)
+   Wrong.mp3 plays fully before ending game • robust audio unlock (no auto-mute)
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -268,7 +268,7 @@ let state = {
   soundOn: true
 };
 
-// ===== Sample & expanded banks (trimmed for brevity; keep your full sets) =====
+// ===== Sample bank (trim for brevity — keep your full set in production) =====
 let QUESTION_BANK = [
   { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
     options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
@@ -304,8 +304,8 @@ let QUESTION_BANK = [
 ];
 
 const EXPANDED_BANK = [
-  ...QUESTION_BANK,
-  // (keep your expanded bank items here as before)
+  ...QUESTION_BANK
+  // (include your expanded items here)
 ];
 
 // ===== DOM refs =====
@@ -579,7 +579,7 @@ function lockIn(){
   state.locked = true;
   clearInterval(state.intervalId);
 
-  // play the "final answer" sting and pause the question bed
+  // Final answer sting, pause bed
   pauseQuestionBed(); playSound('final');
 
   const correctIdx = getCorrectIdx();
@@ -595,47 +595,34 @@ function lockIn(){
     btnNext.classList.remove('hidden');
     playSound('correct');
     if(state.qIndex === MONEY.length-1){ youWin(); return; }
-
   } else {
-  // 🔊 play the wrong sting and pause the bed
-  playSound('wrong', true);
-  markAnswers(false);
+    // ❌ WRONG — play sting fully before ending the game
+    playSound('wrong', true);
+    markAnswers(false);
+    const prize = getSafePrize();
+    state.results.push({ qIndex: state.qIndex+1, correct: false, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
+    explainEl.classList.remove('hidden');
+    explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
+      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
+      <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
+    btnFinal.classList.add('hidden');
 
-  const prize = getSafePrize();
-  state.results.push({
-    qIndex: state.qIndex + 1,
-    correct: false,
-    time: state.timerOn ? (DEFAULT_TIME - state.timeLeft) : null,
-    prize
-  });
+    let finished = false;
+    const finish = () => { if (finished) return; finished = true; endGame(prize, false); };
 
-  const correctIdx = getCorrectIdx();
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
-    <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
-    <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-  btnFinal.classList.add('hidden');
-
-  // ✅ Wait for the sting to finish, then end the game.
-  // Prefer 'ended' event; fallback to a timeout if metadata/duration isn't available yet.
-  let finished = false;
-  const finish = () => { if (finished) return; finished = true; endGame(prize, false); };
-
-  if (sndWrong) {
-    const onEnded = () => { sndWrong.removeEventListener('ended', onEnded); finish(); };
-    sndWrong.addEventListener('ended', onEnded, { once: true });
-
-    // Backup timeout in case 'ended' never fires (e.g., unsupported format)
-    const fallbackMs = (isFinite(sndWrong.duration) && sndWrong.duration > 0)
-      ? Math.min(4000, Math.max(800, sndWrong.duration * 1000))
-      : 1800;
-    setTimeout(finish, fallbackMs);
-  } else {
-    finish();
+    if (sndWrong) {
+      const onEnded = () => { sndWrong.removeEventListener('ended', onEnded); finish(); };
+      sndWrong.addEventListener('ended', onEnded, { once: true });
+      const fallbackMs = (isFinite(sndWrong.duration) && sndWrong.duration > 0)
+        ? Math.min(4000, Math.max(800, sndWrong.duration * 1000))
+        : 1800;
+      setTimeout(finish, fallbackMs);
+    } else {
+      finish();
+    }
+    return;
   }
-  return;
 }
-
 
 function markAnswers(correct){
   const children = [...answersEl.children];
