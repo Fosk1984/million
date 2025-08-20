@@ -64,10 +64,7 @@
   .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
   .muted{color:var(--muted)}
   .ladder{position:sticky; top:12px}
-  .ladder ol{
-    display:flex; flex-direction:column-reverse; /* Q1 bottom → Q15 top */
-    padding:0; margin:0; list-style:none;
-  }
+  .ladder ol{display:flex; flex-direction:column-reverse; padding:0; margin:0; list-style:none}
   .ladder li{display:flex; justify-content:space-between; padding:4px 6px; border-radius:8px; margin-bottom:2px; border:1px solid transparent}
   .ladder .active{border-color:var(--acc2); outline:2px solid rgba(255,211,106,.35); background: linear-gradient(180deg, #1c2450, #10183f)}
   .ladder .safe{color:#ffe39a}
@@ -80,20 +77,6 @@
   .hidden{display:none !important}
   .chip{padding:3px 8px; border-radius:999px; border:1px solid #2a3567; background:#0f1738; font-weight:700; font-size:.78rem}
   .ok{color:#c1ffd6} .bad{color:#ffc1c1}
-  .overlay{
-    position:fixed; inset:0; background:rgba(7,9,20,.72); backdrop-filter: blur(4px);
-    display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
-  }
-  .overlay .sheet{max-width:720px; width:100%; background:linear-gradient(180deg,#12172a,#0f1426);
-    border:1px solid var(--edge); border-radius:16px; padding:16px; box-shadow: var(--glow);
-  }
-  .sheet h2{margin:0 0 8px}
-  .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight:700; border:1px solid #2a3567; padding:2px 6px; border-radius:6px; background:#0b122f; color:#cfe0ff}
-  .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
-  .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
-  .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#ink; padding:8px}
-  .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
 </style>
 </head>
 <body>
@@ -107,128 +90,39 @@
       </div>
     </div>
     <div class="lifelines">
-      <button id="ll5050" class="pill" title="Eliminate two wrong answers (once)">50:50</button>
-      <button id="llCrowd" class="pill" title="Show audience poll (once)">Ask the Crowd</button>
-      <button id="llExpert" class="pill" title="Get a nudge from the 'expert' (once)">Ask an Expert</button>
-      <span class="timer" id="timer" aria-live="polite">45s</span>
-      <button id="btnRules" class="pill" title="How to play">?</button>
-      <button id="btnScores" class="pill" title="Leaderboard">🏆</button>
-      <button id="btnSound" class="pill" title="Toggle sound">🔊</button>
+      <button id="ll5050" class="pill">50:50</button>
+      <button id="llCrowd" class="pill">Ask the Crowd</button>
+      <button id="llExpert" class="pill">Ask an Expert</button>
+      <span class="timer" id="timer">45s</span>
+      <button id="btnRules" class="pill">?</button>
+      <button id="btnScores" class="pill">🏆</button>
+      <button id="btnSound" class="pill">🔊</button>
     </div>
   </header>
 
   <div class="layout">
-    <main class="card" id="mainCard" aria-live="polite">
+    <main class="card">
       <img id="qImg" class="q-image" alt="">
       <div class="q-meta"><span id="qTopic" class="chip">Topic</span><span id="qLevel" class="chip">Q1</span></div>
       <div id="question" class="question">Press Start to begin.</div>
       <div class="answers" id="answers"></div>
       <div class="actions">
         <button id="btnStart">Start Game</button>
-        <button id="btnEnableSound" class="pill">Enable Sound</button>
         <button id="btnFinal" class="hidden">Final Answer</button>
         <button id="btnNext" class="hidden">Next Question</button>
         <button id="btnQuit" class="hidden">Walk Away</button>
       </div>
       <div id="explain" class="explain hidden"></div>
-      <div class="footer">
-        Hotkeys: <span class="kbd">T</span> teacher panel • <span class="kbd">C</span> clean view • <span class="kbd">Space</span> confirm • <span class="kbd">N</span> next
-      </div>
     </main>
 
     <aside class="card ladder">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
-        <div class="muted">Prize Ladder</div>
-        <div><span class="chip">Safe at £1,000</span> <span class="chip">£32,000</span></div>
-      </div>
-      <h3>Top Wins (this device)</h3>
-      <div id="miniScores" class="muted" style="font-size:.9rem; margin-bottom:8px">No scores yet.</div>
+      <h3>Prize Ladder</h3>
       <ol id="ladder"></ol>
     </aside>
   </div>
 </div>
 
-<!-- Overlays (rules, confirm, poll, scores) -->
-<div class="overlay" id="rules">
-  <div class="sheet">
-    <h2>How to play</h2>
-    <p>Answer 15 ascending-difficulty questions on shoulder pathology. You have one use each of <strong>50:50</strong>, <strong>Ask the Crowd</strong>, and <strong>Ask an Expert</strong>. Safe havens are at £1,000 (Q5) and £32,000 (Q10). Timer is 45s/question (toggle in Teacher panel).</p>
-    <ul>
-      <li><strong>50:50</strong>: removes two incorrect options.</li>
-      <li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
-      <li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
-    </ul>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span>. Clean view with <span class="kbd">C</span>.</p>
-    <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="hide(rulesOverlay)">Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="confirm">
-  <div class="sheet">
-    <h2>Final answer?</h2>
-    <p id="confirmText" class="muted">You chose A.</p>
-    <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="lockIn()">Yes, lock it in</button>
-      <button onclick="cancelLock()">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="crowdPoll">
-  <div class="sheet">
-    <h2>Audience Poll</h2>
-    <p class="muted">Crowd thinks the answer is…</p>
-    <div id="pollBars"></div>
-    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
-      <button onclick="closePoll()">Close</button>
-    </div>
-  </div>
-</div>
-
-<div class="overlay" id="scores">
-  <div class="sheet">
-    <h2>Leaderboard (this device)</h2>
-    <div id="scoresTable" style="margin:10px 0"></div>
-    <div style="display:flex; gap:8px; justify-content:flex-end">
-      <button onclick="exportScores()">Export Scores</button>
-      <button onclick="resetScores()">Reset Scores</button>
-      <button onclick="closeScores()">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- Teacher tools -->
-<div class="teacher" id="teacherUI" aria-live="polite">
-  <div class="pane">
-    <h4>Teacher Controls</h4>
-    <div class="muted" id="teacherStatus">Unlocked</div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
-      <button onclick="toggleTimer()">Toggle Timer</button>
-      <button onclick="reveal()">Reveal Answer</button>
-      <button onclick="skip()">Skip Question</button>
-      <button onclick="resetGame()">Reset</button>
-      <button onclick="toggleClean()">Clean View</button>
-    </div>
-    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
-      <button onclick="exportCSV()">Export This Run</button>
-      <button onclick="loadSample()">Load Sample Bank</button>
-      <button onclick="useExpanded()">Use Expanded Bank</button>
-      <button onclick="toggleShuffle()">Toggle Shuffle</button>
-    </div>
-  </div>
-  <div class="pane">
-    <h4>Import Questions (JSON)</h4>
-    <p class="muted" style="margin:0 0 6px">Paste an array of question objects then click <em>Replace Bank</em>.</p>
-    <textarea id="qImport" placeholder='[ { "q":"...", "options":["A","B","C","D"], "answer":0, "topic":"Rotator cuff", "hint":"...", "explain":"...", "image":"" } ]'></textarea>
-    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
-      <button onclick="replaceBank()">Replace Bank</button>
-    </div>
-  </div>
-</div>
-
-<!-- ====== AUDIO (ensure these files exist in /sounds) ====== -->
+<!-- ====== AUDIO ====== -->
 <audio id="snd-intro"    src="sounds/intro.mp3" preload="auto" loop></audio>
 <audio id="snd-question" src="sounds/question-music.mp3" preload="auto" loop></audio>
 <audio id="snd-final"    src="sounds/final.mp3" preload="auto"></audio>
@@ -239,576 +133,56 @@
 <audio id="snd-expert"   src="sounds/lifelineExpert.mp3" preload="auto"></audio>
 
 <script>
-/* =============================
-   Millionaire — Shoulder Pathology
-   Minimal change: Enable Sound starts intro reliably (no race).
-   ============================= */
-
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
-const SAFE_INDEXES = [4, 9];
-const DEFAULT_TIME = 45;
 
-let state = {
-  qIndex: 0,
-  used5050: false,
-  usedCrowd: false,
-  usedExpert: false,
-  bank: [],
-  current: null,
-  picked: null,
-  locked: false,
-  timerOn: true,
-  timeLeft: DEFAULT_TIME,
-  intervalId: null,
-  results: [],
-  teacher: false,
-  player: '',
-  shuffleOn: true,
-  soundOn: true
-};
-
-// ===== Sample bank =====
-let QUESTION_BANK = [
-  { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
-    options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
-    topic:"Rotator cuff", hint:"Impinges beneath the acromion.",
-    explain:"Supraspinatus passes beneath the coracoacromial arch and is most exposed to impingement and degeneration."
-  },
-  { q:"The classic painful arc in subacromial impingement is during active abduction between:",
-    options:["60–120°","10–30°","30–60°","120–160°"], answer:0,
-    topic:"Impingement", hint:"Middle of the movement range.",
-    explain:"Pain typically increases as the greater tuberosity approaches the acromion between 60–120°."
-  }
-];
-
-const EXPANDED_BANK = [ ...QUESTION_BANK ];
-
-// ===== DOM refs =====
-const questionEl = document.getElementById('question');
-const answersEl  = document.getElementById('answers');
-const qTopicEl   = document.getElementById('qTopic');
-const qLevelEl   = document.getElementById('qLevel');
-const qImg       = document.getElementById('qImg');
-const explainEl  = document.getElementById('explain');
-const ladderEl   = document.getElementById('ladder');
-const timerEl    = document.getElementById('timer');
-const modeLabel  = document.getElementById('modeLabel');
-
-const btnStart = document.getElementById('btnStart');
-const btnEnableSound = document.getElementById('btnEnableSound');
-const btnFinal = document.getElementById('btnFinal');
-const btnNext  = document.getElementById('btnNext');
-const btnQuit  = document.getElementById('btnQuit');
-
-const btn5050  = document.getElementById('ll5050');
-const btnCrowd = document.getElementById('llCrowd');
-const btnExpert= document.getElementById('llExpert');
-
-const confirmOverlay = document.getElementById('confirm');
-const rulesOverlay   = document.getElementById('rules');
-const crowdOverlay   = document.getElementById('crowdPoll');
-const scoresOverlay  = document.getElementById('scores');
-const teacherUI      = document.getElementById('teacherUI');
-const miniScores     = document.getElementById('miniScores');
-const scoresTable    = document.getElementById('scoresTable');
-const btnSound       = document.getElementById('btnSound');
-
-// Audio refs
-const sndIntro  = document.getElementById('snd-intro');
-const sndQ      = document.getElementById('snd-question');
-const sndFinal  = document.getElementById('snd-final');
-const sndCorrect= document.getElementById('snd-correct');
-const sndWrong  = document.getElementById('snd-wrong');
-const snd5050   = document.getElementById('snd-5050');
-const sndCrowd  = document.getElementById('snd-crowd');
-const sndExpert = document.getElementById('snd-expert');
-
-// UI events
-document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
-document.getElementById('btnScores').addEventListener('click', openScores);
-btnSound.addEventListener('click', toggleSound);
-
-btnStart.addEventListener('click', startGame);
-btnEnableSound.addEventListener('click', enableSoundIntro);
-btnFinal.addEventListener('click', () => {
-  if(state.picked == null) return;
-  document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
-  show(confirmOverlay);
-  playSound('final', true);
-});
-btnNext.addEventListener('click', nextQuestion);
-btnQuit.addEventListener('click', walkAway);
-
-btn5050.addEventListener('click', lifeline5050);
-btnCrowd.addEventListener('click', lifelineCrowd);
-btnExpert.addEventListener('click', lifelineExpert);
-
-document.addEventListener('keydown', (e)=>{
-  if(e.key === ' ' && !btnFinal.classList.contains('hidden')) { e.preventDefault(); btnFinal.click(); }
-  if(e.key.toLowerCase() === 'n' && !btnNext.classList.contains('hidden')) btnNext.click();
-  if(e.key.toLowerCase() === 't') toggleTeacher();
-  if(e.key.toLowerCase() === 'c') toggleClean();
-});
-
-// ===== Audio unlock & intro logic =====
-// MINIMAL CHANGE: accept optional exclude list so we can skip priming snd-intro when needed
-function unlockAllAudio(excludeIds = []) {
-  const ids = ['snd-intro','snd-question','snd-final','snd-correct','snd-wrong','snd-5050','snd-crowd','snd-expert'];
-  ids.forEach(id => {
-    if (excludeIds.includes(id)) return;
-    const a = document.getElementById(id);
-    if(!a) return;
-    a.addEventListener('error', ()=>{
-      console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
-    });
-    try {
-      const wasMuted = a.muted;
-      a.muted = true;
-      const p = a.play();
-      Promise.resolve(p)
-        .then(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; })
-        .catch(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; });
-    } catch(e){}
-  });
-}
-function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); btnEnableSound.classList.add('hidden'); }
-function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
-// MINIMAL CHANGE: skip priming intro to avoid race, then play it
-function enableSoundIntro(){ unlockAllAudio(['snd-intro']); if(state.soundOn) playIntro(); }
-
-// First gesture: existing behavior preserved
-document.addEventListener('pointerdown', (e) => {
-  unlockAllAudio();
-  if (e.target !== btnStart) {
-    if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
-  }
-}, { once:true });
-
-document.addEventListener('keydown', (e) => {
-  unlockAllAudio();
-  if (e.key !== 'Enter') {
-    if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
-  }
-}, { once:true });
-
-// ===== Utils =====
-function show(el){ el.style.display='flex' }
-function hide(el){ el.style.display='none' }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j]] } return a }
-function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
-function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-
-// ===== Audio helpers =====
-function setAllMuted(m){ [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; }); }
-function playEl(audio){
-  if(!audio || !state.soundOn) return;
-  try{
-    if(audio.readyState < 2){
-      audio.addEventListener('canplay', ()=>{ try{ audio.currentTime = 0; audio.play(); }catch(e){} }, { once:true });
-      return;
-    }
-    audio.currentTime = 0; audio.play();
-  }catch(e){}
-}
-function pauseEl(audio){ if(!audio) return; try{ audio.pause(); }catch(e){} }
-function stopAllSfx(){
-  [sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a=>{
-    if(a){ try{ a.pause(); a.currentTime = 0; }catch(e){} }
-  });
-}
-function playSound(kind, pauseBed=false){
-  stopAllSfx();
-  if(pauseBed) pauseQuestionBed();
-  if(kind==='final')   return playEl(sndFinal);
-  if(kind==='correct') return playEl(sndCorrect);
-  if(kind==='wrong')   return playEl(sndWrong);
-  if(kind==='5050')    return playEl(snd5050);
-  if(kind==='crowd')   return playEl(sndCrowd);
-  if(kind==='expert')  return playEl(sndExpert);
-}
-function startQuestionBed(){
-  if(!state.soundOn) return;
-  stopIntro();
-  if(sndQ.readyState < 2){
-    sndQ.addEventListener('canplay', ()=>{ try{ sndQ.currentTime = 0; sndQ.play(); }catch(e){} }, { once:true });
-    return;
-  }
-  try { sndQ.currentTime = 0; sndQ.play(); } catch(e){}
-}
-function pauseQuestionBed(){ pauseEl(sndQ); }
-function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
-
-function toggleSound(){
-  state.soundOn = !state.soundOn;
-  setAllMuted(!state.soundOn);
-  btnSound.textContent = state.soundOn ? '🔊' : '🔇';
-  if(state.soundOn && sndIntro.paused && !btnStart.classList.contains('hidden')) {
-    btnEnableSound.classList.remove('hidden');
-  }
-}
-
-// ===== Shuffle & mapping =====
-function prepareQuestion(q){
-  if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
-  const order = [0,1,2,3]; shuffle(order);
-  const shuffledOptions = order.map(i => q.options[i]);
-  const shuffledAnswer  = order.indexOf(q.answer);
-  return { ...q, options: shuffledOptions, _order: order, _answer: shuffledAnswer };
-}
-function getCorrectIdx(){
-  return (state.current && Number.isInteger(state.current._answer))
-    ? state.current._answer
-    : state.current.answer;
-}
-
-// ===== Ladder =====
+const ladderEl = document.getElementById("ladder");
 function renderLadder(){
-  ladderEl.innerHTML = '';
+  ladderEl.innerHTML = "";
   MONEY.forEach((m, idx)=>{
-    const li = document.createElement('li');
-    const qNum = idx + 1;
-    if([4,9].includes(idx)) li.classList.add('safe');
-    li.dataset.index = idx;
-    li.innerHTML = `<span>#${qNum}</span><span>£${m.toLocaleString()}</span>`;
+    const li = document.createElement("li");
+    const n = idx+1; // ✅ Q1–Q15
+    li.innerHTML = `<span>#${n}</span> <span>£${m.toLocaleString()}</span>`;
     ladderEl.appendChild(li);
   });
-  highlightLadder(0);
 }
-function highlightLadder(qIndex){
-  [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
-}
+renderLadder();
 
-// ===== Timer =====
-function startTimer(){
-  clearInterval(state.intervalId);
-  if(!state.timerOn){ timerEl.textContent = '∞'; return; }
-  state.timeLeft = DEFAULT_TIME;
-  timerEl.textContent = state.timeLeft + 's';
-  state.intervalId = setInterval(()=>{
-    state.timeLeft--;
-    timerEl.textContent = state.timeLeft + 's';
-    if(state.timeLeft <= 0){ clearInterval(state.intervalId); timesUp(); }
-  }, 1000);
-}
-function toggleTimer(){
-  state.timerOn = !state.timerOn;
-  modeLabel.textContent = `Timer: ${state.timerOn? 'On' : 'Off'}`;
-  startTimer();
-}
+// ==== AUDIO HANDLING ====
+const sounds = {
+  intro: document.getElementById("snd-intro"),
+  question: document.getElementById("snd-question"),
+  final: document.getElementById("snd-final"),
+  correct: document.getElementById("snd-correct"),
+  wrong: document.getElementById("snd-wrong"),
+  ll5050: document.getElementById("snd-5050"),
+  llCrowd: document.getElementById("snd-crowd"),
+  llExpert: document.getElementById("snd-expert")
+};
 
-// ===== Game flow =====
-function startGame(){
-  stopIntro(); // stop intro on Start
-  const name = prompt('Enter player name (optional)') || '';
-  state.player = name.trim();
-  state.qIndex = 0;
-  state.used5050 = state.usedCrowd = state.usedExpert = false;
-  state.results = [];
-  const base = window.ACTIVE_BANK || QUESTION_BANK;
-  state.bank = pick15(base);
-  btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
-  btnStart.classList.add('hidden'); btnEnableSound.classList.add('hidden'); btnQuit.classList.remove('hidden');
-  loadQuestion();
-}
-function resetGame(){
-  hide(confirmOverlay); hide(crowdOverlay); hide(rulesOverlay);
-  document.body.classList.remove('clean');
-  btnStart.classList.remove('hidden');
-  btnEnableSound.classList.remove('hidden'); // show again after reset
-  btnFinal.classList.add('hidden');
-  btnNext.classList.add('hidden');
-  btnQuit.classList.add('hidden');
-  questionEl.textContent = 'Press Start to begin.';
-  answersEl.innerHTML = '';
-  explainEl.classList.add('hidden');
-  qImg.style.display='none';
-  state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
-  renderLadder(); startTimer();
-  stopAllSfx(); stopQuestionBed();
-  playIntro(); // intro on reset
-}
-function loadQuestion(){
-  state.current = prepareQuestion(state.bank[state.qIndex]);
-  state.picked = null; state.locked=false;
-  qTopicEl.textContent = state.current.topic || 'Shoulder';
-  qLevelEl.textContent = `Q${state.qIndex+1}`;
-  questionEl.textContent = state.current.q;
-  explainEl.classList.add('hidden'); explainEl.textContent = '';
-  answersEl.innerHTML = '';
-  if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
-
-  answersEl.setAttribute('role','radiogroup');
-
-  state.current.options.forEach((opt, i)=>{
-    const btn = document.createElement('button');
-    btn.className = 'ans';
-    btn.setAttribute('role','radio');
-    btn.setAttribute('aria-checked','false');
-    btn.innerHTML = `<span class="label">${String.fromCharCode(65+i)}.</span> <span>${opt}</span>`;
-    btn.addEventListener('click', ()=>select(i, btn));
-    answersEl.appendChild(btn);
-  });
-  btnFinal.classList.remove('hidden');
-  btnNext.classList.add('hidden');
-  startTimer(); highlightLadder(state.qIndex);
-
-  startQuestionBed();
-}
-function select(i, btn){
-  if(state.locked) return;
-  [...answersEl.children].forEach(b => {
-    b.dataset.selected = 'false';
-    b.setAttribute('aria-checked','false');
-  });
-  btn.dataset.selected = 'true';
-  btn.setAttribute('aria-checked','true');
-  state.picked = i;
-}
-function cancelLock(){ hide(confirmOverlay) }
-
-function lockIn(){
-  hide(confirmOverlay);
-  if(state.picked == null || state.locked) return;
-  state.locked = true;
-  clearInterval(state.intervalId);
-
-  pauseQuestionBed(); playSound('final');
-
-  const correctIdx = getCorrectIdx();
-  const correct = state.picked === correctIdx;
-
-  if (correct){
-    markAnswers(true);
-    const prize = MONEY[state.qIndex];
-    state.results.push({ qIndex: state.qIndex+1, correct: true, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-    explainEl.classList.remove('hidden');
-    explainEl.innerHTML = `<div class="ok"><strong>Correct!</strong></div><div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-    btnFinal.classList.add('hidden');
-    btnNext.classList.remove('hidden');
-    playSound('correct');
-    if(state.qIndex === MONEY.length-1){ youWin(); return; }
-  } else {
-    playSound('wrong', true);
-    markAnswers(false);
-    const prize = getSafePrize();
-    state.results.push({ qIndex: state.qIndex+1, correct: false, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-    const realIdx = getCorrectIdx();
-    explainEl.classList.remove('hidden');
-    explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
-      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+realIdx)}</strong>.</div>
-      <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-    btnFinal.classList.add('hidden');
-
-    let finished = false;
-    const finish = () => { if (finished) return; finished = true; endGame(prize, false); };
-
-    if (sndWrong) {
-      const onEnded = () => { sndWrong.removeEventListener('ended', onEnded); finish(); };
-      sndWrong.addEventListener('ended', onEnded, { once: true });
-      const fallbackMs = (isFinite(sndWrong.duration) && sndWrong.duration > 0)
-        ? Math.min(4000, Math.max(800, sndWrong.duration * 1000))
-        : 1800;
-      setTimeout(finish, fallbackMs);
-    } else {
-      finish();
-    }
-    return;
-  }
-}
-
-function markAnswers(correct){
-  const children = [...answersEl.children];
-  const ans = getCorrectIdx();
-  children.forEach((b, idx)=>{
-    if(idx === ans) b.classList.add('correct');
-    if(state.picked === idx && !correct) b.classList.add('wrong');
-    b.disabled = true;
+function stopAll(){
+  Object.values(sounds).forEach(s=>{
+    s.pause();
+    s.currentTime=0;
   });
 }
-function nextQuestion(){
-  stopAllSfx(); stopQuestionBed();
-  state.qIndex++;
-  if(state.qIndex >= MONEY.length){ youWin(); return; }
-  loadQuestion();
-}
-function walkAway(){
-  const prize = state.qIndex>0 ? MONEY[state.qIndex-1] : 0;
-  endGame(prize, true);
-}
-function getSafePrize(){
-  let safe = 0; for(const idx of SAFE_INDEXES){ if(idx < state.qIndex) safe = MONEY[idx]; } return safe;
-}
-function youWin(){
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Outstanding knowledge.</div>`;
-  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
-  saveScore(1000000);
-  playSound('correct'); stopQuestionBed();
-}
-function endGame(prize, walked=false){
-  stopAllSfx();
-  if(walked){ playSound('correct'); }
-  stopQuestionBed();
-
-  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
-  btnEnableSound.classList.remove('hidden'); // allow intro again post-game
-  const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
-    `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
-  explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
-  saveScore(prize);
+function playSound(name){
+  stopAll();
+  if(sounds[name]) sounds[name].play().catch(()=>{});
 }
 
-// ===== Lifelines =====
-function lifeline5050(){
-  if(state.used5050 || !state.current) return;
-  state.used5050 = true; btn5050.disabled = true;
-  const correctIdx = getCorrectIdx();
-  const wrongs = [0,1,2,3].filter(i=>i!==correctIdx);
-  shuffle(wrongs);
-  const remove = wrongs.slice(0,2);
-  [...answersEl.children].forEach((b, idx)=>{
-    if(remove.includes(idx)){
-      b.disabled = true;
-      b.style.opacity = .4;
-      if(b.dataset.selected === 'true'){
-        b.dataset.selected = 'false';
-        b.setAttribute('aria-checked','false');
-        state.picked = null;
-      }
-    }
-  });
-  playSound('5050');
+// ==== DEMO GAME LOGIC ====
+document.getElementById("btnStart").addEventListener("click",()=>{
+  playSound("question"); // start with Q music
+});
+document.getElementById("btnNext").addEventListener("click",()=>{
+  playSound("question");
+});
+// Wrong answer demo
+function wrongAnswer(){
+  stopAll();
+  sounds.wrong.play().catch(()=>{});
+  setTimeout(()=>{ alert("Game Over"); }, 3000); // let sound finish
 }
-function lifelineCrowd(){
-  if(state.usedCrowd || !state.current) return;
-  state.usedCrowd = true; btnCrowd.disabled = true;
-  const hardness = state.qIndex/ (MONEY.length-1);
-  const correctIdx = getCorrectIdx();
-  const correctBias = Math.max(0.35, 0.8 - hardness*0.5);
-  const poll = [0,0,0,0]; let remaining = 100;
-  poll[correctIdx] = Math.floor(correctBias*100); remaining -= poll[correctIdx];
-  const others = [0,1,2,3].filter(i=>i!==correctIdx);
-  for(let i=0;i<others.length;i++){
-    const v = i < others.length-1 ? randInt(0, Math.max(1, remaining - (others.length-1-i))) : remaining;
-    poll[others[i]] = v; remaining -= v;
-  }
-  const container = document.getElementById('pollBars'); container.innerHTML = '';
-  ['A','B','C','D'].forEach((lab, i)=>{
-    const bar = document.createElement('div');
-    bar.style.margin = '6px 0';
-    bar.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${lab}</strong><span>${poll[i]}%</span></div>
-    <div style="height:12px; border-radius:999px; border:1px solid #2a3567; background:#0b122f">
-      <div style="height:100%; width:${poll[i]}%; border-radius:999px; background:linear-gradient(90deg,#1f79ff,#6ac2ff)"></div>
-    </div>`;
-    container.appendChild(bar);
-  });
-  show(crowdOverlay);
-  playSound('crowd');
-}
-function closePoll(){ hide(crowdOverlay) }
-function lifelineExpert(){
-  if(state.usedExpert || !state.current) return;
-  state.usedExpert = true; btnExpert.disabled = true;
-  const hardness = state.qIndex/ (MONEY.length-1);
-  const accuracy = Math.max(0.45, 0.75 - hardness*0.35);
-  const sayCorrect = Math.random() < accuracy;
-  const correctIdx = getCorrectIdx();
-  const suggested = sayCorrect ? correctIdx : randomOther(correctIdx);
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="ok"><strong>Expert hint:</strong></div>
-  <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
-  playSound('expert');
-}
-
-// ===== Times up =====
-function timesUp(){
-  state.locked = true;
-  markAnswers(false);
-  const ans = getCorrectIdx();
-  explainEl.classList.remove('hidden');
-  explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+ans)}</strong>.</div>`;
-  btnFinal.classList.add('hidden');
-  btnNext.classList.add('hidden');
-  btnQuit.classList.add('hidden');
-  btnStart.classList.remove('hidden');
-  btnEnableSound.classList.remove('hidden');
-  saveScore(getSafePrize());
-  stopAllSfx(); playSound('wrong'); stopQuestionBed();
-}
-
-// ===== Bank helpers =====
-function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
-
-// ===== Teacher & clean view =====
-function toggleTeacher(){
-  if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
-  const pass = prompt('Enter teacher code');
-  if(pass === '1234'){ state.teacher=true; teacherUI.style.display='flex'; }
-  else if(pass){ alert('Incorrect code'); }
-}
-function reveal(){ if(!state.current) return; const ans = getCorrectIdx(); [...answersEl.children].forEach((b,i)=>{ if(i===ans) b.classList.add('correct'); }); }
-function skip(){ if(state.qIndex < MONEY.length-1) nextQuestion(); }
-function toggleClean(){ document.body.classList.toggle('clean'); }
-function toggleShuffle(){ state.shuffleOn = !state.shuffleOn; alert('Shuffle is now ' + (state.shuffleOn ? 'ON' : 'OFF')); }
-
-// ===== Leaderboard (localStorage) =====
-const SCORE_KEY = 'shoulder_millionaire_scores_v1';
-function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
-function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
-function saveScore(prize){
-  if(!state.results.length) return;
-  const totalCorrect = state.results.filter(r=>r.correct).length;
-  const topReached = Math.max(...state.results.map(r=>r.qIndex));
-  const totalTime = state.results.reduce((s,r)=> s + (r.time || 0), 0);
-  const lifelines = ['5050','Crowd','Expert'].filter((ll,i)=> [state.used5050,state.usedCrowd,state.usedExpert][i]).join('|') || 'None';
-  const entry = {
-    name: state.player || '—',
-    prize, correct: totalCorrect, topQ: topReached,
-    time: state.timerOn? totalTime : null,
-    date: new Date().toISOString().slice(0,19).replace('T',' '),
-    lifelines
-  };
-  const scores = getScores();
-  scores.push(entry);
-  scores.sort((a,b)=> b.prize - a.prize || b.correct - a.correct || ((a.time||1e9) - (b.time||1e9)));
-  setScores(scores.slice(0,100));
-}
-function renderMiniScores(){
-  const scores = getScores();
-  if(!scores.length){ miniScores.textContent = 'No scores yet.'; return; }
-  const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${escapeHtml(s.name || '—')}`).join('<br>');
-  miniScores.innerHTML = top;
-}
-function openScores(){ renderScoresTable(); show(scoresOverlay); }
-function closeScores(){ hide(scoresOverlay) }
-function renderScoresTable(){
-  const scores = getScores();
-  if(!scores.length){ scoresTable.innerHTML = '<p class="muted">No scores yet.</p>'; return; }
-  let html = '<table><thead><tr><th>#</th><th>Name</th><th>Prize</th><th>Correct</th><th>Top Q</th><th>Time(s)</th><th>Lifelines</th><th>Date</th></tr></thead><tbody>';
-  scores.forEach((s,i)=>{
-    html += `<tr><td>${i+1}</td><td>${escapeHtml(s.name||'')}</td><td>£${s.prize.toLocaleString()}</td><td>${s.correct}</td><td>${s.topQ}</td><td>${s.time ?? ''}</td><td>${s.lifelines}</td><td>${s.date}</td></tr>`;
-  });
-  html += '</tbody></table>';
-  scoresTable.innerHTML = html;
-}
-function exportScores(){
-  const scores = getScores();
-  const rows = [['Rank','Name','Prize','Correct','TopQ','Time(s)','Lifelines','Date']];
-  scores.forEach((s,i)=> rows.push([i+1, s.name||'', s.prize, s.correct, s.topQ, s.time ?? '', s.lifelines, s.date]));
-  downloadCSV(rows, 'shoulder-millionaire-leaderboard.csv');
-}
-function resetScores(){ if(confirm('Reset all saved scores on this device?')){ setScores([]); renderScoresTable(); } }
-function downloadCSV(rows, filename){
-  const csv = rows.map(r=>r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
-}
-
-// ===== Build UI on load =====
-renderLadder(); startTimer(); renderMiniScores();
-setAllMuted(!state.soundOn);
-if(state.soundOn) btnEnableSound.classList.remove('hidden');
 </script>
 </body>
 </html>
