@@ -52,14 +52,12 @@
     background: linear-gradient(180deg, #0f1738, #0c132f); font-weight:700; position:relative; overflow:hidden;
   }
   .ans .label{opacity:.9; color:#9eb4ff}
-  /* Selected state BEFORE locking in */
   .ans[data-selected="true"]{
     outline:2px solid #6ac2ff;
     box-shadow: 0 0 0 3px rgba(106,194,255,.25);
     background: linear-gradient(180deg, #14204a, #0f183d);
     border-color:#3350a8;
   }
-  /* Result states AFTER locking in */
   .ans.correct{outline:2px solid var(--good); box-shadow: 0 0 0 3px rgba(51,209,122,.3)}
   .ans.wrong{outline:2px solid var(--bad); box-shadow: 0 0 0 3px rgba(255,107,107,.25)}
   .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
@@ -238,10 +236,12 @@
 </div>
 
 <!-- ====== AUDIO (put your files in /sounds or adjust src paths) ====== -->
-<audio id="snd-question" src="sounds/question.mp3" preload="auto" loop></audio>
-<audio id="snd-final"    src="sounds/final.mp3"    preload="auto"></audio>
-<audio id="snd-correct"  src="sounds/correct.mp3"  preload="auto"></audio>
-<audio id="snd-wrong"    src="sounds/wrong.mp3"    preload="auto"></audio>
+<audio id="snd-intro"    src="sounds/intro.mp3" preload="auto" loop></audio>
+<!-- UPDATED: question bed now uses “Question music.mp3” -->
+<audio id="snd-question" src="sounds/Question music.mp3" preload="auto" loop></audio>
+<audio id="snd-final"    src="sounds/final.mp3" preload="auto"></audio>
+<audio id="snd-correct"  src="sounds/correct.mp3" preload="auto"></audio>
+<audio id="snd-wrong"    src="sounds/wrong.mp3" preload="auto"></audio>
 <audio id="snd-5050"     src="sounds/lifeline5050.mp3" preload="auto"></audio>
 <audio id="snd-crowd"    src="sounds/lifelineCrowd.mp3" preload="auto"></audio>
 <audio id="snd-expert"   src="sounds/lifelineExpert.mp3" preload="auto"></audio>
@@ -249,12 +249,11 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight + Sounds
+   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight + Sounds + Intro
    ============================= */
 
-// Money ladder (bottom to top)
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
-const SAFE_INDEXES = [4, 9]; // Q5 (£1k), Q10 (£32k)
+const SAFE_INDEXES = [4, 9];
 const DEFAULT_TIME = 45;
 
 let state = {
@@ -269,14 +268,13 @@ let state = {
   timerOn: true,
   timeLeft: DEFAULT_TIME,
   intervalId: null,
-  results: [], // {qIndex, correct, time, prize}
+  results: [],
   teacher: false,
   player: '',
   shuffleOn: true,
   soundOn: true
 };
 
-// --- Base bank (15) ---
 let QUESTION_BANK = [
   { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
     options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
@@ -365,7 +363,6 @@ let QUESTION_BANK = [
   }
 ];
 
-// --- Expanded bank (adds ≈30 more, including image-based placeholders) ---
 const EXPANDED_BANK = [
   ...QUESTION_BANK,
   { q:"Which transducer is best for most shoulder tendon ultrasound?",
@@ -590,7 +587,6 @@ const EXPANDED_BANK = [
   }
 ];
 
-// ====== DOM refs ======
 const questionEl = document.getElementById('question');
 const answersEl  = document.getElementById('answers');
 const qTopicEl   = document.getElementById('qTopic');
@@ -620,6 +616,7 @@ const scoresTable    = document.getElementById('scoresTable');
 const btnSound       = document.getElementById('btnSound');
 
 // Audio refs
+const sndIntro  = document.getElementById('snd-intro');
 const sndQ      = document.getElementById('snd-question');
 const sndFinal  = document.getElementById('snd-final');
 const sndCorrect= document.getElementById('snd-correct');
@@ -632,13 +629,13 @@ document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOver
 document.getElementById('btnScores').addEventListener('click', openScores);
 btnSound.addEventListener('click', toggleSound);
 
-// ====== Events ======
+// Events
 btnStart.addEventListener('click', startGame);
 btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
   document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
   show(confirmOverlay);
-  playSound('final', true); // sting when opening final confirmation
+  playSound('final', true);
 });
 btnNext.addEventListener('click', nextQuestion);
 btnQuit.addEventListener('click', walkAway);
@@ -654,28 +651,37 @@ document.addEventListener('keydown', (e)=>{
   if(e.key.toLowerCase() === 'c') toggleClean();
 });
 
-// ====== Utils ======
+// Kickstart intro after any first user gesture (autoplay policies)
+document.addEventListener('pointerdown', initAudioOnce, { once:true });
+
+// Utils
 function show(el){ el.style.display='flex' }
 function hide(el){ el.style.display='none' }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39'}[m])) }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// ====== Audio helpers ======
+// Audio helpers
 function setAllMuted(m){
-  [sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
+  [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
 }
 function playEl(audio){
   if(!audio) return;
-  try{ audio.currentTime = 0; audio.play(); }catch(e){ /* autoplay lock until first interaction */ }
+  try{ audio.currentTime = 0; audio.play(); }catch(e){}
 }
 function pauseEl(audio){
   if(!audio) return;
   try{ audio.pause(); }catch(e){}
 }
+function stopAllSfx(){
+  [sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a=>{
+    if(a){ try{ a.pause(); a.currentTime = 0; }catch(e){} }
+  });
+}
 function playSound(kind, pauseBed=false){
-  if(pauseBed) pauseEl(sndQ);
+  stopAllSfx();
+  if(pauseBed) pauseQuestionBed();
   if(kind==='final')   return playEl(sndFinal);
   if(kind==='correct') return playEl(sndCorrect);
   if(kind==='wrong')   return playEl(sndWrong);
@@ -685,17 +691,31 @@ function playSound(kind, pauseBed=false){
 }
 function startQuestionBed(){
   if(!state.soundOn) return;
-  playEl(sndQ);
+  playEl(sndQ); // plays "Question music.mp3"
 }
 function pauseQuestionBed(){ pauseEl(sndQ); }
 function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
+
+function playIntro(){
+  if(!state.soundOn) return;
+  stopAllSfx();
+  stopQuestionBed();
+  playEl(sndIntro);
+}
+function stopIntro(){
+  pauseEl(sndIntro);
+  if(sndIntro) sndIntro.currentTime = 0;
+}
+function initAudioOnce(){
+  if(sndIntro && sndIntro.paused) playIntro();
+}
 function toggleSound(){
   state.soundOn = !state.soundOn;
   setAllMuted(!state.soundOn);
   btnSound.textContent = state.soundOn ? '🔊' : '🔇';
 }
 
-// ====== Option shuffle & mapping ======
+// Option shuffle & mapping
 function prepareQuestion(q){
   if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
   const order = [0,1,2,3];
@@ -710,7 +730,7 @@ function getCorrectIdx(){
     : state.current.answer;
 }
 
-// ====== Ladder ======
+// Ladder
 function renderLadder(){
   ladderEl.innerHTML = '';
   MONEY.forEach((m, idx)=>{
@@ -728,7 +748,7 @@ function highlightLadder(qIndex){
   [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
 }
 
-// ====== Timer ======
+// Timer
 function startTimer(){
   clearInterval(state.intervalId);
   if(!state.timerOn){ timerEl.textContent = '∞'; return; }
@@ -746,8 +766,9 @@ function toggleTimer(){
   startTimer();
 }
 
-// ====== Game flow ======
+// Game flow
 function startGame(){
+  stopIntro();
   const name = prompt('Enter player name (optional)') || '';
   state.player = name.trim();
   state.qIndex = 0;
@@ -771,7 +792,9 @@ function resetGame(){
   explainEl.classList.add('hidden');
   qImg.style.display='none';
   state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
-  renderLadder(); startTimer(); stopQuestionBed();
+  renderLadder(); startTimer();
+  stopAllSfx(); stopQuestionBed();
+  playIntro();
 }
 function loadQuestion(){
   state.current = prepareQuestion(state.bank[state.qIndex]);
@@ -783,7 +806,6 @@ function loadQuestion(){
   answersEl.innerHTML = '';
   if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
 
-  // Accessibility: radio group for answers
   answersEl.setAttribute('role','radiogroup');
 
   state.current.options.forEach((opt, i)=>{
@@ -799,7 +821,7 @@ function loadQuestion(){
   btnNext.classList.add('hidden');
   startTimer(); highlightLadder(state.qIndex);
 
-  // Start/continue the question bed after user action (startGame/nextQuestion)
+  // start the question bed every time a question loads
   startQuestionBed();
 }
 function select(i, btn){
@@ -819,7 +841,6 @@ function lockIn(){
   state.locked = true;
   clearInterval(state.intervalId);
 
-  // Pause the bed and play the lock sting
   pauseQuestionBed(); playSound('final');
 
   const correctIdx = getCorrectIdx();
@@ -833,7 +854,6 @@ function lockIn(){
   btnFinal.classList.add('hidden');
   btnNext.classList.remove('hidden');
 
-  // Correct/Incorrect sting
   if(correct){ playSound('correct'); }
   else { playSound('wrong'); endGame(prize); return; }
 
@@ -849,9 +869,11 @@ function markAnswers(correct){
   });
 }
 function nextQuestion(){
+  stopAllSfx();
+  stopQuestionBed();
   state.qIndex++;
   if(state.qIndex >= MONEY.length){ youWin(); return; }
-  loadQuestion();
+  loadQuestion(); // this will start "Question music.mp3" again
 }
 function walkAway(){
   const prize = state.qIndex>0 ? MONEY[state.qIndex-1] : 0;
@@ -868,15 +890,19 @@ function youWin(){
   playSound('correct'); stopQuestionBed();
 }
 function endGame(prize, walked=false){
+  stopAllSfx();
+  if(walked){ playSound('correct'); }
+  stopQuestionBed();
+
   btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
   const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
     `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
   explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
   saveScore(prize);
-  stopQuestionBed();
+  playIntro();
 }
 
-// ====== Lifelines ======
+// Lifelines
 function lifeline5050(){
   if(state.used5050 || !state.current) return;
   state.used5050 = true; btn5050.disabled = true;
@@ -938,7 +964,7 @@ function lifelineExpert(){
   playSound('expert');
 }
 
-// ====== Times up ======
+// Times up
 function timesUp(){
   state.locked = true;
   markAnswers(false);
@@ -950,13 +976,14 @@ function timesUp(){
   btnQuit.classList.add('hidden');
   btnStart.classList.remove('hidden');
   saveScore(getSafePrize());
-  playSound('wrong'); stopQuestionBed();
+  stopAllSfx(); playSound('wrong'); stopQuestionBed();
+  playIntro();
 }
 
-// ====== Bank helpers ======
+// Bank helpers
 function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
 
-// ====== Teacher & clean view ======
+// Teacher & clean view
 function toggleTeacher(){
   if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
   const pass = prompt('Enter teacher code');
@@ -986,7 +1013,7 @@ function replaceBank(){
 }
 function useExpanded(){ window.ACTIVE_BANK = EXPANDED_BANK; alert(`Using expanded bank (${EXPANDED_BANK.length} items). Restarting.`); resetGame(); }
 
-// ====== Leaderboard (localStorage) ======
+// Leaderboard (localStorage)
 const SCORE_KEY = 'shoulder_millionaire_scores_v1';
 function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
 function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
@@ -1039,10 +1066,10 @@ function downloadCSV(rows, filename){
   const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
 }
 
-// ====== Build UI on load ======
+// Build UI on load
 renderLadder(); startTimer(); renderMiniScores();
-setAllMuted(!state.soundOn); // default sound ON
-
+setAllMuted(!state.soundOn);
+playIntro();
 </script>
 </body>
 </html>
