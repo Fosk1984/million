@@ -438,14 +438,12 @@ document.addEventListener('keydown', (e)=>{
 // ===== Robust audio unlock (first gesture) =====
 function unlockAllAudio() {
   const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
-  let playable = 0;
   els.forEach(a => {
     if(!a) return;
-    a.addEventListener('canplay', ()=>{ playable++; state.soundsAvailable = true; }, { once:true });
     a.addEventListener('error', ()=>{
       console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
     });
-    // silent prime (some browsers require a user-gesture even to prime; we are in a gesture handler)
+    // silent prime inside user gesture
     try {
       const wasMuted = a.muted;
       a.muted = true;
@@ -455,16 +453,7 @@ function unlockAllAudio() {
         .catch(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; });
     } catch(e){}
   });
-
-  // if nothing is playable after a short delay, keep sound toggle but default to muted
-  setTimeout(()=>{
-    if(!state.soundsAvailable){
-      console.warn('No audio became playable. Sounds will remain off until files are available.');
-      state.soundOn = false;
-      setAllMuted(true);
-      btnSound.textContent = '🔇';
-    }
-  }, 800);
+  // Do NOT auto-change state.soundOn here.
 }
 
 function initAudioOnce(){
