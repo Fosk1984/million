@@ -93,7 +93,7 @@
   .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
   .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
   .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#var(--ink); padding:8px}
+  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
   .sr-only{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
   table{width:100%; border-collapse: collapse}
@@ -235,10 +235,9 @@
   </div>
 </div>
 
-<!-- ====== AUDIO (put your files in /sounds or adjust src paths) ====== -->
+<!-- ====== AUDIO ====== -->
 <audio id="snd-intro"    src="sounds/intro.mp3" preload="auto" loop></audio>
-<!-- UPDATED: question bed now uses “Question music.mp3” -->
-<audio id="snd-question" src="sounds/Question music.mp3" preload="auto" loop></audio>
+<audio id="snd-question" src="sounds/question-music.mp3" preload="auto" loop></audio>
 <audio id="snd-final"    src="sounds/final.mp3" preload="auto"></audio>
 <audio id="snd-correct"  src="sounds/correct.mp3" preload="auto"></audio>
 <audio id="snd-wrong"    src="sounds/wrong.mp3" preload="auto"></audio>
@@ -249,7 +248,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight + Sounds + Intro
+   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight + Sounds + Intro + Robust Audio Unlock
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -587,6 +586,7 @@ const EXPANDED_BANK = [
   }
 ];
 
+// ===== DOM refs =====
 const questionEl = document.getElementById('question');
 const answersEl  = document.getElementById('answers');
 const qTopicEl   = document.getElementById('qTopic');
@@ -625,11 +625,11 @@ const snd5050   = document.getElementById('snd-5050');
 const sndCrowd  = document.getElementById('snd-crowd');
 const sndExpert = document.getElementById('snd-expert');
 
+// Buttons
 document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
 document.getElementById('btnScores').addEventListener('click', openScores);
 btnSound.addEventListener('click', toggleSound);
 
-// Events
 btnStart.addEventListener('click', startGame);
 btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
@@ -651,10 +651,37 @@ document.addEventListener('keydown', (e)=>{
   if(e.key.toLowerCase() === 'c') toggleClean();
 });
 
-// Kickstart intro after any first user gesture (autoplay policies)
-document.addEventListener('pointerdown', initAudioOnce, { once:true });
+// ===== Robust audio unlock (first gesture) =====
+function unlockAllAudio() {
+  const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
+  els.forEach(a => {
+    if(!a) return;
+    try {
+      const wasMuted = a.muted;
+      a.muted = true; // silent priming
+      const p = a.play();
+      if (p && typeof p.then === 'function') {
+        p.then(() => {
+          a.pause();
+          a.currentTime = 0;
+          a.muted = wasMuted;
+        }).catch(()=>{ /* ignore */ });
+      } else {
+        a.pause();
+        a.currentTime = 0;
+        a.muted = wasMuted;
+      }
+    } catch(e){}
+  });
+}
+function initAudioOnce(){
+  if(sndIntro && sndIntro.paused) playIntro();
+}
+// Unlock on first pointer or key interaction
+document.addEventListener('pointerdown', () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
+document.addEventListener('keydown',      () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
 
-// Utils
+// ===== Utils =====
 function show(el){ el.style.display='flex' }
 function hide(el){ el.style.display='none' }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
@@ -662,7 +689,7 @@ function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
 function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// Audio helpers
+// ===== Audio helpers =====
 function setAllMuted(m){
   [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
 }
@@ -682,6 +709,7 @@ function stopAllSfx(){
 function playSound(kind, pauseBed=false){
   stopAllSfx();
   if(pauseBed) pauseQuestionBed();
+
   if(kind==='final')   return playEl(sndFinal);
   if(kind==='correct') return playEl(sndCorrect);
   if(kind==='wrong')   return playEl(sndWrong);
@@ -689,9 +717,17 @@ function playSound(kind, pauseBed=false){
   if(kind==='crowd')   return playEl(sndCrowd);
   if(kind==='expert')  return playEl(sndExpert);
 }
+
 function startQuestionBed(){
   if(!state.soundOn) return;
-  playEl(sndQ); // plays "Question music.mp3"
+  stopIntro(); // ensure intro isn't competing
+  try {
+    sndQ.currentTime = 0;
+    const p = sndQ.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(()=>{ setTimeout(()=>sndQ.play().catch(()=>{}), 50); });
+    }
+  } catch(e){}
 }
 function pauseQuestionBed(){ pauseEl(sndQ); }
 function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
@@ -706,16 +742,21 @@ function stopIntro(){
   pauseEl(sndIntro);
   if(sndIntro) sndIntro.currentTime = 0;
 }
-function initAudioOnce(){
-  if(sndIntro && sndIntro.paused) playIntro();
-}
 function toggleSound(){
   state.soundOn = !state.soundOn;
   setAllMuted(!state.soundOn);
   btnSound.textContent = state.soundOn ? '🔊' : '🔇';
 }
 
-// Option shuffle & mapping
+// Optional: log audio load errors to console for debugging
+[sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a=>{
+  if(!a) return;
+  a.addEventListener('error', () => {
+    console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
+  });
+});
+
+// ===== Option shuffle & mapping =====
 function prepareQuestion(q){
   if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
   const order = [0,1,2,3];
@@ -730,7 +771,7 @@ function getCorrectIdx(){
     : state.current.answer;
 }
 
-// Ladder
+// ===== Ladder =====
 function renderLadder(){
   ladderEl.innerHTML = '';
   MONEY.forEach((m, idx)=>{
@@ -748,7 +789,7 @@ function highlightLadder(qIndex){
   [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
 }
 
-// Timer
+// ===== Timer =====
 function startTimer(){
   clearInterval(state.intervalId);
   if(!state.timerOn){ timerEl.textContent = '∞'; return; }
@@ -766,9 +807,10 @@ function toggleTimer(){
   startTimer();
 }
 
-// Game flow
+// ===== Game flow =====
 function startGame(){
   stopIntro();
+
   const name = prompt('Enter player name (optional)') || '';
   state.player = name.trim();
   state.qIndex = 0;
@@ -821,7 +863,7 @@ function loadQuestion(){
   btnNext.classList.add('hidden');
   startTimer(); highlightLadder(state.qIndex);
 
-  // start the question bed every time a question loads
+  // Start/continue the question bed
   startQuestionBed();
 }
 function select(i, btn){
@@ -873,7 +915,7 @@ function nextQuestion(){
   stopQuestionBed();
   state.qIndex++;
   if(state.qIndex >= MONEY.length){ youWin(); return; }
-  loadQuestion(); // this will start "Question music.mp3" again
+  loadQuestion(); // loadQuestion() starts the bed again
 }
 function walkAway(){
   const prize = state.qIndex>0 ? MONEY[state.qIndex-1] : 0;
@@ -902,7 +944,7 @@ function endGame(prize, walked=false){
   playIntro();
 }
 
-// Lifelines
+// ===== Lifelines =====
 function lifeline5050(){
   if(state.used5050 || !state.current) return;
   state.used5050 = true; btn5050.disabled = true;
@@ -964,7 +1006,7 @@ function lifelineExpert(){
   playSound('expert');
 }
 
-// Times up
+// ===== Times up =====
 function timesUp(){
   state.locked = true;
   markAnswers(false);
@@ -980,10 +1022,10 @@ function timesUp(){
   playIntro();
 }
 
-// Bank helpers
+// ===== Bank helpers =====
 function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
 
-// Teacher & clean view
+// ===== Teacher & clean view =====
 function toggleTeacher(){
   if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
   const pass = prompt('Enter teacher code');
@@ -1013,7 +1055,7 @@ function replaceBank(){
 }
 function useExpanded(){ window.ACTIVE_BANK = EXPANDED_BANK; alert(`Using expanded bank (${EXPANDED_BANK.length} items). Restarting.`); resetGame(); }
 
-// Leaderboard (localStorage)
+// ===== Leaderboard (localStorage) =====
 const SCORE_KEY = 'shoulder_millionaire_scores_v1';
 function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
 function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
@@ -1066,7 +1108,7 @@ function downloadCSV(rows, filename){
   const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
 }
 
-// Build UI on load
+// ===== Build UI on load =====
 renderLadder(); startTimer(); renderMiniScores();
 setAllMuted(!state.soundOn);
 playIntro();
