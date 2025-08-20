@@ -241,7 +241,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   Minimal change: Enable Sound starts intro reliably (no race).
+   Patched: robust bank handling + reliable start + lifelines.
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -351,7 +351,6 @@ document.addEventListener('keydown', (e)=>{
 });
 
 // ===== Audio unlock & intro logic =====
-// MINIMAL CHANGE: accept optional exclude list so we can skip priming snd-intro when needed
 function unlockAllAudio(excludeIds = []) {
   const ids = ['snd-intro','snd-question','snd-final','snd-correct','snd-wrong','snd-5050','snd-crowd','snd-expert'];
   ids.forEach(id => {
@@ -373,10 +372,8 @@ function unlockAllAudio(excludeIds = []) {
 }
 function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); btnEnableSound.classList.add('hidden'); }
 function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
-// MINIMAL CHANGE: skip priming intro to avoid race, then play it
 function enableSoundIntro(){ unlockAllAudio(['snd-intro']); if(state.soundOn) playIntro(); }
 
-// First gesture: existing behavior preserved
 document.addEventListener('pointerdown', (e) => {
   unlockAllAudio();
   if (e.target !== btnStart) {
@@ -505,10 +502,20 @@ function startGame(){
   state.qIndex = 0;
   state.used5050 = state.usedCrowd = state.usedExpert = false;
   state.results = [];
-  const base = window.ACTIVE_BANK || QUESTION_BANK;
+
+  const base = Array.isArray(window.ACTIVE_BANK) ? window.ACTIVE_BANK : QUESTION_BANK;
   state.bank = pick15(base);
+
+  if (!state.bank.length){
+    alert('No questions loaded. Use the Teacher panel to load/import questions.');
+    return;
+  }
+
   btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
-  btnStart.classList.add('hidden'); btnEnableSound.classList.add('hidden'); btnQuit.classList.remove('hidden');
+  btnStart.classList.add('hidden'); 
+  btnEnableSound.classList.add('hidden'); 
+  btnQuit.classList.remove('hidden');
+
   loadQuestion();
 }
 function resetGame(){
@@ -529,6 +536,12 @@ function resetGame(){
   playIntro(); // intro on reset
 }
 function loadQuestion(){
+  // Guard: if bank is shorter than 15 or we've reached the end, finish gracefully
+  if (!state.bank[state.qIndex]){
+    youWin();
+    return;
+  }
+
   state.current = prepareQuestion(state.bank[state.qIndex]);
   state.picked = null; state.locked=false;
   qTopicEl.textContent = state.current.topic || 'Shoulder';
@@ -738,7 +751,30 @@ function timesUp(){
 }
 
 // ===== Bank helpers =====
-function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
+function pick15(bank){
+  if (!Array.isArray(bank) || bank.length === 0) return [];
+  const copy = bank.slice(); shuffle(copy);
+  return copy.slice(0, Math.min(15, copy.length));
+}
+function replaceBank(){
+  try{
+    const raw = document.getElementById('qImport').value.trim();
+    const arr = JSON.parse(raw);
+    if(!Array.isArray(arr) || !arr.length) throw new Error('Invalid JSON array.');
+    window.ACTIVE_BANK = arr;
+    alert(`Loaded ${arr.length} questions. Press Start.`);
+  }catch(e){
+    alert('Import failed: ' + (e.message || e));
+  }
+}
+function loadSample(){ 
+  window.ACTIVE_BANK = QUESTION_BANK; 
+  alert('Loaded sample bank. Press Start.');
+}
+function useExpanded(){ 
+  window.ACTIVE_BANK = EXPANDED_BANK; 
+  alert('Loaded expanded bank. Press Start.');
+}
 
 // ===== Teacher & clean view =====
 function toggleTeacher(){
