@@ -92,7 +92,7 @@
   .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
   .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
   .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
+  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#ink; padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
 </style>
 </head>
@@ -125,7 +125,7 @@
       <div class="answers" id="answers"></div>
       <div class="actions">
         <button id="btnStart">Start Game</button>
-        <button id="btnEnableSound" class="pill">Enable Sound</button><!-- NEW: starts intro before game -->
+        <button id="btnEnableSound" class="pill">Enable Sound</button>
         <button id="btnFinal" class="hidden">Final Answer</button>
         <button id="btnNext" class="hidden">Next Question</button>
         <button id="btnQuit" class="hidden">Walk Away</button>
@@ -241,8 +241,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   Intro plays on launch via "Enable Sound" or any first gesture (except Start),
-   stops on Start. Everything else unchanged.
+   Minimal change: Enable Sound starts intro reliably (no race).
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -296,7 +295,7 @@ const timerEl    = document.getElementById('timer');
 const modeLabel  = document.getElementById('modeLabel');
 
 const btnStart = document.getElementById('btnStart');
-const btnEnableSound = document.getElementById('btnEnableSound'); // NEW
+const btnEnableSound = document.getElementById('btnEnableSound');
 const btnFinal = document.getElementById('btnFinal');
 const btnNext  = document.getElementById('btnNext');
 const btnQuit  = document.getElementById('btnQuit');
@@ -330,7 +329,7 @@ document.getElementById('btnScores').addEventListener('click', openScores);
 btnSound.addEventListener('click', toggleSound);
 
 btnStart.addEventListener('click', startGame);
-btnEnableSound.addEventListener('click', enableSoundIntro); // NEW
+btnEnableSound.addEventListener('click', enableSoundIntro);
 btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
   document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
@@ -352,9 +351,12 @@ document.addEventListener('keydown', (e)=>{
 });
 
 // ===== Audio unlock & intro logic =====
-function unlockAllAudio() {
-  const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
-  els.forEach(a => {
+// MINIMAL CHANGE: accept optional exclude list so we can skip priming snd-intro when needed
+function unlockAllAudio(excludeIds = []) {
+  const ids = ['snd-intro','snd-question','snd-final','snd-correct','snd-wrong','snd-5050','snd-crowd','snd-expert'];
+  ids.forEach(id => {
+    if (excludeIds.includes(id)) return;
+    const a = document.getElementById(id);
     if(!a) return;
     a.addEventListener('error', ()=>{
       console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
@@ -371,19 +373,20 @@ function unlockAllAudio() {
 }
 function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); btnEnableSound.classList.add('hidden'); }
 function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
-function enableSoundIntro(){ unlockAllAudio(); if(state.soundOn) playIntro(); } // NEW manual button
+// MINIMAL CHANGE: skip priming intro to avoid race, then play it
+function enableSoundIntro(){ unlockAllAudio(['snd-intro']); if(state.soundOn) playIntro(); }
 
-// Start intro after first gesture — BUT ignore Start button, so it won’t start+stop on same click
+// First gesture: existing behavior preserved
 document.addEventListener('pointerdown', (e) => {
   unlockAllAudio();
-  if (e.target !== btnStart) { // only start intro if it wasn't the Start click
+  if (e.target !== btnStart) {
     if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
   }
 }, { once:true });
 
 document.addEventListener('keydown', (e) => {
   unlockAllAudio();
-  if (e.key !== 'Enter') { // Enter often triggers Start; avoid starting/stopping same tick
+  if (e.key !== 'Enter') {
     if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
   }
 }, { once:true });
@@ -391,7 +394,7 @@ document.addEventListener('keydown', (e) => {
 // ===== Utils =====
 function show(el){ el.style.display='flex' }
 function hide(el){ el.style.display='none' }
-function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j]] } return a }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
 function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
@@ -440,9 +443,7 @@ function toggleSound(){
   state.soundOn = !state.soundOn;
   setAllMuted(!state.soundOn);
   btnSound.textContent = state.soundOn ? '🔊' : '🔇';
-  // If turning sound ON and we haven't started anything yet, encourage intro
   if(state.soundOn && sndIntro.paused && !btnStart.classList.contains('hidden')) {
-    // show enable button if hidden
     btnEnableSound.classList.remove('hidden');
   }
 }
@@ -807,7 +808,6 @@ function downloadCSV(rows, filename){
 // ===== Build UI on load =====
 renderLadder(); startTimer(); renderMiniScores();
 setAllMuted(!state.soundOn);
-// Show Enable Sound button initially if sound is on and intro hasn't started
 if(state.soundOn) btnEnableSound.classList.remove('hidden');
 </script>
 </body>
