@@ -595,22 +595,47 @@ function lockIn(){
     btnNext.classList.remove('hidden');
     playSound('correct');
     if(state.qIndex === MONEY.length-1){ youWin(); return; }
+
   } else {
-    // 🔊 wrong answer sting
-    playSound('wrong', true);
-    markAnswers(false);
-    const prize = getSafePrize();
-    state.results.push({ qIndex: state.qIndex+1, correct: false, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-    explainEl.classList.remove('hidden');
-    explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
-      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
-      <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-    btnFinal.classList.add('hidden');
-    // End game immediately on wrong
-    endGame(prize, false);
-    return;
+  // 🔊 play the wrong sting and pause the bed
+  playSound('wrong', true);
+  markAnswers(false);
+
+  const prize = getSafePrize();
+  state.results.push({
+    qIndex: state.qIndex + 1,
+    correct: false,
+    time: state.timerOn ? (DEFAULT_TIME - state.timeLeft) : null,
+    prize
+  });
+
+  const correctIdx = getCorrectIdx();
+  explainEl.classList.remove('hidden');
+  explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
+    <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
+    <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
+  btnFinal.classList.add('hidden');
+
+  // ✅ Wait for the sting to finish, then end the game.
+  // Prefer 'ended' event; fallback to a timeout if metadata/duration isn't available yet.
+  let finished = false;
+  const finish = () => { if (finished) return; finished = true; endGame(prize, false); };
+
+  if (sndWrong) {
+    const onEnded = () => { sndWrong.removeEventListener('ended', onEnded); finish(); };
+    sndWrong.addEventListener('ended', onEnded, { once: true });
+
+    // Backup timeout in case 'ended' never fires (e.g., unsupported format)
+    const fallbackMs = (isFinite(sndWrong.duration) && sndWrong.duration > 0)
+      ? Math.min(4000, Math.max(800, sndWrong.duration * 1000))
+      : 1800;
+    setTimeout(finish, fallbackMs);
+  } else {
+    finish();
   }
+  return;
 }
+
 
 function markAnswers(correct){
   const children = [...answersEl.children];
