@@ -92,7 +92,7 @@
   .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
   .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
   .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#ink; padding:8px}
+  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
 </style>
 </head>
@@ -241,7 +241,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   Patched: robust bank handling + reliable start + lifelines.
+   Stable build: robust bank, lifelines, exportCSV, CSS fix.
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -839,6 +839,13 @@ function downloadCSV(rows, filename){
   const csv = rows.map(r=>r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
   const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+}
+// NEW: export current run (Teacher → Export This Run)
+function exportCSV(){
+  if(!state.results.length){ alert('No current run data to export yet.'); return; }
+  const rows = [['Q#','Correct','Elapsed(s)','PrizeAtQ']];
+  state.results.forEach(r => rows.push([r.qIndex, r.correct?1:0, r.time ?? '', r.prize]));
+  downloadCSV(rows, 'shoulder-millionaire-current-run.csv');
 }
 
 // ===== Build UI on load =====
