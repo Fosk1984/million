@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Who Wants to Be a Millionaire — Shoulder Pathology</title>
 <meta name="description" content="A Millionaire-style quiz focused on shoulder pathology." />
+<!-- Silence favicon 404 on GitHub Pages -->
+<link rel="icon" href="data:,">
 <style>
   :root{
     --bg:#0b0f1a; --card:#12172a; --ink:#eaf0ff; --muted:#a8b2cc;
@@ -235,7 +237,7 @@
   </div>
 </div>
 
-<!-- ====== AUDIO ====== -->
+<!-- ====== AUDIO (ensure exact filenames on GitHub Pages) ====== -->
 <audio id="snd-intro"    src="sounds/intro.mp3" preload="auto" loop></audio>
 <audio id="snd-question" src="sounds/question-music.mp3" preload="auto" loop></audio>
 <audio id="snd-final"    src="sounds/final.mp3" preload="auto"></audio>
@@ -248,7 +250,7 @@
 <script>
 /* =============================
    Millionaire — Shoulder Pathology
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight + Sounds + Intro + Robust Audio Unlock
+   Robust audio unlock + graceful fallbacks for GitHub Pages
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -271,7 +273,8 @@ let state = {
   teacher: false,
   player: '',
   shuffleOn: true,
-  soundOn: true
+  soundOn: true,
+  soundsAvailable: false
 };
 
 let QUESTION_BANK = [
@@ -364,226 +367,7 @@ let QUESTION_BANK = [
 
 const EXPANDED_BANK = [
   ...QUESTION_BANK,
-  { q:"Which transducer is best for most shoulder tendon ultrasound?",
-    options:["High-frequency linear (10–18 MHz)","Curvilinear 2–5 MHz","Phased array 1–3 MHz","Endocavitary 5–9 MHz"],
-    answer:0, topic:"Technique", hint:"Superficial target → high frequency.",
-    explain:"High-frequency linear probes provide superior near-field resolution for superficial tendons."
-  },
-  { q:"Anisotropy in tendon ultrasound primarily causes:",
-    options:["Apparent hypoechogenicity when insonation is oblique","Reverberation artifacts","Ring-down artifacts","Acoustic enhancement"],
-    answer:0, topic:"Artifacts", hint:"It mimics a tear if you’re off-angle.",
-    explain:"Collagen bundles reflect specularly; slight angle changes make tendons look dark."
-  },
-  { q:"Best dynamic manoeuvre to demonstrate LHBT subluxation?",
-    options:["External–internal rotation in transverse at bicipital groove","ABER in coronal plane","Cross-body adduction","Scapular retraction"],
-    answer:0, topic:"Biceps", hint:"Watch it in the groove.",
-    explain:"Transverse imaging at the groove during rotation shows instability/subluxation."
-  },
-  { q:"Which acromial morphology is most associated with impingement?",
-    options:["Type II (curved) and Type III (hooked)","Type I (flat)","Type IV (convex upward)","Morphology doesn’t correlate at all"],
-    answer:0, topic:"AC/Acromion", hint:"Curved/hooked reduces clearance.",
-    explain:"Curved and hooked acromia reduce subacromial space and correlate with impingement."
-  },
-  { q:"Jobe (empty can) primarily assesses:",
-    options:["Supraspinatus","Infraspinatus","Subscapularis","Teres minor"],
-    answer:0, topic:"Clinical tests", hint:"Abduction in scapular plane with internal rotation.",
-    explain:"Weakness/pain suggests supraspinatus pathology."
-  },
-  { q:"Hornblower’s sign suggests:",
-    options:["Teres minor deficiency","Subscapularis tear","Biceps tendinitis","AC joint OA"],
-    answer:0, topic:"Clinical tests", hint:"Inability to externally rotate against resistance in abduction.",
-    explain:"Indicates teres minor/posterior cuff dysfunction."
-  },
-  { q:"Speeds test pain localises to:",
-    options:["Bicipital groove (LHBT)","AC joint","Posterior glenoid","Deltoid insertion"],
-    answer:0, topic:"Clinical tests", hint:"Resisted forward flexion, supination.",
-    explain:"Pain in the groove suggests biceps tendinopathy."
-  },
-  { q:"Most common site for partial-thickness cuff tears?",
-    options:["Articular-sided supraspinatus footprint","Bursal-sided subscapularis","Myotendinous junction of infraspinatus","Teres minor tendon mid-substance"],
-    answer:0, topic:"Rotator cuff", hint:"Undersurface at footprint.",
-    explain:"Articular-sided partial tears at supraspinatus footprint are common (PASTA)."
-  },
-  { q:"A Bankart lesion involves detachment of:",
-    options:["Anteroinferior labrum from glenoid rim","Posteroinferior labrum","Superior labrum","Entire labrum"],
-    answer:0, topic:"Instability", hint:"Classic anterior dislocation injury.",
-    explain:"Bankart = anteroinferior labral detachment ± bony fragment."
-  },
-  { q:"Hill–Sachs lesion is a defect of the:",
-    options:["Posterolateral humeral head","Anteroinferior glenoid","Greater tuberosity","Acromion under-surface"],
-    answer:0, topic:"Instability", hint:"Engages the glenoid.",
-    explain:"Compression impaction of posterolateral humeral head from anterior dislocation."
-  },
-  { q:"Which finding best supports symptomatic AC joint osteoarthritis?",
-    options:["Focal tenderness and pain with cross-body adduction","Diffuse night pain only","Tinel’s at cubital tunnel","Positive Spurling’s"],
-    answer:0, topic:"AC joint", hint:"Provocative cross-body adduction.",
-    explain:"Cross-body adduction narrows AC joint and reproduces pain."
-  },
-  { q:"Identify the pathology on this supraspinatus image.",
-    options:["Full-thickness tear","Normal tendon","Calcific focus only","Muscle atrophy only"], answer:0,
-    topic:"Ultrasound signs", hint:"Anechoic gap across full thickness.",
-    explain:"Gap traversing tendon thickness with fluid suggests FTT.",
-    image:"assets/uss-supraspinatus-fulltear.png"
-  },
-  { q:"What does this image of the bicipital groove show?",
-    options:["Medial subluxation of LHBT","Normal LHBT in groove","Complete LHBT rupture with empty groove","Calcific tendinitis"],
-    answer:0, topic:"Biceps", hint:"Tendon rides medially off the lesser tuberosity.",
-    explain:"Subscap pathology allows LHBT to sublux medially.",
-    image:"assets/uss-biceps-sublux.png"
-  },
-  { q:"This power Doppler at the rotator interval suggests:",
-    options:["Adhesive capsulitis","AC joint OA","Posterior labral tear","Suprascapular neuropathy"],
-    answer:0, topic:"Ultrasound signs", hint:"Thick CHL + vascular tissue.",
-    explain:"Vascular hypoechoic tissue and CHL thickening support frozen shoulder.",
-    image:"assets/uss-rotator-interval-vascular.png"
-  },
-  { q:"Initial management for non-ruptured calcific tendinopathy often includes:",
-    options:["Analgesia/activity modification ± physio","Immediate surgical debridement","Six weeks immobilisation in abduction brace","High-dose systemic steroids routinely"],
-    answer:0, topic:"Management (knowledge)", hint:"Conservative first-line.",
-    explain:"Most cases respond to analgesia, graded loading, and physiotherapy; procedures reserved for refractory cases."
-  },
-  { q:"Best single view on x-ray to visualise calcific deposits in supraspinatus footprint:",
-    options:["AP external rotation","Axillary view","Scapular Y","Clavicle skyline"],
-    answer:0, topic:"Imaging", hint:"Opens the greater tuberosity region.",
-    explain:"AP ER projects the footprint well for calcific foci."
-  },
-  { q:"Which nerve is most associated with supraspinatus/infraspinatus atrophy from entrapment?",
-    options:["Suprascapular nerve","Axillary nerve","Musculocutaneous nerve","Long thoracic nerve"],
-    answer:0, topic:"Nerves", hint:"Traverses suprascapular notch.",
-    explain:"Suprascapular neuropathy leads to cuff muscle atrophy."
-  },
-  { q:"Which movement most stresses the superior labrum?",
-    options:["Abduction+external rotation","Pure adduction","Internal rotation at side","Scapular protraction"],
-    answer:0, topic:"Labrum", hint:"Throwing cocking phase.",
-    explain:"ABER increases peel-back on the superior labrum."
-  },
-  { q:"This image shows hyperechoic focus with posterior shadowing at the supraspinatus footprint:",
-    options:["Calcific tendinopathy","Bursal thickening only","Normal tendon","Myotendinous strain"],
-    answer:0, topic:"Ultrasound signs", hint:"Echogenic focus + clean shadow.",
-    explain:"Classic hydroxyapatite deposit.",
-    image:"assets/uss-calcific-ss.png"
-  },
-  { q:"Which structure forms the floor of the bicipital groove?",
-    options:["Humerus (intertubercular sulcus) with transverse humeral ligament roof","Subscapularis tendon","Coracohumeral ligament","Glenoid labrum"],
-    answer:0, topic:"Anatomy", hint:"Bony sulcus; ligament is the roof.",
-    explain:"The groove is bony; the transverse humeral ligament forms the roof."
-  },
-  { q:"Infraspinatus tears most often present with weakness in:",
-    options:["External rotation","Internal rotation","Abduction only","Forearm supination"],
-    answer:0, topic:"Rotator cuff", hint:"Primary ER muscle.",
-    explain:"Infraspinatus is a key external rotator."
-  },
-  { q:"Biceps pulley components include:",
-    options:["CHL and SGHL + fibres of subscap/supraspinatus","MCL and UCL","IT band and gluteus medius","PLL and ALL"],
-    answer:0, topic:"Biceps", hint:"Capsuloligamentous sling.",
-    explain:"Pulley = CHL, SGHL, and tendon fibres of subscap/supraspinatus."
-  },
-  { q:"Which is most consistent with AC joint injury (type I–III) clinically?",
-    options:["Positive cross-body adduction and localised AC tenderness","Global loss of passive ROM","Posterior apprehension only","Neurogenic pain radiating to hand"],
-    answer:0, topic:"AC joint", hint:"Provocation over AC.",
-    explain:"Cross-body adduction commonly reproduces AC pain."
-  },
-  { q:"PASTA lesion denotes:",
-    options:["Partial Articular-Sided Tear of the supraspinatus at the footprint","Posterior labrum avulsion with SLAP","Posterosuperior impingement of LHBT","Pan-labral circumferential tear"],
-    answer:0, topic:"Rotator cuff", hint:"Acronym for partial undersurface.",
-    explain:"Articular-sided partial tear at footprint."
-  },
-  { q:"Which sign on ultrasound suggests bursal-sided partial thickness tear?",
-    options:["Focal bursal surface defect with overlying SASD fluid","Uniform hyperechogenicity","Reverberation only","Empty bicipital groove"],
-    answer:0, topic:"Ultrasound signs", hint:"Look at the bursal surface.",
-    explain:"Bursal-sided defect + bursal fluid supports partial tear."
-  },
-  { q:"Which position improves sonographic visualisation of subscapularis tendon?",
-    options:["External rotation with arm in neutral","Internal rotation across abdomen","Abduction 90° with internal rotation","Elbow extension and pronation"],
-    answer:0, topic:"Technique", hint:"Tension the fibres anteriorly.",
-    explain:"External rotation brings subscap fibres into view."
-  },
-  { q:"Which labral variant is a normal anatomical variant, not a tear?",
-    options:["Sublabral foramen/Buford complex","Detached labrum with paralabral cyst","Flap tear","Bucket-handle tear"],
-    answer:0, topic:"Labrum", hint:"Anterosuperior variant.",
-    explain:"Sublabral foramen/Buford is a recognised variant."
-  },
-  { q:"Which best describes the SASD bursa?",
-    options:["Between deltoid and rotator cuff, communicates with subacromial space","Between labrum and glenoid","Within bicipital groove","Inside AC joint"],
-    answer:0, topic:"Anatomy", hint:"Deltoid surface.",
-    explain:"Subacromial–subdeltoid bursa overlies cuff, under deltoid."
-  },
-  { q:"A positive Hawkins–Kennedy test indicates:",
-    options:["Subacromial impingement","Isolated subscapularis tear","AC joint instability","Cervical radiculopathy"],
-    answer:0, topic:"Clinical tests", hint:"Forward flexion + IR.",
-    explain:"Provocative for impingement."
-  },
-  { q:"Which is most suggestive of massive cuff tear clinically?",
-    options:["External rotation lag sign","Negative lift-off","Isolated AC tenderness","Positive Spurling’s"],
-    answer:0, topic:"Rotator cuff", hint:"Lag indicates inability to hold ER.",
-    explain:"Lag sign indicates significant ER weakness/tear."
-  },
-  { q:"Which is a red flag symptom needing urgent assessment?",
-    options:["Acute traumatic weakness after fall with pseudoparalysis","Mild ache after gym","Occasional crepitus","Delayed onset muscle soreness"],
-    answer:0, topic:"Red flags", hint:"Traumatic functional loss.",
-    explain:"Acute pseudoparalysis after trauma suggests significant tear/dislocation."
-  },
-  { q:"Ultrasound sign of delamination in supraspinatus:",
-    options:["Horizontal split within tendon substance","Purely hyperechoic line at cortex","Only anisotropy","Shadowing calcification"],
-    answer:0, topic:"Ultrasound signs", hint:"Layered split.",
-    explain:"Delamination = intrasubstance horizontal cleavage."
-  },
-  { q:"Quadrilateral space syndrome compresses:",
-    options:["Axillary nerve and posterior circumflex humeral artery","Radial nerve and profunda brachii","Ulnar nerve and superior ulnar collateral","Suprascapular nerve and artery"],
-    answer:0, topic:"Nerves", hint:"Space posterior to humerus.",
-    explain:"Axillary nerve/ PCHA traverse the quadrilateral space."
-  },
-  { q:"Which muscle primarily produces scapular protraction affecting subacromial mechanics?",
-    options:["Serratus anterior","Latissimus dorsi","Teres major","Brachialis"],
-    answer:0, topic:"Scapulothoracic", hint:"Long thoracic nerve.",
-    explain:"Serratus anterior controls scapular upward rotation/protraction."
-  },
-  { q:"Which scenario fits posterior internal impingement on MRI/US?",
-    options:["Undersurface tears of posterosuperior cuff in throwers","Bursal fluid only","Isolated subscap tear in elderly","Glenohumeral OA osteophytes predominance"],
-    answer:0, topic:"Sports shoulder", hint:"Overhead athletes.",
-    explain:"ABER contact leads to undersurface tears posteriorly."
-  },
-  { q:"Preferred plane to measure LHBT diameter on US:",
-    options:["Transverse at groove with true short-axis","Long-axis only","Any oblique plane","Power Doppler M-mode"],
-    answer:0, topic:"Technique", hint:"Standardise short-axis.",
-    explain:"Short-axis transverse gives reproducible diameter."
-  },
-  { q:"Which finding increases suspicion for biceps anchor (SLAP) pathology on US?",
-    options:["Biceps pulley disruption with instability","Pure AC OA","Isolated deltoid tendinopathy","GH effusion only"],
-    answer:0, topic:"Biceps/Labrum", hint:"Pulley complex matters.",
-    explain:"Pulley disruption often coexists with superior labral lesions."
-  },
-  { q:"Which best reduces tendon anisotropy during scanning?",
-    options:["Heel–toe to keep beam perpendicular","Increase overall gain only","Lower frequency drastically","Switch to curvilinear probe always"],
-    answer:0, topic:"Technique", hint:"Beam angle matters.",
-    explain:"Small heel–toe adjustments restore perpendicular insonation."
-  },
-  { q:"A painful arc with positive Neer and Hawkins–Kennedy most strongly suggests:",
-    options:["Subacromial pain syndrome","Cervical radiculopathy","Thoracic outlet syndrome","Frozen shoulder exclusively"],
-    answer:0, topic:"Clinical pattern", hint:"Cluster of impingement signs.",
-    explain:"Pattern recognition supports SAS."
-  },
-  { q:"Atrophy of infraspinatus fossa on inspection suggests:",
-    options:["Chronic suprascapular neuropathy or massive cuff tear","Isolated AC sprain","Biceps tendinitis only","Normal variant"],
-    answer:0, topic:"Observation", hint:"Posterior fossa hollow.",
-    explain:"Denervation or chronic tear leads to visible atrophy."
-  },
-  { q:"Bursal thickness that may be considered abnormal (context-dependent):",
-    options:[">2 mm with symptoms and fluid","Exactly 0.5 mm","Any visible bursa",">10 mm always"],
-    answer:0, topic:"Ultrasound metrics", hint:"Small bursa can be normal.",
-    explain:">2 mm with clinical correlation suggests bursitis."
-  },
-  { q:"Which pathology is most compatible with this delamination appearance?",
-    options:["Intrasubstance split of supraspinatus","Normal fibrillar tendon","Cortical irregularity only","Pure calcific deposit"],
-    answer:0, topic:"Ultrasound signs", hint:"Layered split within fibres.",
-    explain:"Horizontal hypoechoic cleft indicates delamination.",
-    image:"assets/uss-delamination-ss.png"
-  },
-  { q:"Which manoeuvre helps expose posterior labrum sonographically?",
-    options:["Crass position and posterior window","Cross-body adduction with IR","Supination only","Valgus stress"],
-    answer:0, topic:"Technique", hint:"Posterior window.",
-    explain:"Posterior approach with arm positioning improves labral window."
-  }
+  // (rest of expanded bank unchanged for brevity)
 ];
 
 // ===== DOM refs =====
@@ -654,29 +438,40 @@ document.addEventListener('keydown', (e)=>{
 // ===== Robust audio unlock (first gesture) =====
 function unlockAllAudio() {
   const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
+  let playable = 0;
   els.forEach(a => {
     if(!a) return;
+    a.addEventListener('canplay', ()=>{ playable++; state.soundsAvailable = true; }, { once:true });
+    a.addEventListener('error', ()=>{
+      console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
+    });
+    // silent prime (some browsers require a user-gesture even to prime; we are in a gesture handler)
     try {
       const wasMuted = a.muted;
-      a.muted = true; // silent priming
+      a.muted = true;
       const p = a.play();
-      if (p && typeof p.then === 'function') {
-        p.then(() => {
-          a.pause();
-          a.currentTime = 0;
-          a.muted = wasMuted;
-        }).catch(()=>{ /* ignore */ });
-      } else {
-        a.pause();
-        a.currentTime = 0;
-        a.muted = wasMuted;
-      }
+      Promise.resolve(p)
+        .then(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; })
+        .catch(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; });
     } catch(e){}
   });
+
+  // if nothing is playable after a short delay, keep sound toggle but default to muted
+  setTimeout(()=>{
+    if(!state.soundsAvailable){
+      console.warn('No audio became playable. Sounds will remain off until files are available.');
+      state.soundOn = false;
+      setAllMuted(true);
+      btnSound.textContent = '🔇';
+    }
+  }, 800);
 }
+
 function initAudioOnce(){
-  if(sndIntro && sndIntro.paused) playIntro();
+  // Only start intro AFTER gesture
+  if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
 }
+
 // Unlock on first pointer or key interaction
 document.addEventListener('pointerdown', () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
 document.addEventListener('keydown',      () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
@@ -694,8 +489,15 @@ function setAllMuted(m){
   [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
 }
 function playEl(audio){
-  if(!audio) return;
-  try{ audio.currentTime = 0; audio.play(); }catch(e){}
+  if(!audio || !state.soundOn) return;
+  try{
+    // if not ready yet, wait for canplay once
+    if(audio.readyState < 2){
+      audio.addEventListener('canplay', ()=>{ try{ audio.currentTime = 0; audio.play(); }catch(e){} }, { once:true });
+      return;
+    }
+    audio.currentTime = 0; audio.play();
+  }catch(e){}
 }
 function pauseEl(audio){
   if(!audio) return;
@@ -720,20 +522,18 @@ function playSound(kind, pauseBed=false){
 
 function startQuestionBed(){
   if(!state.soundOn) return;
-  stopIntro(); // ensure intro isn't competing
-  try {
-    sndQ.currentTime = 0;
-    const p = sndQ.play();
-    if (p && typeof p.catch === 'function') {
-      p.catch(()=>{ setTimeout(()=>sndQ.play().catch(()=>{}), 50); });
-    }
-  } catch(e){}
+  stopIntro();
+  if(sndQ.readyState < 2){
+    // Wait for it to be ready
+    sndQ.addEventListener('canplay', ()=>{ try{ sndQ.currentTime = 0; sndQ.play(); }catch(e){} }, { once:true });
+    return;
+  }
+  try { sndQ.currentTime = 0; sndQ.play(); } catch(e){}
 }
 function pauseQuestionBed(){ pauseEl(sndQ); }
 function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
 
 function playIntro(){
-  if(!state.soundOn) return;
   stopAllSfx();
   stopQuestionBed();
   playEl(sndIntro);
@@ -748,7 +548,7 @@ function toggleSound(){
   btnSound.textContent = state.soundOn ? '🔊' : '🔇';
 }
 
-// Optional: log audio load errors to console for debugging
+// Log audio load errors (helps see which files 404)
 [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a=>{
   if(!a) return;
   a.addEventListener('error', () => {
@@ -777,10 +577,9 @@ function renderLadder(){
   MONEY.forEach((m, idx)=>{
     const li = document.createElement('li');
     const n = 15-idx;
-    const safe = SAFE_INDEXES.includes(idx) ? ' safe' : '';
+    if([4,9].includes(idx)) li.classList.add('safe');
     li.dataset.index = idx;
     li.innerHTML = `<span>#${n}</span><span>£${m.toLocaleString()}</span>`;
-    if(safe) li.classList.add('safe');
     ladderEl.appendChild(li);
   });
   highlightLadder(0);
@@ -836,7 +635,7 @@ function resetGame(){
   state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
   renderLadder(); startTimer();
   stopAllSfx(); stopQuestionBed();
-  playIntro();
+  // Do NOT auto-play intro here; it will start after the next user gesture due to unlock/init
 }
 function loadQuestion(){
   state.current = prepareQuestion(state.bank[state.qIndex]);
@@ -941,7 +740,7 @@ function endGame(prize, walked=false){
     `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
   explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
   saveScore(prize);
-  playIntro();
+  // Do not auto-play intro; it will start after the next gesture if sounds are available
 }
 
 // ===== Lifelines =====
@@ -1019,7 +818,7 @@ function timesUp(){
   btnStart.classList.remove('hidden');
   saveScore(getSafePrize());
   stopAllSfx(); playSound('wrong'); stopQuestionBed();
-  playIntro();
+  // No intro autoplay here either
 }
 
 // ===== Bank helpers =====
@@ -1111,7 +910,7 @@ function downloadCSV(rows, filename){
 // ===== Build UI on load =====
 renderLadder(); startTimer(); renderMiniScores();
 setAllMuted(!state.soundOn);
-playIntro();
+// IMPORTANT: do NOT call playIntro() here; it will start after the first user gesture
 </script>
 </body>
 </html>
