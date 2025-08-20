@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Who Wants to Be a Millionaire — Shoulder Pathology</title>
 <meta name="description" content="A Millionaire-style quiz focused on shoulder pathology." />
+<link rel="icon" href="data:,"><!-- silence favicon 404 -->
 <style>
 :root{
 --bg:#0b0f1a; --card:#12172a; --ink:#eaf0ff; --muted:#a8b2cc;
@@ -52,26 +53,23 @@ display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #2a35
 background: linear-gradient(180deg, #0f1738, #0c132f); font-weight:700; position:relative; overflow:hidden;
 }
 .ans .label{opacity:.9; color:#9eb4ff}
-  /* Selected state BEFORE locking in */
-  .ans[data-selected="true"]{
-    outline:2px solid #6ac2ff;
-    box-shadow: 0 0 0 3px rgba(106,194,255,.25);
-    background: linear-gradient(180deg, #14204a, #0f183d);
-    border-color:#3350a8;
-  }
-  /* Result states AFTER locking in */
+.ans[data-selected="true"]{
+outline:2px solid #6ac2ff;
+box-shadow: 0 0 0 3px rgba(106,194,255,.25);
+background: linear-gradient(180deg, #14204a, #0f183d);
+border-color:#3350a8;
+}
 .ans.correct{outline:2px solid var(--good); box-shadow: 0 0 0 3px rgba(51,209,122,.3)}
 .ans.wrong{outline:2px solid var(--bad); box-shadow: 0 0 0 3px rgba(255,107,107,.25)}
 .actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
 .muted{color:var(--muted)}
 .ladder{position:sticky; top:12px}
-.ladder h3{margin:0 0 8px 0; font-size:1rem; color:var(--muted)}
-.ladder ol{list-style:none; padding:0; margin:0; display:flex; flex-direction:column-reverse; gap:6px}
-.ladder li{
-display:flex; justify-content:space-between; gap:10px; padding:8px 10px; border-radius:10px;
-border:1px solid #26305c; background: linear-gradient(180deg, #0e1535, #0b112b);
-font-variant-numeric: tabular-nums;
-}
+  .ladder ol{display:flex; flex-direction:column-reverse; padding:0; margin:0; list-style:none}
+  .ladder ol{
+    display:flex; flex-direction:column-reverse; /* ✅ Q1 bottom → Q15 top */
+    padding:0; margin:0; list-style:none;
+  }
+.ladder li{display:flex; justify-content:space-between; padding:4px 6px; border-radius:8px; margin-bottom:2px; border:1px solid transparent}
 .ladder .active{border-color:var(--acc2); outline:2px solid rgba(255,211,106,.35); background: linear-gradient(180deg, #1c2450, #10183f)}
 .ladder .safe{color:#ffe39a}
 .timer{
@@ -83,24 +81,20 @@ border:1px solid #2a3567; background:linear-gradient(180deg,#0e1535,#0b112b)
 .hidden{display:none !important}
 .chip{padding:3px 8px; border-radius:999px; border:1px solid #2a3567; background:#0f1738; font-weight:700; font-size:.78rem}
 .ok{color:#c1ffd6} .bad{color:#ffc1c1}
-.overlay{
-position:fixed; inset:0; background:rgba(7,9,20,.72); backdrop-filter: blur(4px);
-display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
-}
-.overlay .sheet{max-width:720px; width:100%; background:linear-gradient(180deg,#12172a,#0f1426);
-border:1px solid var(--edge); border-radius:16px; padding:16px; box-shadow: var(--glow);
-}
-.sheet h2{margin:0 0 8px}
-.kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight:700; border:1px solid #2a3567; padding:2px 6px; border-radius:6px; background:#0b122f; color:#cfe0ff}
-.teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
-.teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
-.teacher h4{margin:0 0 6px}
-textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
-.clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
-.sr-only{position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden}
-table{width:100%; border-collapse: collapse}
-th, td{padding:8px; border-bottom:1px solid #2a3567; text-align:left; font-variant-numeric: tabular-nums}
-th{color:#cfe0ff}
+  .overlay{
+    position:fixed; inset:0; background:rgba(7,9,20,.72); backdrop-filter: blur(4px);
+    display:none; align-items:center; justify-content:center; padding:16px; z-index:50;
+  }
+  .overlay .sheet{max-width:720px; width:100%; background:linear-gradient(180deg,#12172a,#0f1426);
+    border:1px solid var(--edge); border-radius:16px; padding:16px; box-shadow: var(--glow);
+  }
+  .sheet h2{margin:0 0 8px}
+  .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight:700; border:1px solid #2a3567; padding:2px 6px; border-radius:6px; background:#0b122f; color:#cfe0ff}
+  .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
+  .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
+  .teacher h4{margin:0 0 6px}
+  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#ink; padding:8px}
+  .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
 </style>
 </head>
 <body>
@@ -114,17 +108,26 @@ th{color:#cfe0ff}
 </div>
 </div>
 <div class="lifelines">
-<button id="ll5050" class="pill" title="Eliminate two wrong answers (once)">50:50</button>
-<button id="llCrowd" class="pill" title="Show audience poll (once)">Ask the Crowd</button>
-<button id="llExpert" class="pill" title="Get a nudge from the 'expert' (once)">Ask an Expert</button>
-<span class="timer" id="timer" aria-live="polite">45s</span>
-<button id="btnRules" class="pill" title="How to play">?</button>
-<button id="btnScores" class="pill" title="Leaderboard">🏆</button>
+      <button id="ll5050" class="pill">50:50</button>
+      <button id="llCrowd" class="pill">Ask the Crowd</button>
+      <button id="llExpert" class="pill">Ask an Expert</button>
+      <span class="timer" id="timer">45s</span>
+      <button id="btnRules" class="pill">?</button>
+      <button id="btnScores" class="pill">🏆</button>
+      <button id="btnSound" class="pill">🔊</button>
+      <button id="ll5050" class="pill" title="Eliminate two wrong answers (once)">50:50</button>
+      <button id="llCrowd" class="pill" title="Show audience poll (once)">Ask the Crowd</button>
+      <button id="llExpert" class="pill" title="Get a nudge from the 'expert' (once)">Ask an Expert</button>
+      <span class="timer" id="timer" aria-live="polite">45s</span>
+      <button id="btnRules" class="pill" title="How to play">?</button>
+      <button id="btnScores" class="pill" title="Leaderboard">🏆</button>
+      <button id="btnSound" class="pill" title="Toggle sound">🔊</button>
 </div>
 </header>
 
 <div class="layout">
-<main class="card" id="mainCard" aria-live="polite">
+    <main class="card">
+    <main class="card" id="mainCard" aria-live="polite">
 <img id="qImg" class="q-image" alt="">
 <div class="q-meta"><span id="qTopic" class="chip">Topic</span><span id="qLevel" class="chip">Q1</span></div>
 <div id="question" class="question">Press Start to begin.</div>
@@ -136,452 +139,190 @@ th{color:#cfe0ff}
 <button id="btnQuit" class="hidden">Walk Away</button>
 </div>
 <div id="explain" class="explain hidden"></div>
-<div class="footer">
-Hotkeys: <span class="kbd">T</span> teacher panel • <span class="kbd">C</span> clean view • <span class="kbd">Space</span> confirm • <span class="kbd">N</span> next
-</div>
+      <div class="footer">
+        Hotkeys: <span class="kbd">T</span> teacher panel • <span class="kbd">C</span> clean view • <span class="kbd">Space</span> confirm • <span class="kbd">N</span> next
+      </div>
 </main>
 
 <aside class="card ladder">
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
-<div class="muted">Prize Ladder</div>
-<div><span class="chip">Safe at £1,000</span> <span class="chip">£32,000</span></div>
-</div>
-<h3>Top Wins (this device)</h3>
-<div id="miniScores" class="muted" style="font-size:.9rem; margin-bottom:8px">No scores yet.</div>
+      <h3>Prize Ladder</h3>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
+        <div class="muted">Prize Ladder</div>
+        <div><span class="chip">Safe at £1,000</span> <span class="chip">£32,000</span></div>
+      </div>
+      <h3>Top Wins (this device)</h3>
+      <div id="miniScores" class="muted" style="font-size:.9rem; margin-bottom:8px">No scores yet.</div>
 <ol id="ladder"></ol>
 </aside>
 </div>
 </div>
 
-<!-- Rules -->
+<!-- ====== AUDIO ====== -->
+<!-- Overlays (rules, confirm, poll, scores) -->
 <div class="overlay" id="rules">
-<div class="sheet">
-<h2>How to play</h2>
-<p>Answer 15 ascending-difficulty questions on shoulder pathology. You have one use each of <strong>50:50</strong>, <strong>Ask the Crowd</strong>, and <strong>Ask an Expert</strong>. Safe havens are at £1,000 (Q5) and £32,000 (Q10). Timer is 45s/question (toggle in Teacher panel).</p>
-<ul>
-<li><strong>50:50</strong>: removes two incorrect options.</li>
-<li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
-<li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
-</ul>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter passcode <span class="kbd">ULTRASOUND</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
-    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span> (change in code). Clean view with <span class="kbd">C</span>.</p>
-<div style="display:flex; gap:8px; justify-content:flex-end">
-<button onclick="hide(rulesOverlay)">Close</button>
-</div>
-</div>
+  <div class="sheet">
+    <h2>How to play</h2>
+    <p>Answer 15 ascending-difficulty questions on shoulder pathology. You have one use each of <strong>50:50</strong>, <strong>Ask the Crowd</strong>, and <strong>Ask an Expert</strong>. Safe havens are at £1,000 (Q5) and £32,000 (Q10). Timer is 45s/question (toggle in Teacher panel).</p>
+    <ul>
+      <li><strong>50:50</strong>: removes two incorrect options.</li>
+      <li><strong>Ask the Crowd</strong>: shows a simulated poll (less reliable on harder questions).</li>
+      <li><strong>Ask an Expert</strong>: shows a hint with reducing reliability on later questions.</li>
+    </ul>
+    <p class="muted">Teacher panel: press <span class="kbd">T</span>, enter code <span class="kbd">1234</span>. Clean view with <span class="kbd">C</span>.</p>
+    <div style="display:flex; gap:8px; justify-content:flex-end">
+      <button onclick="hide(rulesOverlay)">Close</button>
+    </div>
+  </div>
 </div>
 
-<!-- Confirm -->
 <div class="overlay" id="confirm">
-<div class="sheet">
-<h2>Final answer?</h2>
-<p id="confirmText" class="muted">You chose A.</p>
-<div style="display:flex; gap:8px; justify-content:flex-end">
-<button onclick="lockIn()">Yes, lock it in</button>
-<button onclick="cancelLock()">Cancel</button>
-</div>
-</div>
+  <div class="sheet">
+    <h2>Final answer?</h2>
+    <p id="confirmText" class="muted">You chose A.</p>
+    <div style="display:flex; gap:8px; justify-content:flex-end">
+      <button onclick="lockIn()">Yes, lock it in</button>
+      <button onclick="cancelLock()">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<!-- Crowd -->
 <div class="overlay" id="crowdPoll">
-<div class="sheet">
-<h2>Audience Poll</h2>
-<p class="muted">Crowd thinks the answer is…</p>
-<div id="pollBars"></div>
-<div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
-<button onclick="closePoll()">Close</button>
-</div>
-</div>
+  <div class="sheet">
+    <h2>Audience Poll</h2>
+    <p class="muted">Crowd thinks the answer is…</p>
+    <div id="pollBars"></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+      <button onclick="closePoll()">Close</button>
+    </div>
+  </div>
 </div>
 
-<!-- Leaderboard -->
 <div class="overlay" id="scores">
-<div class="sheet">
-<h2>Leaderboard (this device)</h2>
-<div id="scoresTable" style="margin:10px 0"></div>
-<div style="display:flex; gap:8px; justify-content:flex-end">
-<button onclick="exportScores()">Export Scores</button>
-<button onclick="resetScores()">Reset Scores</button>
-<button onclick="closeScores()">Close</button>
-</div>
-</div>
+  <div class="sheet">
+    <h2>Leaderboard (this device)</h2>
+    <div id="scoresTable" style="margin:10px 0"></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end">
+      <button onclick="exportScores()">Export Scores</button>
+      <button onclick="resetScores()">Reset Scores</button>
+      <button onclick="closeScores()">Close</button>
+    </div>
+  </div>
 </div>
 
 <!-- Teacher tools -->
 <div class="teacher" id="teacherUI" aria-live="polite">
-<div class="pane">
-<h4>Teacher Controls</h4>
-<div class="muted" id="teacherStatus">Unlocked</div>
-<div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
-<button onclick="toggleTimer()">Toggle Timer</button>
-<button onclick="reveal()">Reveal Answer</button>
-<button onclick="skip()">Skip Question</button>
-<button onclick="resetGame()">Reset</button>
-<button onclick="toggleClean()">Clean View</button>
+  <div class="pane">
+    <h4>Teacher Controls</h4>
+    <div class="muted" id="teacherStatus">Unlocked</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+      <button onclick="toggleTimer()">Toggle Timer</button>
+      <button onclick="reveal()">Reveal Answer</button>
+      <button onclick="skip()">Skip Question</button>
+      <button onclick="resetGame()">Reset</button>
+      <button onclick="toggleClean()">Clean View</button>
+    </div>
+    <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
+      <button onclick="exportCSV()">Export This Run</button>
+      <button onclick="loadSample()">Load Sample Bank</button>
+      <button onclick="useExpanded()">Use Expanded Bank</button>
+      <button onclick="toggleShuffle()">Toggle Shuffle</button>
+    </div>
+  </div>
+  <div class="pane">
+    <h4>Import Questions (JSON)</h4>
+    <p class="muted" style="margin:0 0 6px">Paste an array of question objects then click <em>Replace Bank</em>.</p>
+    <textarea id="qImport" placeholder='[ { "q":"...", "options":["A","B","C","D"], "answer":0, "topic":"Rotator cuff", "hint":"...", "explain":"...", "image":"" } ]'></textarea>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
+      <button onclick="replaceBank()">Replace Bank</button>
+    </div>
+  </div>
 </div>
-<div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap">
-<button onclick="exportCSV()">Export This Run</button>
-<button onclick="loadSample()">Load Sample Bank</button>
-<button onclick="useExpanded()">Use Expanded Bank</button>
-<button onclick="toggleShuffle()">Toggle Shuffle</button>
-</div>
-</div>
-<div class="pane">
-<h4>Import Questions (JSON)</h4>
-<p class="muted" style="margin:0 0 6px">Paste an array of question objects then click <em>Replace Bank</em>.</p>
-<textarea id="qImport" placeholder='[ { "q":"...", "options":["A","B","C","D"], "answer":0, "topic":"Rotator cuff", "hint":"...", "explain":"...", "image":"" } ]'></textarea>
-<div style="display:flex; gap:8px; justify-content:flex-end; margin-top:8px">
-<button onclick="replaceBank()">Replace Bank</button>
-</div>
-</div>
-</div>
+
+<!-- ====== AUDIO (ensure these files exist in /sounds) ====== -->
+<audio id="snd-intro"    src="sounds/intro.mp3" preload="auto" loop></audio>
+<audio id="snd-question" src="sounds/question-music.mp3" preload="auto" loop></audio>
+<audio id="snd-final"    src="sounds/final.mp3" preload="auto"></audio>
+<audio id="snd-correct"  src="sounds/correct.mp3" preload="auto"></audio>
+<audio id="snd-wrong"    src="sounds/wrong.mp3" preload="auto"></audio>
+<audio id="snd-5050"     src="sounds/lifeline5050.mp3" preload="auto"></audio>
+<audio id="snd-crowd"    src="sounds/lifelineCrowd.mp3" preload="auto"></audio>
+<audio id="snd-expert"   src="sounds/lifelineExpert.mp3" preload="auto"></audio>
 
 <script>
 /* =============================
-  Millionaire — Shoulder Pathology
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options
-   GBP + Leaderboard + Images + Expanded Bank + Shuffled Options + Selected Highlight
-  ============================= */
+   Millionaire — Shoulder Pathology (full build)
+   - Correct ladder numbers (Q1 bottom → Q15 top)
+   - Robust audio unlock (no auto-mute)
+   - Intro on launch/reset, stops at Start
+   - Question bed per question
+   - Wrong.mp3 waits before endGame
+   - Walk away plays correct.mp3
+   ============================= */
 
-// Money ladder (bottom to top)
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
-const SAFE_INDEXES = [4, 9]; // Q5 (£1k), Q10 (£32k)
+const SAFE_INDEXES = [4, 9];
 const DEFAULT_TIME = 45;
 
 let state = {
-qIndex: 0,
-used5050: false,
-usedCrowd: false,
-usedExpert: false,
-bank: [],
-current: null,
-picked: null,
-locked: false,
-timerOn: true,
-timeLeft: DEFAULT_TIME,
-intervalId: null,
-results: [], // {qIndex, correct, time, prize}
-teacher: false,
-player: '',
-shuffleOn: true
+  qIndex: 0,
+  used5050: false,
+  usedCrowd: false,
+  usedExpert: false,
+  bank: [],
+  current: null,
+  picked: null,
+  locked: false,
+  timerOn: true,
+  timeLeft: DEFAULT_TIME,
+  intervalId: null,
+  results: [],
+  teacher: false,
+  player: '',
+  shuffleOn: true,
+  soundOn: true
 };
 
-// --- Base bank (15) ---
+// ===== Sample & expanded banks (trim samples; add your full set) =====
 let QUESTION_BANK = [
-{ q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
-options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
-topic:"Rotator cuff", hint:"Impinges beneath the acromion.",
-explain:"Supraspinatus passes beneath the coracoacromial arch and is most exposed to impingement and degeneration."
-},
-{ q:"The classic painful arc in subacromial impingement is during active abduction between:",
-options:["60–120°","10–30°","30–60°","120–160°"], answer:0,
-topic:"Impingement", hint:"Middle of the movement range.",
-explain:"Pain typically increases as the greater tuberosity approaches the acromion between 60–120°."
-},
-{ q:"Which imaging modality best demonstrates dynamic subacromial impingement signs?",
-options:["Ultrasound","Plain radiography","CT","MRI without ABER"], answer:0,
-topic:"Imaging choice", hint:"Watch tendons move in real time.",
-explain:"Ultrasound allows dynamic assessment of the bursa and cuff during abduction."
-},
-{ q:"On ultrasound, a full-thickness supraspinatus tear most typically appears as:",
-options:[
-"A focal anechoic/hypoechoic gap traversing the tendon with possible retraction and bursal fluid",
-"Diffuse tendon thickening with uniform hyperechogenicity",
-"Punctate echogenic foci with clean posterior shadowing",
-"Intact fibrillar tendon with normal bursal sliding"
-], answer:0, topic:"Ultrasound signs", hint:"A gap spanning bursal to articular surface.",
-explain:"Full-thickness tears disrupt fibre continuity from bursal to articular surface; fluid and retraction may be present."
-},
-{ q:"Which clinical feature most reliably distinguishes adhesive capsulitis from a rotator cuff tear?",
-options:[
-"Global restriction of passive glenohumeral motion (esp. external rotation)","Pain on resisted external rotation only",
-"Localized tenderness over the bicipital groove","Positive Hawkins–Kennedy test"
-], answer:0, topic:"Adhesive capsulitis", hint:"Passive movement, not just pain.",
-explain:"Adhesive capsulitis limits passive ROM in multiple planes, unlike isolated cuff tears."
-},
-{ q:"Calcific tendinopathy of the shoulder most commonly involves:",
-options:["Supraspinatus within 1–2 cm of insertion","Teres minor at the MTJ","Biceps short head tendon","Deltoid origin on the clavicle"],
-answer:0, topic:"Calcific tendinopathy", hint:"Near the greater tuberosity.",
-explain:"Hydroxyapatite deposition frequently occurs in supraspinatus near its footprint."
-},
-{ q:"Which special test primarily evaluates subscapularis integrity?",
-options:["Lift-off test","Jobe (empty can) test","O’Brien’s test","Speed’s test"], answer:0,
-topic:"Clinical tests", hint:"Hand behind back against resistance.",
-explain:"Lift-off and belly-press assess subscapularis."
-},
-{ q:"A SLAP lesion refers to a tear of the labrum located:",
-options:["Superior labrum from anterior to posterior","Anteroinferior labrum (Bankart)","Posteroinferior labrum","Entire circumferential labrum"],
-answer:0, topic:"Labral pathology", hint:"On top, spanning front to back.",
-explain:"SLAP = Superior Labrum Anterior to Posterior."
-},
-{ q:"Instability of the long head of biceps tendon most strongly associates with tears of the:",
-options:["Subscapularis","Supraspinatus","Infraspinatus","Teres minor"], answer:0,
-topic:"Biceps pulley", hint:"Pulley involves CHL/SGHL and subscap.",
-explain:"Subscapularis and the pulley complex stabilize LHBT; subscap tears permit medial subluxation."
-},
-{ q:"Posterior shoulder dislocation is classically associated with which scenario?",
-options:["Seizures or electrocution","Throwing injuries in late cocking","FOOSH with arm abducted and externally rotated","Repetitive microtrauma from swimming"],
-answer:0, topic:"Instability", hint:"Powerful internal rotation–adduction forces.",
-explain:"Seizures/electrocution produce internal rotation/adduction causing posterior dislocation."
-},
-{ q:"Ultrasound feature most suggestive of adhesive capsulitis in the rotator interval:",
-options:[
-"Coracohumeral ligament thickening >3 mm with hypoechoic tissue and Doppler signal",
-"Marked SASD bursal distension alone","Uniformly thinned inferior glenohumeral ligament","Posterior labral cyst"
-], answer:0, topic:"Ultrasound signs", hint:"Focus on the coracohumeral ligament.",
-explain:"Thickened CHL + vascular hypoechoic rotator interval are characteristic."
-},
-{ q:"Which test is most associated with superior labral pathology?",
-options:["O’Brien’s (active compression) test","Lift-off test","Yergason’s test","Neer’s test"],
-answer:0, topic:"Clinical tests", hint:"Thumb-down then thumb-up against resistance.",
-explain:"O’Brien’s can provoke pain from superior labrum."
-},
-{ q:"Internal impingement in overhead athletes involves contact between:",
-options:[
-"Undersurface supraspinatus/infraspinatus and posterosuperior glenoid/labrum",
-"Biceps tendon and coracoid","Deltoid and AC joint","LHBT and lesser tuberosity"
-], answer:0, topic:"Sports shoulder", hint:"Think ABER position.",
-explain:"In ABER, undersurface cuff contacts posterosuperior labrum/glenoid."
-},
-{ q:"What forms the roof of the subacromial space?",
-options:["Coracoacromial arch (acromion, CA ligament, AC joint)","Supraspinatus tendon","Humeral head articular cartilage","Glenoid labrum"],
-answer:0, topic:"Anatomy", hint:"Includes a ligament spanning coracoid to acromion.",
-explain:"The coracoacromial arch is the superior boundary of the subacromial space."
-},
-{ q:"Night pain when lying on the affected side is most classically associated with:",
-options:["Rotator cuff tear/tendinopathy","Cervical radiculopathy","Thoracic outlet syndrome","Scapular winging"],
-answer:0, topic:"Symptoms", hint:"Bursal irritation and cuff disease.",
-explain:"Cuff disease commonly causes night pain on the affected side."
-}
+  { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
+    options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
+    topic:"Rotator cuff", hint:"Impinges beneath the acromion.",
+    explain:"Supraspinatus passes beneath the coracoacromial arch and is most exposed to impingement and degeneration."
+  },
+  { q:"The classic painful arc in subacromial impingement is during active abduction between:",
+    options:["60–120°","10–30°","30–60°","120–160°"], answer:0,
+    topic:"Impingement", hint:"Middle of the movement range.",
+    explain:"Pain typically increases as the greater tuberosity approaches the acromion between 60–120°."
+  },
+  { q:"Which imaging modality best demonstrates dynamic subacromial impingement signs?",
+    options:["Ultrasound","Plain radiography","CT","MRI without ABER"], answer:0,
+    topic:"Imaging choice", hint:"Watch tendons move in real time.",
+    explain:"Ultrasound allows dynamic assessment of the bursa and cuff during abduction."
+  },
+  { q:"On ultrasound, a full-thickness supraspinatus tear most typically appears as:",
+    options:[
+      "A focal anechoic/hypoechoic gap traversing the tendon with possible retraction and bursal fluid",
+      "Diffuse tendon thickening with uniform hyperechogenicity",
+      "Punctate echogenic foci with clean posterior shadowing",
+      "Intact fibrillar tendon with normal bursal sliding"
+    ], answer:0, topic:"Ultrasound signs", hint:"A gap spanning bursal to articular surface.",
+    explain:"Full-thickness tears disrupt fibre continuity from bursal to articular surface; fluid and retraction may be present."
+  },
+  { q:"Which clinical feature most reliably distinguishes adhesive capsulitis from a rotator cuff tear?",
+    options:[
+      "Global restriction of passive glenohumeral motion (esp. external rotation)","Pain on resisted external rotation only",
+      "Localized tenderness over the bicipital groove","Positive Hawkins–Kennedy test"
+    ], answer:0, topic:"Adhesive capsulitis", hint:"Passive movement, not just pain.",
+    explain:"Adhesive capsulitis limits passive ROM in multiple planes, unlike isolated cuff tears."
+  }
 ];
 
-// --- Expanded bank (adds ≈30 more, including image-based placeholders) ---
 const EXPANDED_BANK = [
-...QUESTION_BANK,
-{ q:"Which transducer is best for most shoulder tendon ultrasound?",
-options:["High-frequency linear (10–18 MHz)","Curvilinear 2–5 MHz","Phased array 1–3 MHz","Endocavitary 5–9 MHz"],
-answer:0, topic:"Technique", hint:"Superficial target → high frequency.",
-explain:"High-frequency linear probes provide superior near-field resolution for superficial tendons."
-},
-{ q:"Anisotropy in tendon ultrasound primarily causes:",
-options:["Apparent hypoechogenicity when insonation is oblique","Reverberation artifacts","Ring-down artifacts","Acoustic enhancement"],
-answer:0, topic:"Artifacts", hint:"It mimics a tear if you’re off-angle.",
-explain:"Collagen bundles reflect specularly; slight angle changes make tendons look dark."
-},
-{ q:"Best dynamic manoeuvre to demonstrate LHBT subluxation?",
-options:["External–internal rotation in transverse at bicipital groove","ABER in coronal plane","Cross-body adduction","Scapular retraction"],
-answer:0, topic:"Biceps", hint:"Watch it in the groove.",
-explain:"Transverse imaging at the groove during rotation shows instability/subluxation."
-},
-{ q:"Which acromial morphology is most associated with impingement?",
-options:["Type II (curved) and Type III (hooked)","Type I (flat)","Type IV (convex upward)","Morphology doesn’t correlate at all"],
-answer:0, topic:"AC/Acromion", hint:"Curved/hooked reduces clearance.",
-explain:"Curved and hooked acromia reduce subacromial space and correlate with impingement."
-},
-{ q:"Jobe (empty can) primarily assesses:",
-options:["Supraspinatus","Infraspinatus","Subscapularis","Teres minor"],
-answer:0, topic:"Clinical tests", hint:"Abduction in scapular plane with internal rotation.",
-explain:"Weakness/pain suggests supraspinatus pathology."
-},
-{ q:"Hornblower’s sign suggests:",
-options:["Teres minor deficiency","Subscapularis tear","Biceps tendinitis","AC joint OA"],
-answer:0, topic:"Clinical tests", hint:"Inability to externally rotate against resistance in abduction.",
-explain:"Indicates teres minor/posterior cuff dysfunction."
-},
-{ q:"Speeds test pain localises to:",
-options:["Bicipital groove (LHBT)","AC joint","Posterior glenoid","Deltoid insertion"],
-answer:0, topic:"Clinical tests", hint:"Resisted forward flexion, supination.",
-explain:"Pain in the groove suggests biceps tendinopathy."
-},
-{ q:"Most common site for partial-thickness cuff tears?",
-options:["Articular-sided supraspinatus footprint","Bursal-sided subscapularis","Myotendinous junction of infraspinatus","Teres minor tendon mid-substance"],
-answer:0, topic:"Rotator cuff", hint:"Undersurface at footprint.",
-explain:"Articular-sided partial tears at supraspinatus footprint are common (PASTA)."
-},
-{ q:"A Bankart lesion involves detachment of:",
-options:["Anteroinferior labrum from glenoid rim","Posteroinferior labrum","Superior labrum","Entire labrum"],
-answer:0, topic:"Instability", hint:"Classic anterior dislocation injury.",
-explain:"Bankart = anteroinferior labral detachment ± bony fragment."
-},
-{ q:"Hill–Sachs lesion is a defect of the:",
-options:["Posterolateral humeral head","Anteroinferior glenoid","Greater tuberosity","Acromion under-surface"],
-answer:0, topic:"Instability", hint:"Engages the glenoid.",
-explain:"Compression impaction of posterolateral humeral head from anterior dislocation."
-},
-{ q:"Which finding best supports symptomatic AC joint osteoarthritis?",
-options:["Focal tenderness and pain with cross-body adduction","Diffuse night pain only","Tinel’s at cubital tunnel","Positive Spurling’s"],
-answer:0, topic:"AC joint", hint:"Provocative cross-body adduction.",
-explain:"Cross-body adduction narrows AC joint and reproduces pain."
-},
-{ q:"Identify the pathology on this supraspinatus image.",
-options:["Full-thickness tear","Normal tendon","Calcific focus only","Muscle atrophy only"], answer:0,
-topic:"Ultrasound signs", hint:"Anechoic gap across full thickness.",
-explain:"Gap traversing tendon thickness with fluid suggests FTT.",
-image:"assets/uss-supraspinatus-fulltear.png"
-},
-{ q:"What does this image of the bicipital groove show?",
-options:["Medial subluxation of LHBT","Normal LHBT in groove","Complete LHBT rupture with empty groove","Calcific tendinitis"],
-answer:0, topic:"Biceps", hint:"Tendon rides medially off the lesser tuberosity.",
-explain:"Subscap pathology allows LHBT to sublux medially.",
-image:"assets/uss-biceps-sublux.png"
-},
-{ q:"This power Doppler at the rotator interval suggests:",
-options:["Adhesive capsulitis","AC joint OA","Posterior labral tear","Suprascapular neuropathy"],
-answer:0, topic:"Ultrasound signs", hint:"Thick CHL + vascular tissue.",
-explain:"Vascular hypoechoic tissue and CHL thickening support frozen shoulder.",
-image:"assets/uss-rotator-interval-vascular.png"
-},
-{ q:"Initial management for non-ruptured calcific tendinopathy often includes:",
-options:["Analgesia/activity modification ± physio","Immediate surgical debridement","Six weeks immobilisation in abduction brace","High-dose systemic steroids routinely"],
-answer:0, topic:"Management (knowledge)", hint:"Conservative first-line.",
-explain:"Most cases respond to analgesia, graded loading, and physiotherapy; procedures reserved for refractory cases."
-},
-{ q:"Best single view on x-ray to visualise calcific deposits in supraspinatus footprint:",
-options:["AP external rotation","Axillary view","Scapular Y","Clavicle skyline"],
-answer:0, topic:"Imaging", hint:"Opens the greater tuberosity region.",
-explain:"AP ER projects the footprint well for calcific foci."
-},
-{ q:"Which nerve is most associated with supraspinatus/infraspinatus atrophy from entrapment?",
-options:["Suprascapular nerve","Axillary nerve","Musculocutaneous nerve","Long thoracic nerve"],
-answer:0, topic:"Nerves", hint:"Traverses suprascapular notch.",
-explain:"Suprascapular neuropathy leads to cuff muscle atrophy."
-},
-{ q:"Which movement most stresses the superior labrum?",
-options:["Abduction+external rotation","Pure adduction","Internal rotation at side","Scapular protraction"],
-answer:0, topic:"Labrum", hint:"Throwing cocking phase.",
-explain:"ABER increases peel-back on the superior labrum."
-},
-{ q:"This image shows hyperechoic focus with posterior shadowing at the supraspinatus footprint:",
-options:["Calcific tendinopathy","Bursal thickening only","Normal tendon","Myotendinous strain"],
-answer:0, topic:"Ultrasound signs", hint:"Echogenic focus + clean shadow.",
-explain:"Classic hydroxyapatite deposit.",
-image:"assets/uss-calcific-ss.png"
-},
-{ q:"Which structure forms the floor of the bicipital groove?",
-options:["Humerus (intertubercular sulcus) with transverse humeral ligament roof","Subscapularis tendon","Coracohumeral ligament","Glenoid labrum"],
-answer:0, topic:"Anatomy", hint:"Bony sulcus; ligament is the roof.",
-explain:"The groove is bony; the transverse humeral ligament forms the roof."
-},
-{ q:"Infraspinatus tears most often present with weakness in:",
-options:["External rotation","Internal rotation","Abduction only","Forearm supination"],
-answer:0, topic:"Rotator cuff", hint:"Primary ER muscle.",
-explain:"Infraspinatus is a key external rotator."
-},
-{ q:"Biceps pulley components include:",
-options:["CHL and SGHL + fibres of subscap/supraspinatus","MCL and UCL","IT band and gluteus medius","PLL and ALL"],
-answer:0, topic:"Biceps", hint:"Capsuloligamentous sling.",
-explain:"Pulley = CHL, SGHL, and tendon fibres of subscap/supraspinatus."
-},
-{ q:"Which is most consistent with AC joint injury (type I–III) clinically?",
-options:["Positive cross-body adduction and localised AC tenderness","Global loss of passive ROM","Posterior apprehension only","Neurogenic pain radiating to hand"],
-answer:0, topic:"AC joint", hint:"Provocation over AC.",
-explain:"Cross-body adduction commonly reproduces AC pain."
-},
-{ q:"PASTA lesion denotes:",
-options:["Partial Articular-Sided Tear of the supraspinatus at the footprint","Posterior labrum avulsion with SLAP","Posterosuperior impingement of LHBT","Pan-labral circumferential tear"],
-answer:0, topic:"Rotator cuff", hint:"Acronym for partial undersurface.",
-explain:"Articular-sided partial tear at footprint."
-},
-{ q:"Which sign on ultrasound suggests bursal-sided partial thickness tear?",
-options:["Focal bursal surface defect with overlying SASD fluid","Uniform hyperechogenicity","Reverberation only","Empty bicipital groove"],
-answer:0, topic:"Ultrasound signs", hint:"Look at the bursal surface.",
-explain:"Bursal-sided defect + bursal fluid supports partial tear."
-},
-{ q:"Which position improves sonographic visualisation of subscapularis tendon?",
-options:["External rotation with arm in neutral","Internal rotation across abdomen","Abduction 90° with internal rotation","Elbow extension and pronation"],
-answer:0, topic:"Technique", hint:"Tension the fibres anteriorly.",
-explain:"External rotation brings subscap fibres into view."
-},
-{ q:"Which labral variant is a normal anatomical variant, not a tear?",
-options:["Sublabral foramen/Buford complex","Detached labrum with paralabral cyst","Flap tear","Bucket-handle tear"],
-answer:0, topic:"Labrum", hint:"Anterosuperior variant.",
-explain:"Sublabral foramen/Buford is a recognised variant."
-},
-{ q:"Which best describes the SASD bursa?",
-options:["Between deltoid and rotator cuff, communicates with subacromial space","Between labrum and glenoid","Within bicipital groove","Inside AC joint"],
-answer:0, topic:"Anatomy", hint:"Deltoid surface.",
-explain:"Subacromial–subdeltoid bursa overlies cuff, under deltoid."
-},
-{ q:"A positive Hawkins–Kennedy test indicates:",
-options:["Subacromial impingement","Isolated subscapularis tear","AC joint instability","Cervical radiculopathy"],
-answer:0, topic:"Clinical tests", hint:"Forward flexion + IR.",
-explain:"Provocative for impingement."
-},
-{ q:"Which is most suggestive of massive cuff tear clinically?",
-options:["External rotation lag sign","Negative lift-off","Isolated AC tenderness","Positive Spurling’s"],
-answer:0, topic:"Rotator cuff", hint:"Lag indicates inability to hold ER.",
-explain:"Lag sign indicates significant ER weakness/tear."
-},
-{ q:"Which is a red flag symptom needing urgent assessment?",
-options:["Acute traumatic weakness after fall with pseudoparalysis","Mild ache after gym","Occasional crepitus","Delayed onset muscle soreness"],
-answer:0, topic:"Red flags", hint:"Traumatic functional loss.",
-explain:"Acute pseudoparalysis after trauma suggests significant tear/dislocation."
-},
-{ q:"Ultrasound sign of delamination in supraspinatus:",
-options:["Horizontal split within tendon substance","Purely hyperechoic line at cortex","Only anisotropy","Shadowing calcification"],
-answer:0, topic:"Ultrasound signs", hint:"Layered split.",
-explain:"Delamination = intrasubstance horizontal cleavage."
-},
-{ q:"Quadrilateral space syndrome compresses:",
-options:["Axillary nerve and posterior circumflex humeral artery","Radial nerve and profunda brachii","Ulnar nerve and superior ulnar collateral","Suprascapular nerve and artery"],
-answer:0, topic:"Nerves", hint:"Space posterior to humerus.",
-explain:"Axillary nerve/ PCHA traverse the quadrilateral space."
-},
-{ q:"Which muscle primarily produces scapular protraction affecting subacromial mechanics?",
-options:["Serratus anterior","Latissimus dorsi","Teres major","Brachialis"],
-answer:0, topic:"Scapulothoracic", hint:"Long thoracic nerve.",
-explain:"Serratus anterior controls scapular upward rotation/protraction."
-},
-{ q:"Which scenario fits posterior internal impingement on MRI/US?",
-options:["Undersurface tears of posterosuperior cuff in throwers","Bursal fluid only","Isolated subscap tear in elderly","Glenohumeral OA osteophytes predominance"],
-answer:0, topic:"Sports shoulder", hint:"Overhead athletes.",
-explain:"ABER contact leads to undersurface tears posteriorly."
-},
-{ q:"Preferred plane to measure LHBT diameter on US:",
-options:["Transverse at groove with true short-axis","Long-axis only","Any oblique plane","Power Doppler M-mode"],
-answer:0, topic:"Technique", hint:"Standardise short-axis.",
-explain:"Short-axis transverse gives reproducible diameter."
-},
-{ q:"Which finding increases suspicion for biceps anchor (SLAP) pathology on US?",
-options:["Biceps pulley disruption with instability","Pure AC OA","Isolated deltoid tendinopathy","GH effusion only"],
-answer:0, topic:"Biceps/Labrum", hint:"Pulley complex matters.",
-explain:"Pulley disruption often coexists with superior labral lesions."
-},
-{ q:"Which best reduces tendon anisotropy during scanning?",
-options:["Heel–toe to keep beam perpendicular","Increase overall gain only","Lower frequency drastically","Switch to curvilinear probe always"],
-answer:0, topic:"Technique", hint:"Beam angle matters.",
-explain:"Small heel–toe adjustments restore perpendicular insonation."
-},
-{ q:"A painful arc with positive Neer and Hawkins–Kennedy most strongly suggests:",
-options:["Subacromial pain syndrome","Cervical radiculopathy","Thoracic outlet syndrome","Frozen shoulder exclusively"],
-answer:0, topic:"Clinical pattern", hint:"Cluster of impingement signs.",
-explain:"Pattern recognition supports SAS."
-},
-{ q:"Atrophy of infraspinatus fossa on inspection suggests:",
-options:["Chronic suprascapular neuropathy or massive cuff tear","Isolated AC sprain","Biceps tendinitis only","Normal variant"],
-answer:0, topic:"Observation", hint:"Posterior fossa hollow.",
-explain:"Denervation or chronic tear leads to visible atrophy."
-},
-{ q:"Bursal thickness that may be considered abnormal (context-dependent):",
-options:[">2 mm with symptoms and fluid","Exactly 0.5 mm","Any visible bursa",">10 mm always"],
-answer:0, topic:"Ultrasound metrics", hint:"Small bursa can be normal.",
-explain:">2 mm with clinical correlation suggests bursitis."
-},
-{ q:"Which pathology is most compatible with this delamination appearance?",
-options:["Intrasubstance split of supraspinatus","Normal fibrillar tendon","Cortical irregularity only","Pure calcific deposit"],
-answer:0, topic:"Ultrasound signs", hint:"Layered split within fibres.",
-explain:"Horizontal hypoechoic cleft indicates delamination.",
-image:"assets/uss-delamination-ss.png"
-},
-{ q:"Which manoeuvre helps expose posterior labrum sonographically?",
-options:["Crass position and posterior window","Cross-body adduction with IR","Supination only","Valgus stress"],
-answer:0, topic:"Technique", hint:"Posterior window.",
-explain:"Posterior approach with arm positioning improves labral window."
-}
+  ...QUESTION_BANK
+  // (add more here)
 ];
 
-// ====== DOM refs ======
+// ===== DOM refs =====
 const questionEl = document.getElementById('question');
 const answersEl  = document.getElementById('answers');
 const qTopicEl   = document.getElementById('qTopic');
@@ -608,225 +349,386 @@ const scoresOverlay  = document.getElementById('scores');
 const teacherUI      = document.getElementById('teacherUI');
 const miniScores     = document.getElementById('miniScores');
 const scoresTable    = document.getElementById('scoresTable');
+const btnSound       = document.getElementById('btnSound');
 
+// Audio refs
+const sndIntro  = document.getElementById('snd-intro');
+const sndQ      = document.getElementById('snd-question');
+const sndFinal  = document.getElementById('snd-final');
+const sndCorrect= document.getElementById('snd-correct');
+const sndWrong  = document.getElementById('snd-wrong');
+const snd5050   = document.getElementById('snd-5050');
+const sndCrowd  = document.getElementById('snd-crowd');
+const sndExpert = document.getElementById('snd-expert');
+
+// UI events
 document.getElementById('btnRules').addEventListener('click', ()=>show(rulesOverlay));
 document.getElementById('btnScores').addEventListener('click', openScores);
+btnSound.addEventListener('click', toggleSound);
 
-// ====== Events ======
 btnStart.addEventListener('click', startGame);
 btnFinal.addEventListener('click', () => {
-if(state.picked == null) return;
-document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
-show(confirmOverlay);
+  if(state.picked == null) return;
+  document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
+  show(confirmOverlay);
+  playSound('final', true);
 });
 btnNext.addEventListener('click', nextQuestion);
 btnQuit.addEventListener('click', walkAway);
 
+const ladderEl = document.getElementById("ladder");
 btn5050.addEventListener('click', lifeline5050);
 btnCrowd.addEventListener('click', lifelineCrowd);
 btnExpert.addEventListener('click', lifelineExpert);
 
 document.addEventListener('keydown', (e)=>{
-if(e.key === ' ' && !btnFinal.classList.contains('hidden')) { e.preventDefault(); btnFinal.click(); }
-if(e.key.toLowerCase() === 'n' && !btnNext.classList.contains('hidden')) btnNext.click();
-if(e.key.toLowerCase() === 't') toggleTeacher();
-if(e.key.toLowerCase() === 'c') toggleClean();
+  if(e.key === ' ' && !btnFinal.classList.contains('hidden')) { e.preventDefault(); btnFinal.click(); }
+  if(e.key.toLowerCase() === 'n' && !btnNext.classList.contains('hidden')) btnNext.click();
+  if(e.key.toLowerCase() === 't') toggleTeacher();
+  if(e.key.toLowerCase() === 'c') toggleClean();
 });
 
-// ====== Utils ======
+// ===== Audio unlock (no auto-mute) & intro on first gesture =====
+function unlockAllAudio() {
+  const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
+  els.forEach(a => {
+    if(!a) return;
+    a.addEventListener('error', ()=>{
+      console.warn('Audio failed to load:', a.id, 'src=', a.currentSrc || a.src);
+    });
+    try {
+      const wasMuted = a.muted;
+      a.muted = true;
+      const p = a.play();
+      Promise.resolve(p)
+        .then(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; })
+        .catch(() => { a.pause(); a.currentTime = 0; a.muted = wasMuted; });
+    } catch(e){}
+  });
+}
+function initAudioOnce(){
+  if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
+}
+document.addEventListener('pointerdown', () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
+document.addEventListener('keydown',      () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
+
+// ===== Utils =====
 function show(el){ el.style.display='flex' }
 function hide(el){ el.style.display='none' }
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min }
 function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Math.floor(Math.random()*3)] }
-function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])) }
+function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// ====== Option shuffle & mapping ======
-// Shuffle options for a question and remap the correct index
+// ===== Audio helpers =====
+function setAllMuted(m){
+  [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
+}
+function playEl(audio){
+  if(!audio || !state.soundOn) return;
+  try{
+    if(audio.readyState < 2){
+      audio.addEventListener('canplay', ()=>{ try{ audio.currentTime = 0; audio.play(); }catch(e){} }, { once:true });
+      return;
+    }
+    audio.currentTime = 0; audio.play();
+  }catch(e){}
+}
+function pauseEl(audio){ if(!audio) return; try{ audio.pause(); }catch(e){} }
+function stopAllSfx(){
+  [sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a=>{
+    if(a){ try{ a.pause(); a.currentTime = 0; }catch(e){} }
+  });
+}
+function playSound(kind, pauseBed=false){
+  stopAllSfx();
+  if(pauseBed) pauseQuestionBed();
+  if(kind==='final')   return playEl(sndFinal);
+  if(kind==='correct') return playEl(sndCorrect);
+  if(kind==='wrong')   return playEl(sndWrong);
+  if(kind==='5050')    return playEl(snd5050);
+  if(kind==='crowd')   return playEl(sndCrowd);
+  if(kind==='expert')  return playEl(sndExpert);
+}
+function startQuestionBed(){
+  if(!state.soundOn) return;
+  stopIntro();
+  if(sndQ.readyState < 2){
+    sndQ.addEventListener('canplay', ()=>{ try{ sndQ.currentTime = 0; sndQ.play(); }catch(e){} }, { once:true });
+    return;
+  }
+  try { sndQ.currentTime = 0; sndQ.play(); } catch(e){}
+}
+function pauseQuestionBed(){ pauseEl(sndQ); }
+function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
+
+function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); }
+function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
+function toggleSound(){
+  state.soundOn = !state.soundOn;
+  setAllMuted(!state.soundOn);
+  btnSound.textContent = state.soundOn ? '🔊' : '🔇';
+}
+
+// ===== Shuffle & mapping =====
 function prepareQuestion(q){
-if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
-const order = [0,1,2,3];
-shuffle(order);
-const shuffledOptions = order.map(i => q.options[i]);
-const shuffledAnswer  = order.indexOf(q.answer);
-return { ...q, options: shuffledOptions, _order: order, _answer: shuffledAnswer };
+  if(!state.shuffleOn) return { ...q, _answer: q.answer, _order:[0,1,2,3] };
+  const order = [0,1,2,3]; shuffle(order);
+  const shuffledOptions = order.map(i => q.options[i]);
+  const shuffledAnswer  = order.indexOf(q.answer);
+  return { ...q, options: shuffledOptions, _order: order, _answer: shuffledAnswer };
 }
-// Get the correct index for the current (possibly shuffled) question
 function getCorrectIdx(){
-return (state.current && Number.isInteger(state.current._answer))
-? state.current._answer
-: state.current.answer;
+  return (state.current && Number.isInteger(state.current._answer))
+    ? state.current._answer
+    : state.current.answer;
 }
 
-// ====== Ladder ======
+// ===== Ladder =====
 function renderLadder(){
-ladderEl.innerHTML = '';
+  ladderEl.innerHTML = "";
+  ladderEl.innerHTML = '';
 MONEY.forEach((m, idx)=>{
-const li = document.createElement('li');
-const n = 15-idx;
-const safe = SAFE_INDEXES.includes(idx) ? ' safe' : '';
-li.dataset.index = idx;
-li.innerHTML = `<span>#${n}</span><span>£${m.toLocaleString()}</span>`;
-if(safe) li.classList.add('safe');
+    const li = document.createElement("li");
+    const n = idx+1; // ✅ Q1–Q15
+    li.innerHTML = `<span>#${n}</span> <span>£${m.toLocaleString()}</span>`;
+    const li = document.createElement('li');
+    const qNum = idx + 1; // ✅ 1–15 labels
+    if([4,9].includes(idx)) li.classList.add('safe');
+    li.dataset.index = idx;
+    li.innerHTML = `<span>#${qNum}</span><span>£${m.toLocaleString()}</span>`;
 ladderEl.appendChild(li);
 });
-highlightLadder(0);
+  highlightLadder(0);
 }
+renderLadder();
+
+// ==== AUDIO HANDLING ====
+const sounds = {
+  intro: document.getElementById("snd-intro"),
+  question: document.getElementById("snd-question"),
+  final: document.getElementById("snd-final"),
+  correct: document.getElementById("snd-correct"),
+  wrong: document.getElementById("snd-wrong"),
+  ll5050: document.getElementById("snd-5050"),
+  llCrowd: document.getElementById("snd-crowd"),
+  llExpert: document.getElementById("snd-expert")
+};
 function highlightLadder(qIndex){
-[...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
+  [...ladderEl.children].forEach((li,i)=>li.classList.toggle('active', i === qIndex));
 }
 
-// ====== Timer ======
+// ===== Timer =====
 function startTimer(){
-clearInterval(state.intervalId);
-if(!state.timerOn){ timerEl.textContent = '∞'; return; }
-state.timeLeft = DEFAULT_TIME;
-timerEl.textContent = state.timeLeft + 's';
-state.intervalId = setInterval(()=>{
-state.timeLeft--;
-timerEl.textContent = state.timeLeft + 's';
-if(state.timeLeft <= 0){ clearInterval(state.intervalId); timesUp(); }
-}, 1000);
+  clearInterval(state.intervalId);
+  if(!state.timerOn){ timerEl.textContent = '∞'; return; }
+  state.timeLeft = DEFAULT_TIME;
+  timerEl.textContent = state.timeLeft + 's';
+  state.intervalId = setInterval(()=>{
+    state.timeLeft--;
+    timerEl.textContent = state.timeLeft + 's';
+    if(state.timeLeft <= 0){ clearInterval(state.intervalId); timesUp(); }
+  }, 1000);
 }
 function toggleTimer(){
-state.timerOn = !state.timerOn;
-modeLabel.textContent = `Timer: ${state.timerOn? 'On' : 'Off'}`;
-startTimer();
+  state.timerOn = !state.timerOn;
+  modeLabel.textContent = `Timer: ${state.timerOn? 'On' : 'Off'}`;
+  startTimer();
 }
 
-// ====== Game flow ======
+// ===== Game flow =====
 function startGame(){
-const name = prompt('Enter player name (optional)') || '';
-state.player = name.trim();
-state.qIndex = 0;
-state.used5050 = state.usedCrowd = state.usedExpert = false;
-state.results = [];
-const base = window.ACTIVE_BANK || QUESTION_BANK;
-state.bank = pick15(base);
-btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
-btnStart.classList.add('hidden'); btnQuit.classList.remove('hidden');
-loadQuestion();
+  stopIntro(); // stop intro on Start
+  const name = prompt('Enter player name (optional)') || '';
+  state.player = name.trim();
+  state.qIndex = 0;
+  state.used5050 = state.usedCrowd = state.usedExpert = false;
+  state.results = [];
+  const base = window.ACTIVE_BANK || QUESTION_BANK;
+  state.bank = pick15(base);
+  btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
+  btnStart.classList.add('hidden'); btnQuit.classList.remove('hidden');
+  loadQuestion();
 }
 function resetGame(){
-hide(confirmOverlay); hide(crowdOverlay); hide(rulesOverlay);
-document.body.classList.remove('clean');
-btnStart.classList.remove('hidden');
-btnFinal.classList.add('hidden');
-btnNext.classList.add('hidden');
-btnQuit.classList.add('hidden');
-questionEl.textContent = 'Press Start to begin.';
-answersEl.innerHTML = '';
-explainEl.classList.add('hidden');
-qImg.style.display='none';
-state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
-renderLadder(); startTimer();
+  hide(confirmOverlay); hide(crowdOverlay); hide(rulesOverlay);
+  document.body.classList.remove('clean');
+  btnStart.classList.remove('hidden');
+  btnFinal.classList.add('hidden');
+  btnNext.classList.add('hidden');
+  btnQuit.classList.add('hidden');
+  questionEl.textContent = 'Press Start to begin.';
+  answersEl.innerHTML = '';
+  explainEl.classList.add('hidden');
+  qImg.style.display='none';
+  state = {...state, qIndex:0, used5050:false, usedCrowd:false, usedExpert:false, results:[], locked:false, picked:null};
+  renderLadder(); startTimer();
+  stopAllSfx(); stopQuestionBed();
+  playIntro(); // intro on reset
 }
 function loadQuestion(){
-state.current = prepareQuestion(state.bank[state.qIndex]);
-state.picked = null; state.locked=false;
-qTopicEl.textContent = state.current.topic || 'Shoulder';
-qLevelEl.textContent = `Q${state.qIndex+1}`;
-questionEl.textContent = state.current.q;
-explainEl.classList.add('hidden'); explainEl.textContent = '';
-answersEl.innerHTML = '';
-if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
+  state.current = prepareQuestion(state.bank[state.qIndex]);
+  state.picked = null; state.locked=false;
+  qTopicEl.textContent = state.current.topic || 'Shoulder';
+  qLevelEl.textContent = `Q${state.qIndex+1}`;
+  questionEl.textContent = state.current.q;
+  explainEl.classList.add('hidden'); explainEl.textContent = '';
+  answersEl.innerHTML = '';
+  if(state.current.image){ qImg.src = state.current.image; qImg.alt = "Question image"; qImg.style.display='block'; } else { qImg.style.display='none' }
 
-  // Accessibility: radio group for answers
   answersEl.setAttribute('role','radiogroup');
 
-state.current.options.forEach((opt, i)=>{
-const btn = document.createElement('button');
-btn.className = 'ans';
+function stopAll(){
+  Object.values(sounds).forEach(s=>{
+    s.pause();
+    s.currentTime=0;
+  state.current.options.forEach((opt, i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'ans';
     btn.setAttribute('role','radio');
     btn.setAttribute('aria-checked','false');
-btn.innerHTML = `<span class="label">${String.fromCharCode(65+i)}.</span> <span>${opt}</span>`;
-btn.addEventListener('click', ()=>select(i, btn));
-answersEl.appendChild(btn);
+    btn.innerHTML = `<span class="label">${String.fromCharCode(65+i)}.</span> <span>${opt}</span>`;
+    btn.addEventListener('click', ()=>select(i, btn));
+    answersEl.appendChild(btn);
 });
-btnFinal.classList.remove('hidden');
-btnNext.classList.add('hidden');
-startTimer(); highlightLadder(state.qIndex);
+  btnFinal.classList.remove('hidden');
+  btnNext.classList.add('hidden');
+  startTimer(); highlightLadder(state.qIndex);
+
+  startQuestionBed(); // question music
 }
+function playSound(name){
+  stopAll();
+  if(sounds[name]) sounds[name].play().catch(()=>{});
 function select(i, btn){
-if(state.locked) return;
-  [...answersEl.children].forEach(b => b.dataset.selected = 'false');
+  if(state.locked) return;
   [...answersEl.children].forEach(b => {
     b.dataset.selected = 'false';
     b.setAttribute('aria-checked','false');
   });
-btn.dataset.selected = 'true';
+  btn.dataset.selected = 'true';
   btn.setAttribute('aria-checked','true');
-state.picked = i;
+  state.picked = i;
 }
 function cancelLock(){ hide(confirmOverlay) }
-function lockIn(){
-hide(confirmOverlay);
-if(state.picked == null || state.locked) return;
-state.locked = true;
-clearInterval(state.intervalId);
-const correctIdx = getCorrectIdx();
-const correct = state.picked === correctIdx;
-markAnswers(correct);
-const prize = correct ? MONEY[state.qIndex] : getSafePrize();
-state.results.push({ qIndex: state.qIndex+1, correct, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-explainEl.classList.remove('hidden');
-explainEl.innerHTML = (correct? `<div class="ok"><strong>Correct!</strong></div>` : `<div class="bad"><strong>Incorrect.</strong></div>`)
-+ `<div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
-btnFinal.classList.add('hidden');
-btnNext.classList.remove('hidden');
 
-if(!correct){ endGame(prize); return; }
-if(state.qIndex === MONEY.length-1){ youWin(); return; }
-}
-function markAnswers(correct){
-const children = [...answersEl.children];
-const ans = getCorrectIdx();
-children.forEach((b, idx)=>{
-if(idx === ans) b.classList.add('correct');
-if(state.picked === idx && !correct) b.classList.add('wrong');
-b.disabled = true;
+// ==== DEMO GAME LOGIC ====
+document.getElementById("btnStart").addEventListener("click",()=>{
+  playSound("question"); // start with Q music
 });
+document.getElementById("btnNext").addEventListener("click",()=>{
+  playSound("question");
+});
+// Wrong answer demo
+function wrongAnswer(){
+  stopAll();
+  sounds.wrong.play().catch(()=>{});
+  setTimeout(()=>{ alert("Game Over"); }, 3000); // let sound finish
+function lockIn(){
+  hide(confirmOverlay);
+  if(state.picked == null || state.locked) return;
+  state.locked = true;
+  clearInterval(state.intervalId);
+
+  // Final answer sting and pause bed
+  pauseQuestionBed(); playSound('final');
+
+  const correctIdx = getCorrectIdx();
+  const correct = state.picked === correctIdx;
+
+  if (correct){
+    markAnswers(true);
+    const prize = MONEY[state.qIndex];
+    state.results.push({ qIndex: state.qIndex+1, correct: true, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
+    explainEl.classList.remove('hidden');
+    explainEl.innerHTML = `<div class="ok"><strong>Correct!</strong></div><div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
+    btnFinal.classList.add('hidden');
+    btnNext.classList.remove('hidden');
+    playSound('correct');
+    if(state.qIndex === MONEY.length-1){ youWin(); return; }
+  } else {
+    // ❌ WRONG — play sting fully before ending the game
+    playSound('wrong', true);
+    markAnswers(false);
+    const prize = getSafePrize();
+    state.results.push({ qIndex: state.qIndex+1, correct: false, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
+    const correctIdx = getCorrectIdx();
+    explainEl.classList.remove('hidden');
+    explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
+      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
+      <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
+    btnFinal.classList.add('hidden');
+
+    let finished = false;
+    const finish = () => { if (finished) return; finished = true; endGame(prize, false); };
+
+    if (sndWrong) {
+      const onEnded = () => { sndWrong.removeEventListener('ended', onEnded); finish(); };
+      sndWrong.addEventListener('ended', onEnded, { once: true });
+      const fallbackMs = (isFinite(sndWrong.duration) && sndWrong.duration > 0)
+        ? Math.min(4000, Math.max(800, sndWrong.duration * 1000))
+        : 1800;
+      setTimeout(finish, fallbackMs);
+    } else {
+      finish();
+    }
+    return;
+  }
+}
+
+function markAnswers(correct){
+  const children = [...answersEl.children];
+  const ans = getCorrectIdx();
+  children.forEach((b, idx)=>{
+    if(idx === ans) b.classList.add('correct');
+    if(state.picked === idx && !correct) b.classList.add('wrong');
+    b.disabled = true;
+  });
 }
 function nextQuestion(){
-state.qIndex++;
-if(state.qIndex >= MONEY.length){ youWin(); return; }
-loadQuestion();
+  stopAllSfx(); stopQuestionBed();
+  state.qIndex++;
+  if(state.qIndex >= MONEY.length){ youWin(); return; }
+  loadQuestion();
 }
 function walkAway(){
-const prize = state.qIndex>0 ? MONEY[state.qIndex-1] : 0;
-endGame(prize, true);
+  const prize = state.qIndex>0 ? MONEY[state.qIndex-1] : 0;
+  endGame(prize, true);
 }
 function getSafePrize(){
-let safe = 0; for(const idx of SAFE_INDEXES){ if(idx < state.qIndex) safe = MONEY[idx]; } return safe;
+  let safe = 0; for(const idx of SAFE_INDEXES){ if(idx < state.qIndex) safe = MONEY[idx]; } return safe;
 }
 function youWin(){
-explainEl.classList.remove('hidden');
-explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Outstanding knowledge.</div>`;
-btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
-saveScore(1000000);
+  explainEl.classList.remove('hidden');
+  explainEl.innerHTML = `<div class="ok"><strong>Jackpot! You won £1,000,000.</strong></div><div class="muted">Outstanding knowledge.</div>`;
+  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
+  saveScore(1000000);
+  playSound('correct'); stopQuestionBed();
 }
 function endGame(prize, walked=false){
-btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
-const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
-`Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
-explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
-saveScore(prize);
+  stopAllSfx();
+  if(walked){ playSound('correct'); }
+  stopQuestionBed();
+
+  btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
+  const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
+    `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
+  explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
+  saveScore(prize);
 }
 
-// ====== Lifelines ======
+// ===== Lifelines =====
 function lifeline5050(){
-if(state.used5050 || !state.current) return;
-state.used5050 = true; btn5050.disabled = true;
-const correctIdx = getCorrectIdx();
-const wrongs = [0,1,2,3].filter(i=>i!==correctIdx);
-shuffle(wrongs);
-const remove = wrongs.slice(0,2);
-  [...answersEl.children].forEach((b, idx)=>{ if(remove.includes(idx)){ b.disabled = true; b.style.opacity = .4; } });
+  if(state.used5050 || !state.current) return;
+  state.used5050 = true; btn5050.disabled = true;
+  const correctIdx = getCorrectIdx();
+  const wrongs = [0,1,2,3].filter(i=>i!==correctIdx);
+  shuffle(wrongs);
+  const remove = wrongs.slice(0,2);
   [...answersEl.children].forEach((b, idx)=>{
     if(remove.includes(idx)){
       b.disabled = true;
       b.style.opacity = .4;
-      // If the removed option was selected, clear selection
       if(b.dataset.selected === 'true'){
         b.dataset.selected = 'false';
         b.setAttribute('aria-checked','false');
@@ -834,69 +736,70 @@ const remove = wrongs.slice(0,2);
       }
     }
   });
+  playSound('5050');
 }
 function lifelineCrowd(){
-if(state.usedCrowd || !state.current) return;
-state.usedCrowd = true; btnCrowd.disabled = true;
-const hardness = state.qIndex/ (MONEY.length-1);
-const correctIdx = getCorrectIdx();
-const correctBias = Math.max(0.35, 0.8 - hardness*0.5);
-const poll = [0,0,0,0]; let remaining = 100;
-poll[correctIdx] = Math.floor(correctBias*100); remaining -= poll[correctIdx];
-const others = [0,1,2,3].filter(i=>i!==correctIdx);
-for(let i=0;i<others.length;i++){
-const v = i < others.length-1 ? randInt(0, Math.max(1, remaining - (others.length-1-i))) : remaining;
-poll[others[i]] = v; remaining -= v;
-}
-const container = document.getElementById('pollBars'); container.innerHTML = '';
-['A','B','C','D'].forEach((lab, i)=>{
-const bar = document.createElement('div');
-bar.style.margin = '6px 0';
-bar.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${lab}</strong><span>${poll[i]}%</span></div>
-   <div style="height:12px; border-radius:999px; border:1px solid #2a3567; background:#0b122f">
-     <div style="height:100%; width:${poll[i]}%; border-radius:999px; background:linear-gradient(90deg,#1f79ff,#6ac2ff)"></div>
-   </div>`;
-container.appendChild(bar);
-});
-show(crowdOverlay);
+  if(state.usedCrowd || !state.current) return;
+  state.usedCrowd = true; btnCrowd.disabled = true;
+  const hardness = state.qIndex/ (MONEY.length-1);
+  const correctIdx = getCorrectIdx();
+  const correctBias = Math.max(0.35, 0.8 - hardness*0.5);
+  const poll = [0,0,0,0]; let remaining = 100;
+  poll[correctIdx] = Math.floor(correctBias*100); remaining -= poll[correctIdx];
+  const others = [0,1,2,3].filter(i=>i!==correctIdx);
+  for(let i=0;i<others.length;i++){
+    const v = i < others.length-1 ? randInt(0, Math.max(1, remaining - (others.length-1-i))) : remaining;
+    poll[others[i]] = v; remaining -= v;
+  }
+  const container = document.getElementById('pollBars'); container.innerHTML = '';
+  ['A','B','C','D'].forEach((lab, i)=>{
+    const bar = document.createElement('div');
+    bar.style.margin = '6px 0';
+    bar.innerHTML = `<div style="display:flex; justify-content:space-between"><strong>${lab}</strong><span>${poll[i]}%</span></div>
+    <div style="height:12px; border-radius:999px; border:1px solid #2a3567; background:#0b122f">
+      <div style="height:100%; width:${poll[i]}%; border-radius:999px; background:linear-gradient(90deg,#1f79ff,#6ac2ff)"></div>
+    </div>`;
+    container.appendChild(bar);
+  });
+  show(crowdOverlay);
+  playSound('crowd');
 }
 function closePoll(){ hide(crowdOverlay) }
 function lifelineExpert(){
-if(state.usedExpert || !state.current) return;
-state.usedExpert = true; btnExpert.disabled = true;
-const hardness = state.qIndex/ (MONEY.length-1);
-const accuracy = Math.max(0.45, 0.75 - hardness*0.35);
-const sayCorrect = Math.random() < accuracy;
-const correctIdx = getCorrectIdx();
-const suggested = sayCorrect ? correctIdx : randomOther(correctIdx);
-explainEl.classList.remove('hidden');
-explainEl.innerHTML = `<div class="ok"><strong>Expert hint:</strong></div>
- <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
+  if(state.usedExpert || !state.current) return;
+  state.usedExpert = true; btnExpert.disabled = true;
+  const hardness = state.qIndex/ (MONEY.length-1);
+  const accuracy = Math.max(0.45, 0.75 - hardness*0.35);
+  const sayCorrect = Math.random() < accuracy;
+  const correctIdx = getCorrectIdx();
+  const suggested = sayCorrect ? correctIdx : randomOther(correctIdx);
+  explainEl.classList.remove('hidden');
+  explainEl.innerHTML = `<div class="ok"><strong>Expert hint:</strong></div>
+  <div class="muted" style="margin-top:4px">I’d pick <strong>${String.fromCharCode(65+suggested)}</strong>. ${state.current.hint? 'Reason: '+state.current.hint:''}</div>`;
+  playSound('expert');
 }
 
-// ====== Times up ======
+// ===== Times up =====
 function timesUp(){
-state.locked = true;
-markAnswers(false);
-const ans = getCorrectIdx();
-explainEl.classList.remove('hidden');
-explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+ans)}</strong>.</div>`;
-btnFinal.classList.add('hidden');
-btnNext.classList.add('hidden');
-btnQuit.classList.add('hidden');
-btnStart.classList.remove('hidden');
-saveScore(getSafePrize());
+  state.locked = true;
+  markAnswers(false);
+  const ans = getCorrectIdx();
+  explainEl.classList.remove('hidden');
+  explainEl.innerHTML = `<div class="bad"><strong>Time’s up!</strong></div><div class="muted">The correct answer was <strong>${String.fromCharCode(65+ans)}</strong>.</div>`;
+  btnFinal.classList.add('hidden');
+  btnNext.classList.add('hidden');
+  btnQuit.classList.add('hidden');
+  btnStart.classList.remove('hidden');
+  saveScore(getSafePrize());
+  stopAllSfx(); playSound('wrong'); stopQuestionBed();
 }
 
-// ====== Bank helpers ======
+// ===== Bank helpers =====
 function pick15(bank){ const copy = bank.slice(); shuffle(copy); return copy.slice(0,15) }
 
-// ====== Teacher & clean view ======
+// ===== Teacher & clean view =====
 function toggleTeacher(){
-if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
-  const pass = prompt('Enter teacher passcode');
-  if(pass === 'ULTRASOUND'){ state.teacher=true; teacherUI.style.display='flex'; }
-  else if(pass){ alert('Incorrect passcode'); }
+  if(state.teacher){ teacherUI.style.display = 'none'; state.teacher=false; return; }
   const pass = prompt('Enter teacher code');
   if(pass === '1234'){ state.teacher=true; teacherUI.style.display='flex'; }
   else if(pass){ alert('Incorrect code'); }
@@ -905,81 +808,64 @@ function reveal(){ if(!state.current) return; const ans = getCorrectIdx(); [...a
 function skip(){ if(state.qIndex < MONEY.length-1) nextQuestion(); }
 function toggleClean(){ document.body.classList.toggle('clean'); }
 function toggleShuffle(){ state.shuffleOn = !state.shuffleOn; alert('Shuffle is now ' + (state.shuffleOn ? 'ON' : 'OFF')); }
-function exportCSV(){
-const rows = [['Question','Correct','Time(s)','Prize']];
-state.results.forEach(r=> rows.push([r.qIndex, r.correct, r.time ?? '', r.prize]));
-downloadCSV(rows, 'shoulder-millionaire-this-run.csv');
-}
-function loadSample(){ document.getElementById('qImport').value = JSON.stringify(QUESTION_BANK, null, 2); }
-function replaceBank(){
-try{
-const txt = document.getElementById('qImport').value.trim();
-const arr = JSON.parse(txt);
-if(!Array.isArray(arr) || arr.length === 0) throw 'Invalid JSON';
-if(!('q' in arr[0] && 'options' in arr[0] && 'answer' in arr[0])) throw 'Missing fields';
-window.ACTIVE_BANK = arr;
-alert(`Loaded ${arr.length} questions. Restarting game.`);
-resetGame();
-}catch(e){ alert('Could not load: ' + e); }
-}
-function useExpanded(){ window.ACTIVE_BANK = EXPANDED_BANK; alert(`Using expanded bank (${EXPANDED_BANK.length} items). Restarting.`); resetGame(); }
 
-// ====== Leaderboard (localStorage) ======
+// ===== Leaderboard (localStorage) =====
 const SCORE_KEY = 'shoulder_millionaire_scores_v1';
 function getScores(){ try{ return JSON.parse(localStorage.getItem(SCORE_KEY)) || [] }catch{ return [] } }
 function setScores(arr){ localStorage.setItem(SCORE_KEY, JSON.stringify(arr)); renderMiniScores(); }
 function saveScore(prize){
-if(!state.results.length) return;
-const totalCorrect = state.results.filter(r=>r.correct).length;
-const topReached = Math.max(...state.results.map(r=>r.qIndex));
-const totalTime = state.results.reduce((s,r)=> s + (r.time || 0), 0);
-const lifelines = ['5050','Crowd','Expert'].filter((ll,i)=> [state.used5050,state.usedCrowd,state.usedExpert][i]).join('|') || 'None';
-const entry = {
-name: state.player || '—',
-prize, correct: totalCorrect, topQ: topReached,
-time: state.timerOn? totalTime : null,
-date: new Date().toISOString().slice(0,19).replace('T',' '),
-lifelines
-};
-const scores = getScores();
-scores.push(entry);
-scores.sort((a,b)=> b.prize - a.prize || b.correct - a.correct || ((a.time||1e9) - (b.time||1e9)));
-setScores(scores.slice(0,100));
+  if(!state.results.length) return;
+  const totalCorrect = state.results.filter(r=>r.correct).length;
+  const topReached = Math.max(...state.results.map(r=>r.qIndex));
+  const totalTime = state.results.reduce((s,r)=> s + (r.time || 0), 0);
+  const lifelines = ['5050','Crowd','Expert'].filter((ll,i)=> [state.used5050,state.usedCrowd,state.usedExpert][i]).join('|') || 'None';
+  const entry = {
+    name: state.player || '—',
+    prize, correct: totalCorrect, topQ: topReached,
+    time: state.timerOn? totalTime : null,
+    date: new Date().toISOString().slice(0,19).replace('T',' '),
+    lifelines
+  };
+  const scores = getScores();
+  scores.push(entry);
+  scores.sort((a,b)=> b.prize - a.prize || b.correct - a.correct || ((a.time||1e9) - (b.time||1e9)));
+  setScores(scores.slice(0,100));
 }
 function renderMiniScores(){
-const scores = getScores();
-if(!scores.length){ miniScores.textContent = 'No scores yet.'; return; }
-const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${escapeHtml(s.name || '—')}`).join('<br>');
-miniScores.innerHTML = top;
+  const scores = getScores();
+  if(!scores.length){ miniScores.textContent = 'No scores yet.'; return; }
+  const top = scores.slice(0,5).map(s=>`£${s.prize.toLocaleString()} — ${escapeHtml(s.name || '—')}`).join('<br>');
+  miniScores.innerHTML = top;
 }
 function openScores(){ renderScoresTable(); show(scoresOverlay); }
 function closeScores(){ hide(scoresOverlay) }
 function renderScoresTable(){
-const scores = getScores();
-if(!scores.length){ scoresTable.innerHTML = '<p class="muted">No scores yet.</p>'; return; }
-let html = '<table><thead><tr><th>#</th><th>Name</th><th>Prize</th><th>Correct</th><th>Top Q</th><th>Time(s)</th><th>Lifelines</th><th>Date</th></tr></thead><tbody>';
-scores.forEach((s,i)=>{
-html += `<tr><td>${i+1}</td><td>${escapeHtml(s.name||'')}</td><td>£${s.prize.toLocaleString()}</td><td>${s.correct}</td><td>${s.topQ}</td><td>${s.time ?? ''}</td><td>${s.lifelines}</td><td>${s.date}</td></tr>`;
-});
-html += '</tbody></table>';
-scoresTable.innerHTML = html;
+  const scores = getScores();
+  if(!scores.length){ scoresTable.innerHTML = '<p class="muted">No scores yet.</p>'; return; }
+  let html = '<table><thead><tr><th>#</th><th>Name</th><th>Prize</th><th>Correct</th><th>Top Q</th><th>Time(s)</th><th>Lifelines</th><th>Date</th></tr></thead><tbody>';
+  scores.forEach((s,i)=>{
+    html += `<tr><td>${i+1}</td><td>${escapeHtml(s.name||'')}</td><td>£${s.prize.toLocaleString()}</td><td>${s.correct}</td><td>${s.topQ}</td><td>${s.time ?? ''}</td><td>${s.lifelines}</td><td>${s.date}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  scoresTable.innerHTML = html;
 }
 function exportScores(){
-const scores = getScores();
-const rows = [['Rank','Name','Prize','Correct','TopQ','Time(s)','Lifelines','Date']];
-scores.forEach((s,i)=> rows.push([i+1, s.name||'', s.prize, s.correct, s.topQ, s.time ?? '', s.lifelines, s.date]));
-downloadCSV(rows, 'shoulder-millionaire-leaderboard.csv');
+  const scores = getScores();
+  const rows = [['Rank','Name','Prize','Correct','TopQ','Time(s)','Lifelines','Date']];
+  scores.forEach((s,i)=> rows.push([i+1, s.name||'', s.prize, s.correct, s.topQ, s.time ?? '', s.lifelines, s.date]));
+  downloadCSV(rows, 'shoulder-millionaire-leaderboard.csv');
 }
 function resetScores(){ if(confirm('Reset all saved scores on this device?')){ setScores([]); renderScoresTable(); } }
 function downloadCSV(rows, filename){
-const csv = rows.map(r=>r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
-const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
-const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
+  const csv = rows.map(r=>r.map(cell=> `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'}); const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename; a.click(); URL.revokeObjectURL(url);
 }
 
-// ====== Build UI on load ======
+// ===== Build UI on load =====
 renderLadder(); startTimer(); renderMiniScores();
-
+setAllMuted(!state.soundOn);
+// Start intro after first gesture; also when hitting Reset we play it.
 </script>
 </body>
 </html>
