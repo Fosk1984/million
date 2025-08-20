@@ -100,7 +100,6 @@
       <div class="controls">
         <button id="startBtn">Start Game</button>
         <button id="soundBtn" aria-pressed="false">🔊 Enable Sound</button>
-        <button id="introBtn" title="Play intro theme">▶️ Intro</button>
       </div>
     </header>
 
@@ -152,7 +151,6 @@
   <div id="toast" class="toast" role="status" aria-live="polite">Sound is muted by your browser. Click <b>Enable Sound</b> first.</div>
 
   <!-- Audio elements (use your own files in /audio to replace these). Fallback synth plays if loading fails. -->
-  <audio id="introAudio" preload="auto" src="audio/intro.mp3"></audio>
   <audio id="questionAudio" preload="auto" loop src="audio/question.mp3"></audio>
   <audio id="correctAudio" preload="auto" src="audio/correct.mp3"></audio>
   <audio id="wrongAudio" preload="auto" src="audio/wrong.mp3"></audio>
@@ -544,7 +542,6 @@
     }
 
     const sounds = {
-      intro: ()=> playTag('introAudio').catch(()=> synthTone('sawtooth', 329, 1.2, 0.07)),
       question: ()=> playTag('questionAudio').catch(()=> synthTone('triangle', 392, 0.4, 0.04)),
       correct: ()=> playTag('correctAudio').catch(()=> synthTone('sine', 880, 0.35, 0.08)),
       wrong: ()=> playTag('wrongAudio').catch(()=> synthTone('square', 140, 0.5, 0.08)),
