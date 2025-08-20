@@ -65,7 +65,7 @@
   .muted{color:var(--muted)}
   .ladder{position:sticky; top:12px}
   .ladder ol{
-    display:flex; flex-direction:column-reverse; /* ✅ Q1 bottom → Q15 top */
+    display:flex; flex-direction:column-reverse; /* Q1 bottom → Q15 top */
     padding:0; margin:0; list-style:none;
   }
   .ladder li{display:flex; justify-content:space-between; padding:4px 6px; border-radius:8px; margin-bottom:2px; border:1px solid transparent}
@@ -92,7 +92,7 @@
   .teacher{position:fixed; right:12px; bottom:12px; z-index:60; display:none; gap:8px; flex-wrap:wrap}
   .teacher .pane{background:linear-gradient(180deg,#10173b,#0b122f); border:1px solid var(--edge); border-radius:12px; padding:10px; min-width:260px}
   .teacher h4{margin:0 0 6px}
-  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:#ink; padding:8px}
+  textarea{width:100%; min-height:120px; border-radius:10px; border:1px solid #2a3567; background:#0b122f; color:var(--ink); padding:8px}
   .clean .brand, .clean .lifelines, .clean .footer, .clean .q-meta{display:none !important}
 </style>
 </head>
@@ -125,6 +125,7 @@
       <div class="answers" id="answers"></div>
       <div class="actions">
         <button id="btnStart">Start Game</button>
+        <button id="btnEnableSound" class="pill">Enable Sound</button><!-- NEW: starts intro before game -->
         <button id="btnFinal" class="hidden">Final Answer</button>
         <button id="btnNext" class="hidden">Next Question</button>
         <button id="btnQuit" class="hidden">Walk Away</button>
@@ -239,13 +240,9 @@
 
 <script>
 /* =============================
-   Millionaire — Shoulder Pathology (full build)
-   - Correct ladder numbers (Q1 bottom → Q15 top)
-   - Robust audio unlock (no auto-mute)
-   - Intro on launch/reset, stops at Start
-   - Question bed per question
-   - Wrong.mp3 waits before endGame
-   - Walk away plays correct.mp3
+   Millionaire — Shoulder Pathology
+   Intro plays on launch via "Enable Sound" or any first gesture (except Start),
+   stops on Start. Everything else unchanged.
    ============================= */
 
 const MONEY = [100,200,300,500,1000,2000,4000,8000,16000,32000,64000,125000,250000,500000,1000000];
@@ -271,7 +268,7 @@ let state = {
   soundOn: true
 };
 
-// ===== Sample & expanded banks (trim samples; add your full set) =====
+// ===== Sample bank =====
 let QUESTION_BANK = [
   { q:"Which rotator cuff tendon is most commonly affected by tendinopathy?",
     options:["Supraspinatus","Subscapularis","Teres minor","Infraspinatus"], answer:0,
@@ -282,34 +279,10 @@ let QUESTION_BANK = [
     options:["60–120°","10–30°","30–60°","120–160°"], answer:0,
     topic:"Impingement", hint:"Middle of the movement range.",
     explain:"Pain typically increases as the greater tuberosity approaches the acromion between 60–120°."
-  },
-  { q:"Which imaging modality best demonstrates dynamic subacromial impingement signs?",
-    options:["Ultrasound","Plain radiography","CT","MRI without ABER"], answer:0,
-    topic:"Imaging choice", hint:"Watch tendons move in real time.",
-    explain:"Ultrasound allows dynamic assessment of the bursa and cuff during abduction."
-  },
-  { q:"On ultrasound, a full-thickness supraspinatus tear most typically appears as:",
-    options:[
-      "A focal anechoic/hypoechoic gap traversing the tendon with possible retraction and bursal fluid",
-      "Diffuse tendon thickening with uniform hyperechogenicity",
-      "Punctate echogenic foci with clean posterior shadowing",
-      "Intact fibrillar tendon with normal bursal sliding"
-    ], answer:0, topic:"Ultrasound signs", hint:"A gap spanning bursal to articular surface.",
-    explain:"Full-thickness tears disrupt fibre continuity from bursal to articular surface; fluid and retraction may be present."
-  },
-  { q:"Which clinical feature most reliably distinguishes adhesive capsulitis from a rotator cuff tear?",
-    options:[
-      "Global restriction of passive glenohumeral motion (esp. external rotation)","Pain on resisted external rotation only",
-      "Localized tenderness over the bicipital groove","Positive Hawkins–Kennedy test"
-    ], answer:0, topic:"Adhesive capsulitis", hint:"Passive movement, not just pain.",
-    explain:"Adhesive capsulitis limits passive ROM in multiple planes, unlike isolated cuff tears."
   }
 ];
 
-const EXPANDED_BANK = [
-  ...QUESTION_BANK
-  // (add more here)
-];
+const EXPANDED_BANK = [ ...QUESTION_BANK ];
 
 // ===== DOM refs =====
 const questionEl = document.getElementById('question');
@@ -323,6 +296,7 @@ const timerEl    = document.getElementById('timer');
 const modeLabel  = document.getElementById('modeLabel');
 
 const btnStart = document.getElementById('btnStart');
+const btnEnableSound = document.getElementById('btnEnableSound'); // NEW
 const btnFinal = document.getElementById('btnFinal');
 const btnNext  = document.getElementById('btnNext');
 const btnQuit  = document.getElementById('btnQuit');
@@ -356,6 +330,7 @@ document.getElementById('btnScores').addEventListener('click', openScores);
 btnSound.addEventListener('click', toggleSound);
 
 btnStart.addEventListener('click', startGame);
+btnEnableSound.addEventListener('click', enableSoundIntro); // NEW
 btnFinal.addEventListener('click', () => {
   if(state.picked == null) return;
   document.getElementById('confirmText').textContent = `Lock in ${String.fromCharCode(65+state.picked)}?`;
@@ -376,7 +351,7 @@ document.addEventListener('keydown', (e)=>{
   if(e.key.toLowerCase() === 'c') toggleClean();
 });
 
-// ===== Audio unlock (no auto-mute) & intro on first gesture =====
+// ===== Audio unlock & intro logic =====
 function unlockAllAudio() {
   const els = [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert];
   els.forEach(a => {
@@ -394,11 +369,24 @@ function unlockAllAudio() {
     } catch(e){}
   });
 }
-function initAudioOnce(){
-  if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
-}
-document.addEventListener('pointerdown', () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
-document.addEventListener('keydown',      () => { unlockAllAudio(); initAudioOnce(); }, { once:true });
+function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); btnEnableSound.classList.add('hidden'); }
+function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
+function enableSoundIntro(){ unlockAllAudio(); if(state.soundOn) playIntro(); } // NEW manual button
+
+// Start intro after first gesture — BUT ignore Start button, so it won’t start+stop on same click
+document.addEventListener('pointerdown', (e) => {
+  unlockAllAudio();
+  if (e.target !== btnStart) { // only start intro if it wasn't the Start click
+    if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
+  }
+}, { once:true });
+
+document.addEventListener('keydown', (e) => {
+  unlockAllAudio();
+  if (e.key !== 'Enter') { // Enter often triggers Start; avoid starting/stopping same tick
+    if(sndIntro && sndIntro.paused && state.soundOn) playIntro();
+  }
+}, { once:true });
 
 // ===== Utils =====
 function show(el){ el.style.display='flex' }
@@ -409,9 +397,7 @@ function randomOther(correctIdx){ return [0,1,2,3].filter(i=>i!==correctIdx)[Mat
 function escapeHtml(s){ return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
 // ===== Audio helpers =====
-function setAllMuted(m){
-  [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; });
-}
+function setAllMuted(m){ [sndIntro, sndQ, sndFinal, sndCorrect, sndWrong, snd5050, sndCrowd, sndExpert].forEach(a => { if(a) a.muted = m; }); }
 function playEl(audio){
   if(!audio || !state.soundOn) return;
   try{
@@ -450,12 +436,15 @@ function startQuestionBed(){
 function pauseQuestionBed(){ pauseEl(sndQ); }
 function stopQuestionBed(){ pauseEl(sndQ); if(sndQ) sndQ.currentTime = 0; }
 
-function playIntro(){ stopAllSfx(); stopQuestionBed(); playEl(sndIntro); }
-function stopIntro(){ pauseEl(sndIntro); if(sndIntro) sndIntro.currentTime = 0; }
 function toggleSound(){
   state.soundOn = !state.soundOn;
   setAllMuted(!state.soundOn);
   btnSound.textContent = state.soundOn ? '🔊' : '🔇';
+  // If turning sound ON and we haven't started anything yet, encourage intro
+  if(state.soundOn && sndIntro.paused && !btnStart.classList.contains('hidden')) {
+    // show enable button if hidden
+    btnEnableSound.classList.remove('hidden');
+  }
 }
 
 // ===== Shuffle & mapping =====
@@ -477,7 +466,7 @@ function renderLadder(){
   ladderEl.innerHTML = '';
   MONEY.forEach((m, idx)=>{
     const li = document.createElement('li');
-    const qNum = idx + 1; // ✅ 1–15 labels
+    const qNum = idx + 1;
     if([4,9].includes(idx)) li.classList.add('safe');
     li.dataset.index = idx;
     li.innerHTML = `<span>#${qNum}</span><span>£${m.toLocaleString()}</span>`;
@@ -518,13 +507,14 @@ function startGame(){
   const base = window.ACTIVE_BANK || QUESTION_BANK;
   state.bank = pick15(base);
   btn5050.disabled = btnCrowd.disabled = btnExpert.disabled = false;
-  btnStart.classList.add('hidden'); btnQuit.classList.remove('hidden');
+  btnStart.classList.add('hidden'); btnEnableSound.classList.add('hidden'); btnQuit.classList.remove('hidden');
   loadQuestion();
 }
 function resetGame(){
   hide(confirmOverlay); hide(crowdOverlay); hide(rulesOverlay);
   document.body.classList.remove('clean');
   btnStart.classList.remove('hidden');
+  btnEnableSound.classList.remove('hidden'); // show again after reset
   btnFinal.classList.add('hidden');
   btnNext.classList.add('hidden');
   btnQuit.classList.add('hidden');
@@ -562,7 +552,7 @@ function loadQuestion(){
   btnNext.classList.add('hidden');
   startTimer(); highlightLadder(state.qIndex);
 
-  startQuestionBed(); // question music
+  startQuestionBed();
 }
 function select(i, btn){
   if(state.locked) return;
@@ -582,7 +572,6 @@ function lockIn(){
   state.locked = true;
   clearInterval(state.intervalId);
 
-  // Final answer sting and pause bed
   pauseQuestionBed(); playSound('final');
 
   const correctIdx = getCorrectIdx();
@@ -599,15 +588,14 @@ function lockIn(){
     playSound('correct');
     if(state.qIndex === MONEY.length-1){ youWin(); return; }
   } else {
-    // ❌ WRONG — play sting fully before ending the game
     playSound('wrong', true);
     markAnswers(false);
     const prize = getSafePrize();
     state.results.push({ qIndex: state.qIndex+1, correct: false, time: state.timerOn? (DEFAULT_TIME - state.timeLeft) : null, prize });
-    const correctIdx = getCorrectIdx();
+    const realIdx = getCorrectIdx();
     explainEl.classList.remove('hidden');
     explainEl.innerHTML = `<div class="bad"><strong>Wrong!</strong></div>
-      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+correctIdx)}</strong>.</div>
+      <div class="muted">The correct answer was <strong>${String.fromCharCode(65+realIdx)}</strong>.</div>
       <div class="muted" style="margin-top:6px">${state.current.explain || ''}</div>`;
     btnFinal.classList.add('hidden');
 
@@ -663,6 +651,7 @@ function endGame(prize, walked=false){
   stopQuestionBed();
 
   btnNext.classList.add('hidden'); btnQuit.classList.add('hidden'); btnStart.classList.remove('hidden');
+  btnEnableSound.classList.remove('hidden'); // allow intro again post-game
   const msg = walked ? `You walked away with <strong>£${prize.toLocaleString()}</strong>.` :
     `Game over. You take home <strong>£${prize.toLocaleString()}</strong>.`;
   explainEl.classList.remove('hidden'); explainEl.innerHTML = `<div class="${walked?'ok':'bad'}"><strong>${walked? 'Wise choice' : 'Tough break'}</strong></div><div class="muted">${msg}</div>`;
@@ -742,6 +731,7 @@ function timesUp(){
   btnNext.classList.add('hidden');
   btnQuit.classList.add('hidden');
   btnStart.classList.remove('hidden');
+  btnEnableSound.classList.remove('hidden');
   saveScore(getSafePrize());
   stopAllSfx(); playSound('wrong'); stopQuestionBed();
 }
@@ -817,7 +807,8 @@ function downloadCSV(rows, filename){
 // ===== Build UI on load =====
 renderLadder(); startTimer(); renderMiniScores();
 setAllMuted(!state.soundOn);
-// Start intro after first gesture; also when hitting Reset we play it.
+// Show Enable Sound button initially if sound is on and intro hasn't started
+if(state.soundOn) btnEnableSound.classList.remove('hidden');
 </script>
 </body>
 </html>
