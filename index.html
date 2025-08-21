@@ -422,18 +422,28 @@
 
           sounds.correct();
           setTimeout(()=>{ state.locking=false; disableOptions(false); nextQuestion(); }, 1400);
-        }else{
-          selectedEl.classList.add('wrong');
-          const corrEl = $(`#opts .option[data-idx="${correct}"]`); if(corrEl) corrEl.classList.add('correct');
-          sounds.wrong();
-          const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex);
-          const amount = (safe==null) ? 0 : ladderAmts[safe];
-          setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
-          state.locking=false;
-          state.ended=true; $('#walkBtn').disabled = true; renderLifelines(); stopAllAudio();
-          // remove current highlight
-          $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
-        }
+    }else{
+  selectedEl.classList.add('wrong');
+  const corrEl = $(`#opts .option[data-idx="${correct}"]`); 
+  if(corrEl) corrEl.classList.add('correct');
+
+  // Let wrong.mp3 play to completion
+  const wrongEl = document.getElementById('wrongAudio');
+  if (wrongEl) wrongEl.addEventListener('ended', ()=> stopAllAudio(), { once:true });
+  sounds.wrong(); // <-- plays audio/wrong.mp3
+
+  const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex);
+  const amount = (safe==null) ? 0 : ladderAmts[safe];
+  setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
+
+  state.locking=false;
+  state.ended=true;
+  $('#walkBtn').disabled = true;
+  renderLifelines();
+
+  // Do NOT stopAllAudio() here — we wait for wrong.mp3 to finish.
+  $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
+}
       }, 800);
     }
 
