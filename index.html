@@ -244,6 +244,16 @@
     function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 2200); }
     const currentWinnings = () => state.winningsIndex>=0 ? ladderAmts[state.winningsIndex] : 0;
 
+    // NEW: randomly move the correct answer to any slot and update q.c
+    function randomiseCorrectPosition(q){
+      const to = rand(q.a.length);
+      if(to !== q.c){
+        [q.a[q.c], q.a[to]] = [q.a[to], q.a[q.c]];
+        q.c = to;
+      }
+      return q;
+    }
+
     function buildLadder(){
       const lad = $('#ladder'); lad.innerHTML='';
       ladderAmts.slice().reverse().forEach((amt, iRev)=>{
@@ -352,7 +362,8 @@
       buildLadder();
       renderLifelines();
       updateWalkBtn();
-      state.order = shuffle(questionsBank).slice(0,15);
+      // DEEP CLONE so we can safely mutate answers per game
+      state.order = shuffle(questionsBank).slice(0,15).map(q => ({ ...q, a: [...q.a] }));
       nextQuestion();
       if(state.soundEnabled){ sounds.question(); }
     }
@@ -373,7 +384,11 @@
         $('#walkBtn').disabled = true;
         return;
       }
+
       const qObj = state.order[state.qIndex];
+      // NEW: randomise the position of the correct answer each time we show a question
+      randomiseCorrectPosition(qObj);
+
       $('#q').textContent = `Q${state.qIndex+1}. ${qObj.q}`;
       const opts = $('#opts'); opts.innerHTML='';
       qObj.a.forEach((text, i)=>{
@@ -421,71 +436,71 @@
           }
 
           const proceedNext = () => { 
-  state.locking = false; 
-  disableOptions(false); 
-  nextQuestion(); 
-};
+            state.locking = false; 
+            disableOptions(false); 
+            nextQuestion(); 
+          };
 
-sounds.correct();
+          sounds.correct();
 
-const correctEl = document.getElementById('correctAudio');
-if (state.soundEnabled && correctEl) {
-  // Wait for the full clip
-  correctEl.addEventListener('ended', proceedNext, { once: true });
-} else {
-  // Fallback if audio can't play (muted/autoplay blocked)
-  setTimeout(proceedNext, 1200);
-}
-    }else{
-  selectedEl.classList.add('wrong');
-  const corrEl = $(`#opts .option[data-idx="${correct}"]`); 
-  if(corrEl) corrEl.classList.add('correct');
+          const correctEl = document.getElementById('correctAudio');
+          if (state.soundEnabled && correctEl) {
+            // Wait for the full clip
+            correctEl.addEventListener('ended', proceedNext, { once: true });
+          } else {
+            // Fallback if audio can't play (muted/autoplay blocked)
+            setTimeout(proceedNext, 1200);
+          }
+        }else{
+          selectedEl.classList.add('wrong');
+          const corrEl = $(`#opts .option[data-idx="${correct}"]`); 
+          if(corrEl) corrEl.classList.add('correct');
 
-  // Let wrong.mp3 play to completion
-  const wrongEl = document.getElementById('wrongAudio');
-  if (wrongEl) wrongEl.addEventListener('ended', ()=> stopAllAudio(), { once:true });
-  sounds.wrong(); // <-- plays audio/wrong.mp3
+          // Let wrong.mp3 play to completion
+          const wrongEl = document.getElementById('wrongAudio');
+          if (wrongEl) wrongEl.addEventListener('ended', ()=> stopAllAudio(), { once:true });
+          sounds.wrong(); // <-- plays audio/wrong.mp3
 
-  const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex);
-  const amount = (safe==null) ? 0 : ladderAmts[safe];
-  setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
+          const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex);
+          const amount = (safe==null) ? 0 : ladderAmts[safe];
+          setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
 
-  state.locking=false;
-  state.ended=true;
-  $('#walkBtn').disabled = true;
-  renderLifelines();
+          state.locking=false;
+          state.ended=true;
+          $('#walkBtn').disabled = true;
+          renderLifelines();
 
-  // Do NOT stopAllAudio() here — we wait for wrong.mp3 to finish.
-  $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
-}
+          // Do NOT stopAllAudio() here — we wait for wrong.mp3 to finish.
+          $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
+        }
       }, 800);
     }
 
     /* ===================== Walk Away ===================== */
-   function walkAway(){
-  if(state.qIndex<0 || state.ended) return;
-  state.ended = true;
+    function walkAway(){
+      if(state.qIndex<0 || state.ended) return;
+      state.ended = true;
 
-  const amount = currentWinnings();
-  setStatus(`You chose to <b>walk away</b> with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to play again.`);
+      const amount = currentWinnings();
+      setStatus(`You chose to <b>walk away</b> with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to play again.`);
 
-  // lock the UI
-  $('#lockBtn').disabled = true; $('#walkBtn').disabled = true;
-  disableOptions(true);
-  renderLifelines();
-  $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
+      // lock the UI
+      $('#lockBtn').disabled = true; $('#walkBtn').disabled = true;
+      disableOptions(true);
+      renderLifelines();
+      $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
 
-  // 🎵 celebration: play correct.mp3 to completion
-  stopTag('questionAudio');          // ensure bg loop won't resume
-  const el = document.getElementById('correctAudio');
-  sounds.correct();                  // plays audio/correct.mp3 (via playSfx)
+      // 🎵 celebration: play correct.mp3 to completion
+      stopTag('questionAudio');          // ensure bg loop won't resume
+      const el = document.getElementById('correctAudio');
+      sounds.correct();                  // plays audio/correct.mp3 (via playSfx)
 
-  if (state.soundEnabled && el) {
-    el.addEventListener('ended', ()=> stopAllAudio(), { once:true });
-  } else {
-    setTimeout(()=> stopAllAudio(), 1200); // fallback if audio can't fire 'ended'
-  }
-}
+      if (state.soundEnabled && el) {
+        el.addEventListener('ended', ()=> stopAllAudio(), { once:true });
+      } else {
+        setTimeout(()=> stopAllAudio(), 1200); // fallback if audio can't fire 'ended'
+      }
+    }
 
     /* ===================== Lifelines ===================== */
     function use5050(){
