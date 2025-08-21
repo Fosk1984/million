@@ -462,18 +462,30 @@ if (state.soundEnabled && correctEl) {
     }
 
     /* ===================== Walk Away ===================== */
-    function walkAway(){
-      if(state.qIndex<0 || state.ended) return;
-      state.ended = true;
-      const amount = currentWinnings();
-      setStatus(`You chose to <b>walk away</b> with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to play again.`);
-      stopAllAudio();
-      $('#lockBtn').disabled = true; $('#walkBtn').disabled = true;
-      disableOptions(true);
-      renderLifelines();
-      // clear 'current' highlight since game is over
-      $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
-    }
+   function walkAway(){
+  if(state.qIndex<0 || state.ended) return;
+  state.ended = true;
+
+  const amount = currentWinnings();
+  setStatus(`You chose to <b>walk away</b> with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to play again.`);
+
+  // lock the UI
+  $('#lockBtn').disabled = true; $('#walkBtn').disabled = true;
+  disableOptions(true);
+  renderLifelines();
+  $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
+
+  // 🎵 celebration: play correct.mp3 to completion
+  stopTag('questionAudio');          // ensure bg loop won't resume
+  const el = document.getElementById('correctAudio');
+  sounds.correct();                  // plays audio/correct.mp3 (via playSfx)
+
+  if (state.soundEnabled && el) {
+    el.addEventListener('ended', ()=> stopAllAudio(), { once:true });
+  } else {
+    setTimeout(()=> stopAllAudio(), 1200); // fallback if audio can't fire 'ended'
+  }
+}
 
     /* ===================== Lifelines ===================== */
     function use5050(){
