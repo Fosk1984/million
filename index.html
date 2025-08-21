@@ -433,15 +433,17 @@
     }
 
     function nextQuestion(){
-      if(state.ended) return;
-      state.qIndex++;
-      if(state.qIndex >= state.order.length){
-        setStatus(`<b>Congratulations!</b> You won <b>£${ladderAmts[state.winningsIndex]?.toLocaleString()||'1,000,000'}</b>. Click <b>Start Game</b> to play again.`);
-        stopAllAudio();
-        $('#walkBtn').disabled = true;
-        return;
-      }
-     const qObj = state.order[state.qIndex];
+   if(state.qIndex >= state.order.length){
+  setStatus(`<b>Congratulations!</b> You won <b>£${ladderAmts[state.winningsIndex]?.toLocaleString()||'1,000,000'}</b>. Click <b>Start Game</b> to play again.`);
+  stopAllAudio();
+  $('#walkBtn').disabled = true;
+  return;
+}
+
+state.selected = null;        // ← add this line here
+
+const qObj = state.order[state.qIndex];
+
 
 // Make a shuffled permutation of indices [0,1,2,3]
 const perm = shuffle([0,1,2,3]);
@@ -476,68 +478,70 @@ displayAnswers.forEach((text, i)=>{         // i is the *displayed* index now
 
     function disableOptions(dis=true){ $$('#opts .option').forEach(o=> o.style.pointerEvents = dis?'none':'auto'); }
 
-    function lockAnswer(){
-      if(state.selected==null || state.ended) return;
-      state.locking = true; disableOptions(true);
-      stopTag('questionAudio'); // ensure bg is paused before sfx
-      const qObj = state.order[state.qIndex];
-      const correct = state.currentCorrect;
+function lockAnswer(){
+  if(state.selected==null || state.ended) return;
+  state.locking = true; 
+  disableOptions(true);
+  stopTag('questionAudio'); // pause bg before SFX
+
+  const correct = state.currentCorrect;
+
+  // ✅ define selectedEl (was missing)
+  const selectedEl = $(`#opts .option[data-idx="${state.selected}"]`);
+  if(!selectedEl) return;
+
+  setStatus('Final answer locked...');
+
+  setTimeout(()=>{
+    if(state.selected === correct){
+      selectedEl.classList.add('correct');
+      state.winningsIndex++;
+      highlightLadder();
+
+      const wonAmt = ladderAmts[state.winningsIndex];
+      if (safeIndices.includes(state.winningsIndex)) {
+        setStatus(`<b>Correct!</b> You have won £${wonAmt.toLocaleString()}. <span style="color:var(--acc2);font-weight:800">Safety net reached — guaranteed at least £${wonAmt.toLocaleString()}.</span>`);
+      } else {
+        setStatus(`<b>Correct!</b> You have won £${wonAmt.toLocaleString()}.`);
+      }
+
+      // Play correct.mp3 to completion, then move on
+      const proceedNext = () => { 
+        state.locking = false; 
+        disableOptions(false); 
+        nextQuestion(); 
+      };
+      sounds.correct();
+      const correctEl = document.getElementById('correctAudio');
+      if (state.soundEnabled && correctEl) {
+        correctEl.addEventListener('ended', proceedNext, { once: true });
+      } else {
+        setTimeout(proceedNext, 1200);
+      }
+
+    } else {
+      selectedEl.classList.add('wrong');
       const corrEl = $(`#opts .option[data-idx="${correct}"]`);
-      if(!selectedEl) return;
-      setStatus('Final answer locked...');
-      setTimeout(()=>{
-        if(state.selected === correct){
-          selectedEl.classList.add('correct');
-          state.winningsIndex++;
-          highlightLadder();
+      if(corrEl) corrEl.classList.add('correct');
 
-          const wonAmt = ladderAmts[state.winningsIndex];
-          if (safeIndices.includes(state.winningsIndex)) {
-            setStatus(`<b>Correct!</b> You have won £${wonAmt.toLocaleString()}. <span style="color:var(--acc2);font-weight:800">Safety net reached — guaranteed at least £${wonAmt.toLocaleString()}.</span>`);
-          } else {
-            setStatus(`<b>Correct!</b> You have won £${wonAmt.toLocaleString()}.`);
-          }
+      // Let wrong.mp3 finish
+      const wrongEl = document.getElementById('wrongAudio');
+      if (wrongEl) wrongEl.addEventListener('ended', ()=> stopAllAudio(), { once:true });
+      sounds.wrong();
 
-          const proceedNext = () => { 
-  state.locking = false; 
-  disableOptions(false); 
-  nextQuestion(); 
-};
+      const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex);
+      const amount = (safe==null) ? 0 : ladderAmts[safe];
+      setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
 
-sounds.correct();
-
-const correctEl = document.getElementById('correctAudio');
-if (state.soundEnabled && correctEl) {
-  // Wait for the full clip
-  correctEl.addEventListener('ended', proceedNext, { once: true });
-} else {
-  // Fallback if audio can't play (muted/autoplay blocked)
-  setTimeout(proceedNext, 1200);
-}
-    }else{
-  selectedEl.classList.add('wrong');
-  const corrEl = $(`#opts .option[data-idx="${correct}"]`); 
-  if(corrEl) corrEl.classList.add('correct');
-
-  // Let wrong.mp3 play to completion
-  const wrongEl = document.getElementById('wrongAudio');
-  if (wrongEl) wrongEl.addEventListener('ended', ()=> stopAllAudio(), { once:true });
-  sounds.wrong(); // <-- plays audio/wrong.mp3
-
-  const safe = safeIndices.slice().reverse().find(i=> i<=state.winningsIndex);
-  const amount = (safe==null) ? 0 : ladderAmts[safe];
-  setStatus(`<b>Incorrect.</b> You leave with <b>£${amount.toLocaleString()}</b>. Click <b>Start Game</b> to try again.`);
-
-  state.locking=false;
-  state.ended=true;
-  $('#walkBtn').disabled = true;
-  renderLifelines();
-
-  // Do NOT stopAllAudio() here — we wait for wrong.mp3 to finish.
-  $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
-}
-      }, 800);
+      state.locking=false;
+      state.ended=true;
+      $('#walkBtn').disabled = true;
+      renderLifelines();
+      $$('#ladder .rung').forEach(r=> r.classList.remove('current'));
     }
+  }, 800);
+}
+
 
     /* ===================== Walk Away ===================== */
    function walkAway(){
@@ -566,12 +570,23 @@ if (state.soundEnabled && correctEl) {
 }
 
     /* ===================== Lifelines ===================== */
-    function use5050(){
-      if(state.used.fifty || state.qIndex<0 || state.ended) return; state.used.fifty=true; renderLifelines(); sounds.lifeline();
-      const correct = state.currentCorrect;
-      const wrongs = [0,1,2,3].filter(i=>i!==correct);
-      toRemove.forEach(i=>{ const el = $(`#opts .option[data-idx="${i}"]`); if(el) el.classList.add('eliminated'); });
-    }
+  function use5050(){
+  if(state.used.fifty || state.qIndex<0 || state.ended) return;
+  state.used.fifty = true; 
+  renderLifelines(); 
+  sounds.lifeline();
+
+  const correct = state.currentCorrect;
+  const wrongs = [0,1,2,3].filter(i=> i !== correct);
+
+  // ✅ create toRemove
+  const toRemove = shuffle(wrongs).slice(0,2);
+
+  toRemove.forEach(i=>{
+    const el = $(`#opts .option[data-idx="${i}"]`);
+    if(el) el.classList.add('eliminated');
+  });
+}
 
     function useAudience(){
       if(state.used.audience || state.qIndex<0 || state.ended) return; state.used.audience=true; renderLifelines(); sounds.lifeline();
