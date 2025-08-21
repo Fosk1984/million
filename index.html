@@ -420,8 +420,22 @@
             setStatus(`<b>Correct!</b> You have won £${wonAmt.toLocaleString()}.`);
           }
 
-          sounds.correct();
-          setTimeout(()=>{ state.locking=false; disableOptions(false); nextQuestion(); }, 1400);
+          const proceedNext = () => { 
+  state.locking = false; 
+  disableOptions(false); 
+  nextQuestion(); 
+};
+
+sounds.correct();
+
+const correctEl = document.getElementById('correctAudio');
+if (state.soundEnabled && correctEl) {
+  // Wait for the full clip
+  correctEl.addEventListener('ended', proceedNext, { once: true });
+} else {
+  // Fallback if audio can't play (muted/autoplay blocked)
+  setTimeout(proceedNext, 1200);
+}
     }else{
   selectedEl.classList.add('wrong');
   const corrEl = $(`#opts .option[data-idx="${correct}"]`); 
