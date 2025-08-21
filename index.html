@@ -297,6 +297,7 @@
       qIndex: -1,
       winningsIndex: -1,
       selected: null,
+      currentCorrect: null,
       used: { fifty:false, audience:false, phone:false },
       soundEnabled: false,
       locking: false,
@@ -440,15 +441,25 @@
         $('#walkBtn').disabled = true;
         return;
       }
-      const qObj = state.order[state.qIndex];
-      $('#q').textContent = `Q${state.qIndex+1}. ${qObj.q}`;
-      const opts = $('#opts'); opts.innerHTML='';
-      qObj.a.forEach((text, i)=>{
-        const btn = document.createElement('div'); btn.className='option'; btn.dataset.idx=i;
-        btn.innerHTML = `<div class="badge">${'ABCD'[i]}</div><div>${text}</div>`;
-        btn.addEventListener('click', ()=>selectOption(i, btn));
-        opts.append(btn);
-      });
+     const qObj = state.order[state.qIndex];
+
+// Make a shuffled permutation of indices [0,1,2,3]
+const perm = shuffle([0,1,2,3]);
+// Build the displayed answers using the permutation
+const displayAnswers = perm.map(i => qObj.a[i]);
+// Where did the original correct index end up?
+state.currentCorrect = perm.indexOf(qObj.c);
+
+// Render options in the new order
+const opts = $('#opts'); opts.innerHTML='';
+displayAnswers.forEach((text, i)=>{         // i is the *displayed* index now
+  const btn = document.createElement('div'); 
+  btn.className='option'; 
+  btn.dataset.idx=i;                         // displayed index
+  btn.innerHTML = `<div class="badge">${'ABCD'[i]}</div><div>${text}</div>`;
+  btn.addEventListener('click', ()=>selectOption(i, btn));
+  opts.append(btn);
+});
       $('#lockBtn').disabled = true; $('#walkBtn').disabled=false;
       setStatus('Pick an option, or <b>Walk Away</b>.');
       highlightLadder();
@@ -470,8 +481,8 @@
       state.locking = true; disableOptions(true);
       stopTag('questionAudio'); // ensure bg is paused before sfx
       const qObj = state.order[state.qIndex];
-      const correct = qObj.c;
-      const selectedEl = $(`#opts .option[data-idx="${state.selected}"]`);
+      const correct = state.currentCorrect;
+      const corrEl = $(`#opts .option[data-idx="${correct}"]`);
       if(!selectedEl) return;
       setStatus('Final answer locked...');
       setTimeout(()=>{
@@ -557,14 +568,14 @@ if (state.soundEnabled && correctEl) {
     /* ===================== Lifelines ===================== */
     function use5050(){
       if(state.used.fifty || state.qIndex<0 || state.ended) return; state.used.fifty=true; renderLifelines(); sounds.lifeline();
-      const qObj = state.order[state.qIndex]; const correct = qObj.c;
-      const wrongs = [0,1,2,3].filter(i=>i!==correct); const toRemove = shuffle(wrongs).slice(0,2);
+      const correct = state.currentCorrect;
+      const wrongs = [0,1,2,3].filter(i=>i!==correct);
       toRemove.forEach(i=>{ const el = $(`#opts .option[data-idx="${i}"]`); if(el) el.classList.add('eliminated'); });
     }
 
     function useAudience(){
       if(state.used.audience || state.qIndex<0 || state.ended) return; state.used.audience=true; renderLifelines(); sounds.lifeline();
-      const qObj = state.order[state.qIndex]; const correct = qObj.c;
+      const correct = state.currentCorrect;
       let base = [rand(40)+10, rand(40)+10, rand(40)+10, rand(40)+10];
       const sum = base.reduce((a,b)=>a+b,0); base = base.map(v=> Math.round(v*100/sum));
       const maxIdx = base.indexOf(Math.max(...base));
@@ -581,7 +592,7 @@ if (state.soundEnabled && correctEl) {
 
     function usePhone(){
       if(state.used.phone || state.qIndex<0 || state.ended) return; state.used.phone=true; renderLifelines(); sounds.lifeline();
-      const correctLetter = 'ABCD'[state.order[state.qIndex].c];
+      const correctLetter = 'ABCD'[state.currentCorrect];
       const confident = Math.random()<0.75;
       const guess = confident? correctLetter : 'ABCD'.replace(correctLetter,'')[rand(3)];
       const confidence = confident? (70+rand(26)) : (40+rand(20));
