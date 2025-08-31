@@ -145,6 +145,24 @@
   </noscript>
 
   <script>
+
+<script>
+    const bgMusic = document.getElementById("bgMusic");
+    const startBtn = document.getElementById("startBtn");
+
+    // Try to autoplay immediately
+    window.addEventListener("load", () => {
+      bgMusic.play().catch(err => {
+        console.warn("Autoplay blocked until interaction:", err);
+      });
+    });
+
+    // Stop looping music when Start is pressed
+    startBtn.addEventListener("click", () => {
+      bgMusic.pause();
+      bgMusic.currentTime = 0; // reset back to start
+    });
+    
     // Allow setting background and target via query params: ?bg=...&to=...
     (function(){
       try{
