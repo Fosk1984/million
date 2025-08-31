@@ -129,28 +129,30 @@
   </audio>
 
   <!-- 🔊 Hint -->
-  <div id="soundHint">🔊 Tap anywhere to enable sound</div>
-
   <main class="stage" id="stage">
-    <div class="center">
-      <a class="play-btn" id="play" href="game.html" aria-label="Play">
-        <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
-          <defs>
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="3" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <circle cx="50" cy="50" r="46" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.12)" stroke-width="2" />
-          <polygon points="40,32 72,50 40,68" fill="white" filter="url(#glow)"/>
-        </svg>
-        <span class="sr-only">Play</span>
-      </a>
-      <div class="label">Play</div>
-    </div>
+<div class="center">
+  <a class="play-btn" id="play" href="game.html" aria-label="Play">
+    <!-- Play icon (triangle) -->
+    <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+      </defs>
+      <circle cx="50" cy="50" r="46" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.12)" stroke-width="2" />
+      <polygon points="40,32 72,50 40,68" fill="white" filter="url(#glow)"/>
+    </svg>
+    <span class="sr-only">Play</span>
+  </a>
+  <div class="label">Play</div>
+  <!-- 🔊 Banner goes here -->
+  <div id="soundHint">🔊 Tap anywhere to enable sound</div>
+</div>
+
   </main>
 
   <noscript>
