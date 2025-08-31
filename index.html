@@ -95,19 +95,21 @@
       user-select: none;
     }
 
-    /* 🔊 Pulsing sound hint */
-    #soundHint {
-      position: fixed;
-      inset: auto 0 10% 0;
-      text-align: center;
-      font-size: 1rem;
-      color: white;
-      text-shadow: 0 0 8px rgba(255,255,255,.9), 0 0 12px rgba(0,128,255,.8);
-      opacity: .85;
-      pointer-events: none;
-      animation: pulseGlow 1.6s infinite;
-      transition: opacity .6s ease;
-    }
+   /* 🔊 Pulsing sound hint */
+#soundHint {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  font-size: 1rem;
+  color: white;
+  text-shadow: 0 0 8px rgba(255,255,255,.9), 0 0 12px rgba(0,128,255,.8);
+  opacity: .85;
+  pointer-events: none;
+  animation: pulseGlow 1.6s infinite;
+  transition: opacity .6s ease;
+  z-index: 9999; /* make sure it's above background */
+}
+
 
     @keyframes pulseGlow {
       0%   { text-shadow: 0 0 6px rgba(255,255,255,.8), 0 0 10px rgba(0,128,255,.7); }
