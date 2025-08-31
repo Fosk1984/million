@@ -148,46 +148,36 @@
 
 <script>
   const bgMusic = document.getElementById("bgMusic");
-  const playBtn = document.getElementById("play");
+  const playBtn  = document.getElementById("play");
 
-  // Try to autoplay immediately
+  // Try to start immediately (will play muted due to policies)
   window.addEventListener("load", () => {
-    bgMusic.play().catch(err => {
-      console.warn("Autoplay blocked until interaction:", err);
+    bgMusic.play().catch(() => {
+      // harmless — we’ll recover on first interaction
     });
   });
+
+  // On first user gesture: unmute and ensure playback
+  const unlockAudio = () => {
+    // ensure the element is actually playing, then unmute
+    bgMusic.play().finally(() => {
+      bgMusic.muted = false;
+    });
+    // remove all unlock listeners
+    window.removeEventListener("pointerdown", unlockAudio, { passive: true });
+    window.removeEventListener("keydown", unlockAudio, { passive: true });
+    window.removeEventListener("touchstart", unlockAudio, { passive: true });
+  };
+  window.addEventListener("pointerdown", unlockAudio, { once: true, passive: true });
+  window.addEventListener("keydown",      unlockAudio, { once: true, passive: true });
+  window.addEventListener("touchstart",   unlockAudio, { once: true, passive: true });
 
   // Stop looping music when Play is pressed
   playBtn.addEventListener("click", () => {
     bgMusic.pause();
-    bgMusic.currentTime = 0; // reset back to start
+    bgMusic.currentTime = 0;
   });
-
-  // Allow setting background and target via query params: ?bg=...&to=...
-  (function(){
-    try{
-      const params = new URLSearchParams(location.search);
-      const bg = params.get('bg');
-      const to = params.get('to');
-      if(bg){
-        const url = decodeURIComponent(bg);
-        document.documentElement.style.setProperty('--bg-url', `url('${url}')`);
-      }
-      if(to){
-        const a = document.getElementById('play');
-        a.setAttribute('href', decodeURIComponent(to));
-      }
-    }catch(e){ /* ignore */ }
-  })();
-
-  // Optional: preconnect for faster asset fetch when user clicks Play
-  (function(){
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'document';
-    link.href = 'index.html';
-    document.head.appendChild(link);
-  })();
 </script>
+
 </body>
 </html>
