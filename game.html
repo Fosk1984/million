@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Launch</title>
+  <meta name="description" content="Minimal landing page with a fullscreen background and a centered Play button." />
+  <link rel="icon" href="data:,"><!-- avoid 404 on GitHub Pages -->
+  <style>
+    :root{
+      /* Change this to your image path or pass ?bg=/path/to.jpg in the URL */
+      --bg-url: url('./images/Backgroundmil.png');
+      --ink: #ffffff;
+      --ink-dim: rgba(255,255,255,.8);
+      --shadow: rgba(0,0,0,.5);
+      --shadow-strong: rgba(0,0,0,.65);
+      --accent: #6ac2ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0; font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--ink);
+      background:#000;
+    }
+
+    /* Fullscreen background */
+    .stage{
+      position:relative;
+      min-height:100dvh; /* accounts for mobile UI */
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      isolation:isolate; /* keep overlay under content */
+    }
+    .stage::before{
+      content:"";
+      position:absolute; inset:0;
+      background-image: var(--bg-url);
+      background-size: contain; background-position: center; background-repeat: no-repeat;
+      transform: scale(1.02); /* subtle overscan to avoid edges */
+      z-index:-2;
+      will-change: transform;
+    }
+    /* Subtle dark overlay for legibility */
+    .stage::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(120% 120% at 50% 50%, rgba(0,0,0,.15), rgba(0,0,0,.55) 60%, rgba(0,0,0,.75));
+      z-index:-1;
+    }
+
+    /* Center content wrapper */
+    .center{
+      display:grid; gap:1rem; place-items:center; text-align:center;
+      padding: 2rem;
+      filter: drop-shadow(0 10px 30px var(--shadow));
+    }
+
+    /* Play button */
+    .play-btn{
+      -webkit-tap-highlight-color: transparent;
+      appearance:none; text-decoration:none; border:0; cursor:pointer;
+      width: 140px; height: 140px; border-radius: 999px;
+      display:grid; place-items:center;
+      background: linear-gradient(180deg, var(--shadow-strong), rgba(0,0,0,.2));
+      backdrop-filter: blur(6px) saturate(140%);
+      box-shadow:
+        0 10px 25px rgba(0,0,0,.45),
+        inset 0 0 0 2px rgba(255,255,255,.08),
+        inset 0 0 30px rgba(255,255,255,.08);
+      transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+    }
+    .play-btn:hover{ transform: translateY(-2px) scale(1.02); }
+    .play-btn:active{ transform: translateY(0) scale(.98); }
+    .play-btn:focus-visible{ outline: 3px solid var(--accent); outline-offset: 4px; }
+
+    .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+    /* Triangle icon */
+    .play-btn svg{ width: 80%; height: 80%; display:block; }
+
+    /* Optional label under the button */
+    .label{
+      font-size: clamp(1.05rem, 1.5vw + .5rem, 1.5rem);
+      color: var(--ink-dim);
+      letter-spacing: .02em;
+      text-shadow: 0 2px 10px rgba(0,0,0,.6);
+      user-select: none;
+    }
+
+    /* Footer hint */
+    .hint{
+      position: absolute; inset:auto 0 1rem; text-align:center; font-size:.85rem; color:rgba(255,255,255,.7);
+      text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+
+    @media (max-width: 480px){
+      .play-btn{ width: 110px; height: 110px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" id="stage">
+    <div class="center">
+      <!-- Set this href to where your app/game lives (e.g., index.html or game.html) -->
+      <a class="play-btn" id="play" href="game.html" aria-label="Play">
+        <!-- Play icon (triangle) -->
+        <svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+          <defs>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <circle cx="50" cy="50" r="46" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.12)" stroke-width="2" />
+          <polygon points="40,32 72,50 40,68" fill="white" filter="url(#glow)"/>
+        </svg>
+        <span class="sr-only">Play</span>
+      </a>
+      <div class="label">Play</div>
+    </div>
+
+  <noscript>
+    <div style="position:fixed;inset:auto 0 0 0;padding:1rem;text-align:center;background:rgba(0,0,0,.6);color:white">JavaScript is off. <a href="index.html" style="color:#fff;text-decoration:underline">Continue</a>.</div>
+  </noscript>
+
+  <script>
+    // Allow setting background and target via query params: ?bg=...&to=...
+    (function(){
+      try{
+        const params = new URLSearchParams(location.search);
+        const bg = params.get('bg');
+        const to = params.get('to');
+        if(bg){
+          // decode in case the URL is percent-encoded
+          const url = decodeURIComponent(bg);
+          document.documentElement.style.setProperty('--bg-url', `url('${url}')`);
+        }
+        if(to){
+          const a = document.getElementById('play');
+          a.setAttribute('href', decodeURIComponent(to));
+        }
+      }catch(e){ /* ignore */ }
+    })();
+
+    // Optional: preconnect for faster asset fetch when user clicks Play
+    (function(){
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'document';
+      link.href = 'index.html';
+      document.head.appendChild(link);
+    })();
+  </script>
+</body>
+</html>
