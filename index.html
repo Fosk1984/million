@@ -97,18 +97,16 @@
 
    /* 🔊 Pulsing sound hint */
 #soundHint {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  font-size: 1rem;
+  font-size: 1.4rem;
+  font-weight: bold;
   color: white;
-  text-shadow: 0 0 8px rgba(255,255,255,.9), 0 0 12px rgba(0,128,255,.8);
-  opacity: .85;
+  text-shadow: 0 0 8px rgba(255,255,255,.9), 0 0 14px rgba(0,128,255,.8);
+  opacity: .9;
   pointer-events: none;
   animation: pulseGlow 1.6s infinite;
   transition: opacity .6s ease;
-  z-index: 9999; /* make sure it's above background */
 }
+
 
 
     @keyframes pulseGlow {
