@@ -24,14 +24,16 @@
     }
 
     /* Fullscreen background */
-    .stage{
-      position:relative;
-      min-height:100dvh;
-      display:grid;
-      place-items:center;
-      overflow:hidden;
-      isolation:isolate;
-    }
+   .stage{
+  position:relative;
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  isolation:isolate;
+}
     .stage::before{
       content:"";
       position:absolute; inset:0;
@@ -49,11 +51,15 @@
       z-index:-1;
     }
 
-    .center{
-      display:grid; gap:1rem; place-items:center; text-align:center;
-      padding: 2rem;
-      filter: drop-shadow(0 10px 30px var(--shadow));
-    }
+ .center{
+  display:grid;
+  gap:1rem;
+  place-items:center;
+  text-align:center;
+  padding:2rem;
+  margin-top:60px;   /* pushes button below favourites bar */
+  filter: drop-shadow(0 10px 30px var(--shadow));
+}
 
     /* Play button */
     .play-btn{
